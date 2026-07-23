@@ -9,7 +9,7 @@
 ## IconTexture: Interface\AddOns\NerzorsBlacklistKeeper_Data\Textures\NerzorsBlacklistKeeper_Midnight_Logo
 ## Category: Social
 ## X-Curse-Project-ID: 1553125
-## X-Wago-ID: nKW3aZKE
+## X-Wago-ID: 96EL1PNg
 
 # Includes
 Core\Core.xml
