@@ -1,0 +1,22 @@
+# BigWigs Packager output (produced by the Release workflow / manual runs)
+.release/
+
+# Local buildRelease.js output (staging tree + zip)
+/github_Release/
+
+# Local dev scripts (kept out of the shipped repo — regenerate locally as needed)
+/scripts/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+
+# Stray WoW dev artifacts
+*.wtf.bak

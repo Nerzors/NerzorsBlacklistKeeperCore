@@ -1,0 +1,20 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <!-- ListWindow shell + the Blacklist tab (split across Blacklist/).
+       Order:
+       1. ListWindow.lua       the window shell + tab registry/bar.
+       2. Blacklist/BlacklistTab.lua  module bootstrap, tab-frame methods,
+                                      OnEnable (registers itself with the shell).
+       3. Blacklist/Columns.lua  data/sort/column helpers on the module.
+       4. Blacklist/Rows.lua     cell factories + row builder on the module.
+       5. Blacklist/Dialog.lua   the rich add/edit dialog + show* methods.
+       Files 3-5 attach to the module created in file 2; their functions are
+       only invoked at runtime so load order within 2-5 is loose. -->
+  <Script file="ListWindow.lua"/>
+  <Script file="Blacklist\BlacklistTab.lua"/>
+  <Script file="Blacklist\Columns.lua"/>
+  <Script file="Blacklist\Rows.lua"/>
+  <Script file="Blacklist\Dialog.lua"/>
+</Ui>

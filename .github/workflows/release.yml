@@ -1,0 +1,41 @@
+name: Release
+
+# Fires when you push a version tag, e.g.
+#   git tag 2.0.0-dev.0.42.0 && git push origin 2.0.0-dev.0.42.0
+# The BigWigs packager reads .pkgmeta, builds the zip, attaches it to a
+# GitHub Release and uploads it to CurseForge + Wago using the project IDs
+# from the main TOC (Core-Only: Curse 1553125 / Wago nKW3aZKE).
+#
+# One-time setup - repo Settings → Secrets and variables → Actions:
+#   CF_API_KEY       CurseForge  → Account → API Tokens
+#   WAGO_API_TOKEN   Wago.io     → Account → API
+# GITHUB_TOKEN is provided automatically.
+# Missing a secret doesn't fail the run - that platform is simply skipped.
+
+on:
+  push:
+    tags:
+      - '**'
+  # Lets you re-run a release by hand from the Actions tab.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # The packager derives the changelog from the git history, so it
+          # needs the full clone, not a shallow one.
+          fetch-depth: 0
+
+      - name: Package and release
+        uses: BigWigsMods/packager@master
+        env:
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}

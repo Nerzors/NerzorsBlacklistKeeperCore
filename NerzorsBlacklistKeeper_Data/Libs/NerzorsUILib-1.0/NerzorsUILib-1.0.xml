@@ -1,0 +1,36 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+  <!-- Bootstrap first (registers the LibStub library object). -->
+  <Script file="NerzorsUILib-1.0.lua"/>
+
+  <!-- Core helpers (no widget creates anything; pure utility). -->
+  <Script file="Core\Util.lua"/>
+  <Script file="Core\Theme.lua"/>
+  <Script file="Core\Gradient.lua"/>
+  <Script file="Core\Layout.lua"/>
+
+  <!-- Widgets. Order matters where one widget reuses another:
+       Button is reused by Window (close button) and Dropdown (option rows). -->
+  <!-- Tooltip first: Button's attachTooltip routes through NUL:AttachTooltip. -->
+  <Script file="Widgets\Tooltip.lua"/>
+  <Script file="Widgets\Button.lua"/>
+  <Script file="Widgets\EditBox.lua"/>
+  <Script file="Widgets\Checkbox.lua"/>
+  <Script file="Widgets\Dropdown.lua"/>
+  <Script file="Widgets\ScrollList.lua"/>
+  <Script file="Widgets\Window.lua"/>
+  <Script file="Widgets\Dialog.lua"/>
+  <Script file="Widgets\Tabs.lua"/>
+  <Script file="Widgets\Confirm.lua"/>
+  <!-- DetailDialog builds on Window + Button + CreateLabel. -->
+  <Script file="Widgets\DetailDialog.lua"/>
+  <!-- MultiSelectList builds on ScrollList + Checkbox + IconButton +
+       EditBox + Button, so it must load after all of them. -->
+  <Script file="Widgets\MultiSelectList.lua"/>
+  <!-- Dashboard pieces: Card/StatTile containers and the texture-based
+       charts (charts hover through the themed Tooltip). -->
+  <Script file="Widgets\Card.lua"/>
+  <Script file="Widgets\Chart.lua"/>
+</Ui>

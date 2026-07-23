@@ -1,0 +1,24 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+  <!-- NBK Modules -->
+  <!-- ListWindow is split: shell + the Blacklist tab across Blacklist/.
+       See ListWindow/ListWindow.xml for the load order. -->
+  <Include file="ListWindow\ListWindow.xml"/>
+  <Script file="ContextMenu\ContextMenu.lua"/>
+  <Script file="GroupScanner\GroupScanner.lua"/>
+  <Script file="AutoCleanup\AutoCleanup.lua"/>
+  <Script file="ChatFilter\ChatFilter.lua"/>
+  <!-- Tooltip: blacklist info on mouseover unit tooltips.
+       Folded back into Core in v0.38.x (was the _Tooltip sub-addon). -->
+  <Script file="Tooltip\Tooltip.lua"/>
+  <!-- Config is split across multiple files (Tabs/, Dialogs/, helpers).
+       See Config/Config.xml for the load order. -->
+  <Include file="Config\Config.xml"/>
+  <Script file="MinimapIcon\MinimapIcon.lua"/>
+  <!-- News: "What's new?" window driven by NBK.WHATS_NEW.
+       Loads after Config/MinimapIcon so its slash-command registration
+       and Settings-tab button (future) have those modules available. -->
+  <Script file="News\News.lua"/>
+</Ui>

@@ -1,0 +1,24 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <!-- Config module loader. Order matters:
+       1. Config.lua    registers the module + tab/section registry.
+       2. Helpers.lua   attaches DB path helpers + AddCheckboxRow/SectionLabel/Divider.
+       3. Nav.lua       attaches SelectTab + makeNavButton + runSections.
+       4. Tabs/*        each file registers itself via Config:RegisterTab.
+       5. Dialogs/*     attach ShowExportDialog / ShowImportDialog / ShowResetDialog. -->
+  <Script file="Config.lua"/>
+  <Script file="Helpers.lua"/>
+  <Script file="Nav.lua"/>
+
+  <Script file="Tabs\Display.lua"/>
+  <Script file="Tabs\Tooltip.lua"/>
+  <Script file="Tabs\Notifications.lua"/>
+  <Script file="Tabs\Presets.lua"/>
+  <Script file="Tabs\Advanced.lua"/>
+
+  <Script file="Dialogs\Export.lua"/>
+  <Script file="Dialogs\Import.lua"/>
+  <Script file="Dialogs\Reset.lua"/>
+</Ui>

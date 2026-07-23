@@ -1,0 +1,14 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+  <!-- Load order matters: each lib registers against LibStub, which must
+       exist first; CallbackHandler is required by LibSharedMedia. -->
+  <Script file="LibStub\LibStub.lua"/>
+  <Include file="CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
+  <Include file="LibSharedMedia-3.0\lib.xml"/>
+  <Include file="LibDeflate\lib.xml"/>
+
+  <!-- In-house UI library. Depends on LibStub above. -->
+  <Include file="NerzorsUILib-1.0\NerzorsUILib-1.0.xml"/>
+</Ui>

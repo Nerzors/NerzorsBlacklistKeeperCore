@@ -1,0 +1,83 @@
+Nerzors ADDON-NC-NRD-ND License v2.0
+(Non-Commercial / No Redistribution / No Derivatives)
+
+┌───────────────────────┐
+│      Nerzors Addons    │
+│   Author: Nerzors      │
+│ Web: www.nerzors.de    │
+└───────────────────────┘
+
+Applies to (Core-Only edition):
+- NerzorsBlacklistKeeper (main AddOn)
+- NerzorsBlacklistKeeper_Data (shared assets + libraries)
+- NerzorsUILib
+
+The optional sub-AddOns (_ChatFilters, _GroupFinder, _Sync, _Recents,
+_RememberMe, _Statistics) are not part of this edition; they ship with the
+All-in-One version and are covered by the same license there.
+
+Copyright (c) 2020-2026 Nerzors.DE
+Effective Date: 2026-01-01
+
+
+1) What you can do
+
+You may download, install and run this Software for free, for personal,
+non-commercial use. You may make personal backup copies. You may show
+it off in videos, streams or screenshots, even on monetized channels —
+just don't upload the files themselves anywhere, and don't claim it's
+yours.
+
+"Software" means this addon and any of its sub-addons — code, assets,
+textures, icons, fonts, sounds, strings, layouts and configuration
+files authored by Nerzors — but EXCLUDING bundled third-party libraries
+(e.g. LibStub, LibDeflate, CallbackHandler), which remain governed by
+their own respective licenses.
+
+
+2) What you can't do
+
+- Sell it, paywall it, or bundle it into anything you charge for.
+- Modify it, or publish any modified/derivative version of it.
+- Decompile, reverse-engineer, or strip out its protections.
+- Reuse its assets, code, text, icons or design elsewhere.
+- Upload, mirror or re-host the Software files anywhere yourself.
+
+
+3) Where to get it
+
+Only from these Official Sources:
+
+- NerzorsBlacklistKeeper (Core-Only):
+  - GitHub Releases: https://github.com/Nerzors/NerzorsBlacklistKeeperCore
+  - CurseForge: https://www.curseforge.com/wow/addons/nerzorsblacklistkeepercore
+  - Wago.io: https://addons.wago.io/addons/nerzorsblacklistkeepercore
+
+- NerzorsBlacklistKeeper (All-in-One):
+  - GitHub Releases: https://github.com/Nerzors/NerzorsBlacklistKeeper
+  - CurseForge: https://www.curseforge.com/wow/addons/nerzorsblacklistkeeper
+  - Wago.io: https://addons.wago.io/addons/nerzorsblacklistkeeper
+
+Linking to these pages is always fine. Hosting the files yourself,
+anywhere, is not.
+
+
+4) Trademarks
+
+"NERZORS" and associated logos may not be used for branding,
+advertising, or to imply endorsement, without written permission.
+
+
+5) No Warranty
+
+This Software is provided "AS IS", without warranty of any kind,
+express or implied.
+
+
+6) Breach
+
+Breaking these terms ends your license immediately. You must then
+stop using the Software and delete your copies.
+
+
+Contact: dev@nerzors.de

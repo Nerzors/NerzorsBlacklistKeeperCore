@@ -1,0 +1,20 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+  <!-- NBK Ui -->
+  <Script file="Core.lua"/>
+  <Script file="Locale.lua"/>
+  <Script file="Constants.lua"/>
+  <Script file="Database.lua"/>
+  <Script file="API.lua"/>
+  <Script file="Serializer.lua"/>
+  <!-- PublicAPI.lua: the stable LibNBKApi-1.0 surface for other addons.
+       Loads after API.lua/Serializer.lua so NBK:_FireApiEvent exists by
+       the time any mutation runs. -->
+  <Script file="PublicAPI.lua"/>
+  <!-- WhatsNew.lua: the player-facing release-notes table consumed by
+       Modules/News and the auto-open-on-version-bump logic. Pure data,
+       no behaviour - safe to load this late. -->
+  <Script file="WhatsNew.lua"/>
+</Ui>
