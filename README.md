@@ -51,9 +51,6 @@ NBK also includes a positive **Remember Me** list for trusted players, recent pa
 > and Classic MoP** - the right version is picked automatically by your
 > client, no separate package needed.
 
-> [!IMPORTANT]
-> With Updated `2.0.0-dev.0.39.0`: The `Tooltip` sub-addon is gone. Its functionality is now part of the main addon. You no longer need to install `NerzorsBlacklistKeeper_Tooltip` and can delete the old folder.
-
 > NBK V2 is currently in active development.
 
 Version 2 is a full rebuild of the original addon with a modular architecture.
@@ -86,6 +83,7 @@ NBK V1 is retired and will no longer receive updates. *Rest in peace, V1 you ser
 | Recents | Track recent party members |
 | Remember Me | Positive player list with ratings |
 | Sync | Share and sync entries with trusted players |
+| Statistics | Dashboard with charts over your own blacklist |
 
 > In the **Core-Only** edition you get *Blacklist*, *Group Warning* and
 > *Tooltip*. Everything below that line lives in the optional modules and
@@ -136,6 +134,7 @@ come with the [All-in-One edition](https://github.com/Nerzors/NerzorsBlacklistKe
 | `_Sync` | Sharing & sync |
 | `_Recents` | Recent player tracking |
 | `_RememberMe` | Positive player list *(Retail only)* |
+| `_Statistics` | No | Charts dashboard over your blacklist |
 
 > **Want the full package?** Switch to the
 > **[All-in-One edition](https://github.com/Nerzors/NerzorsBlacklistKeeper)** -
