@@ -63,6 +63,33 @@ local function buildNotificationsTab(parent)
     local _, ny7 = Config:AddCheckboxRow(panel, y, "Mute new players by default",
         {"autoMute"}, true); y = ny7
 
+    local ignoreSync = NBK:GetModule("IgnoreSync")
+    if ignoreSync and ignoreSync:IsAvailable() then
+        local _, ny8 = Config:AddDivider(panel, y); y = ny8
+        local _, ny9 = Config:AddSectionLabel(panel, y, "Ignore list"); y = ny9
+
+        local _, ny10 = Config:AddCheckboxRow(panel, y,
+            "Also add muted players to the game's ignore list",
+            {"autoIgnore"}, false); y = ny10
+
+        local capNote = NUL:CreateLabel(panel, {
+            text  = L["The game's ignore list holds far fewer players than your blacklist."]
+                 or "The game's ignore list holds far fewer players than your blacklist.",
+            size  = "xs",
+            color = NUL:GetTheme().colors.text.muted,
+        })
+        capNote:SetPoint("TOPLEFT", 0, y)
+        y = y - 18
+
+        local importBtn = NUL:Button(panel, {
+            label = L["Import from ignore list"] or "Import from ignore list",
+            width = 200, height = 24,
+            onClick = function() ignoreSync:ShowImport() end,
+        })
+        importBtn:SetPoint("TOPLEFT", 0, y)
+        y = y - 32
+    end
+
     panel.lastY = y
     return panel
 end

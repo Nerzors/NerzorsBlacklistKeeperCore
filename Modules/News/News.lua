@@ -39,11 +39,16 @@ local function tokenColor(theme, path)
 end
 
 local PADDING         = 14
-local VERSION_GAP     = 18
-local SECTION_GAP     = 6
-local ITEM_GAP        = 4
-local SECTION_PILL_W  = 80
+local VERSION_GAP     = 10
+local SECTION_GAP     = 8
+local ITEM_GAP        = 5
 local SECTION_PILL_H  = 18
+local PILL_PAD        = 9
+local CARD_PAD        = 10
+local CARD_CHROME     = 40
+local BULLET_W        = 12
+local BULLET_GAP      = 4
+local ROW_INDENT      = 2
 
 function News:_Build()
     if self.frame then return self.frame end
@@ -73,6 +78,12 @@ function News:_Build()
 
     self._sbar = NUL:_AttachThemedScrollBar(scroll, f.content)
 
+    local footRule = f.content:CreateTexture(nil, "ARTWORK")
+    footRule:SetHeight(1)
+    footRule:SetPoint("BOTTOMLEFT",  0, 32)
+    footRule:SetPoint("BOTTOMRIGHT", 0, 32)
+    self._footRule = footRule
+
     local okBtn = NUL:Button(f.content, {
         label = L["Got it"] or "Got it",
         width = 140, height = 26, style = "accent",
@@ -95,6 +106,33 @@ function News:_Build()
     return f
 end
 
+function News:_IsUnseen(version)
+    local seen = NBK.db and NBK.db.settings and NBK.db.settings.lastSeenNews
+    if not seen then return true end
+    return NBK:_VersionGreater(version, seen)
+end
+
+function News:_AnyUnseen()
+    for _, entry in ipairs(NBK:GetVisibleNews()) do
+        if self:_IsUnseen(entry.version) then return true end
+    end
+    return false
+end
+
+function News:_IsExpanded(version, index, anyUnseen)
+    local override = self._collapsed and self._collapsed[version]
+    if override ~= nil then return not override end
+    if anyUnseen == nil then anyUnseen = self:_AnyUnseen() end
+    if anyUnseen then return self:_IsUnseen(version) end
+    return index == 1
+end
+
+function News:_ToggleVersion(version, index)
+    self._collapsed = self._collapsed or {}
+    self._collapsed[version] = self:_IsExpanded(version, index)
+    self:_Populate()
+end
+
 function News:_Populate()
     local theme   = NUL:GetTheme()
     local content = self._content
@@ -113,118 +151,136 @@ function News:_Populate()
     if scrollWidth < 32 then scrollWidth = 500 end
     content:SetWidth(scrollWidth)
 
-    local BULLET_W   = 12
-    local BULLET_GAP = 4
-    local ROW_INDENT = 6
+    local cardWidth     = math.max(120, scrollWidth - 2 * PADDING)
+    local cardInnerW    = cardWidth - 2 * CARD_PAD
     local bodyTextWidth = math.max(
         100,
-        scrollWidth - 2 * PADDING - ROW_INDENT - BULLET_W - BULLET_GAP
+        cardInnerW - ROW_INDENT - BULLET_W - BULLET_GAP
     )
 
-    local entries = NBK.WHATS_NEW or {}
+    local entries   = NBK:GetVisibleNews()
+    local anyUnseen = self:_AnyUnseen()
     local y = -PADDING
-    local contentWidth = scrollWidth
 
     for vi, entry in ipairs(entries) do
+        local expanded = self:_IsExpanded(entry.version, vi, anyUnseen)
 
-        local header = track(CreateFrame("Frame", nil, content))
-        header:SetHeight(22)
-        header:SetPoint("TOPLEFT",  content, "TOPLEFT",  PADDING,  y)
-        header:SetPoint("TOPRIGHT", content, "TOPRIGHT", -PADDING, y)
-
-        local titleFS = NUL:CreateLabel(header, {
-            text = "v" .. tostring(entry.version or "?"),
-            size = "lg", justifyH = "LEFT",
-            color = theme.colors.accent.primary,
-        })
-        titleFS:SetPoint("LEFT", 0, 0)
-        track(titleFS)
+        local card = track(NUL:Card(content, { title = "v" .. tostring(entry.version or "?") }))
+        card:SetWidth(cardWidth)
+        card:SetPoint("TOPLEFT", content, "TOPLEFT", PADDING, y)
 
         if entry.date and entry.date ~= "" then
-            local dateFS = NUL:CreateLabel(header, {
+            local dateFS = NUL:CreateLabel(card, {
                 text = entry.date, size = "sm",
-                color = theme.colors.text.muted,
+                color = theme.colors.text.muted, wrap = false,
             })
-            dateFS:SetPoint("LEFT", titleFS, "RIGHT", 8, -1)
-            track(dateFS)
+
+            dateFS:SetPoint("TOPLEFT", card, "TOPLEFT",
+                CARD_PAD + math.max(44, card.title:GetStringWidth() + 8), -CARD_PAD - 1)
         end
 
-        if vi == 1 and entry.highlight then
-            local pill = CreateFrame("Frame", nil, header)
-            pill:SetSize(40, 16)
-            pill:SetPoint("RIGHT", 0, 0)
-            pill.bg = NUL:FillBackground(pill, theme.colors.accent.primary)
+        local rightX = -CARD_PAD
+
+        local chevron = card:CreateTexture(nil, "OVERLAY")
+        chevron:SetSize(10, 10)
+        chevron:SetPoint("TOPRIGHT", rightX, -CARD_PAD - 4)
+        chevron:SetTexture(NUL:ResolveIcon(expanded and "arrow-up.png" or "arrow-down.png"))
+        NUL.SetTextureColor(chevron, theme.colors.text.muted)
+        rightX = rightX - 16
+
+        if entry.highlight and self:_IsUnseen(entry.version) then
+
+            local label  = sectionLabel("new")
+            local pill   = CreateFrame("Frame", nil, card)
             local pillFS = NUL:CreateLabel(pill, {
-                text = "NEW", size = "xs",
+                text = label, size = "xs",
                 color = theme.colors.text.inverse,
-                justifyH = "CENTER",
+                justifyH = "CENTER", wrap = false,
             })
             pillFS:SetPoint("CENTER")
-            track(pill)
+            pill:SetSize(math.max(34, pillFS:GetStringWidth() + 12), 15)
+            pill:SetPoint("TOPRIGHT", rightX, -CARD_PAD - 2)
+            pill.bg = NUL:FillBackground(pill, theme.colors.accent.primary)
         end
 
-        y = y - 24
+        local hdrBtn = CreateFrame("Button", nil, card)
+        hdrBtn:SetPoint("TOPLEFT",  CARD_PAD, -CARD_PAD)
+        hdrBtn:SetPoint("TOPRIGHT", -CARD_PAD, -CARD_PAD)
+        hdrBtn:SetHeight(20)
+        hdrBtn:SetScript("OnClick", function()
+            self:_ToggleVersion(entry.version, vi)
+        end)
 
-        local rule = track(content:CreateTexture(nil, "ARTWORK"))
-        rule:SetHeight(1)
-        rule:SetPoint("LEFT",  content, "LEFT",  PADDING,  y)
-        rule:SetPoint("RIGHT", content, "RIGHT", -PADDING, y)
-        NUL.SetTextureColor(rule, NUL.WithAlpha(theme.colors.border.subtle, 0.5))
-        y = y - 8
+        local innerY = 0
 
-        for _, section in ipairs(entry.sections or {}) do
-            local meta = SECTION_META[section.kind] or SECTION_META.note
-            local color = tokenColor(theme, meta.colorToken) or theme.colors.text.muted
+        if expanded then
+            for _, section in ipairs(entry.sections or {}) do
+                local meta  = SECTION_META[section.kind] or SECTION_META.note
+                local color = tokenColor(theme, meta.colorToken) or theme.colors.text.muted
 
-            local pill = track(CreateFrame("Frame", nil, content))
-            pill:SetSize(SECTION_PILL_W, SECTION_PILL_H)
-            pill:SetPoint("TOPLEFT", content, "TOPLEFT", PADDING, y)
-            pill.bg = NUL:FillBackground(pill, NUL.WithAlpha(color, 0.25))
-            local pillFS = NUL:CreateLabel(pill, {
-                text  = sectionLabel(section.kind),
-                size  = "sm",
-                color = color,
-                justifyH = "CENTER",
-            })
-            pillFS:SetPoint("CENTER")
-            y = y - (SECTION_PILL_H + 4)
+                local pill   = CreateFrame("Frame", nil, card.content)
+                local pillFS = NUL:CreateLabel(pill, {
+                    text  = sectionLabel(section.kind),
+                    size  = "sm", color = color,
+                    justifyH = "CENTER", wrap = false,
+                })
+                pillFS:SetPoint("CENTER")
+                pill:SetSize(math.max(48, pillFS:GetStringWidth() + PILL_PAD * 2),
+                             SECTION_PILL_H)
+                pill:SetPoint("TOPLEFT", card.content, "TOPLEFT", 0, -innerY)
 
-            for _, item in ipairs(section.items or {}) do
-                local text = NBK:LocalizeNewsItem(item)
-                if text and text ~= "" then
-                    local row = track(CreateFrame("Frame", nil, content))
-                    row:SetPoint("TOPLEFT",  content, "TOPLEFT",
-                        PADDING + ROW_INDENT, y)
-                    row:SetPoint("TOPRIGHT", content, "TOPRIGHT",
-                        -PADDING,             y)
+                pill.bg = NUL:FillBackground(pill, NUL.WithAlpha(color, 0.15))
+                innerY = innerY + SECTION_PILL_H + 5
 
-                    local bullet = NUL:CreateLabel(row, {
-                        text = "•", size = "md",
-                        color = theme.colors.accent.primary,
-                    })
-                    bullet:SetPoint("TOPLEFT", 0, 0)
-                    bullet:SetWidth(BULLET_W)
+                for _, rec in ipairs(section.items or {}) do
+                    local text = NBK:LocalizeNewsItem(rec.item)
+                    if text and text ~= "" then
 
-                    local body = NUL:CreateLabel(row, {
-                        text = text, size = "md",
-                        color = theme.colors.text.primary,
-                        justifyH = "LEFT",
-                    })
-                    body:SetPoint("TOPLEFT", bullet, "TOPRIGHT", BULLET_GAP, 0)
+                        local badge = rec.sub and NBK:GetModuleLabel(rec.sub)
+                        if badge then
+                            text = ("|cff%s%s|r  %s"):format(
+                                NUL.ToHex(theme.colors.accent.secondary), badge, text)
+                        end
 
-                    body:SetWidth(bodyTextWidth)
-                    body:SetWordWrap(true)
+                        local row = CreateFrame("Frame", nil, card.content)
+                        row:SetPoint("TOPLEFT",  card.content, "TOPLEFT",  ROW_INDENT, -innerY)
+                        row:SetPoint("TOPRIGHT", card.content, "TOPRIGHT", 0,          -innerY)
 
-                    local h = math.max(16, math.ceil(body:GetStringHeight() or 16) + 2)
-                    row:SetHeight(h)
-                    y = y - (h + ITEM_GAP)
+                        local bullet = NUL:CreateLabel(row, {
+                            text = "•", size = "md",
+                            color = theme.colors.accent.primary,
+                        })
+                        bullet:SetPoint("TOPLEFT", 0, 0)
+                        bullet:SetWidth(BULLET_W)
+
+                        local body = NUL:CreateLabel(row, {
+                            text = text, size = "md",
+                            color = theme.colors.text.primary,
+                            justifyH = "LEFT",
+                        })
+                        body:SetPoint("TOPLEFT", bullet, "TOPRIGHT", BULLET_GAP, 0)
+
+                        body:SetWidth(bodyTextWidth)
+                        body:SetWordWrap(true)
+
+                        local h = math.max(16, math.ceil(body:GetStringHeight() or 16) + 2)
+                        row:SetHeight(h)
+                        innerY = innerY + h + ITEM_GAP
+                    end
                 end
-            end
 
-            y = y - SECTION_GAP
+                innerY = innerY + SECTION_GAP
+            end
+            innerY = math.max(0, innerY - SECTION_GAP)
         end
 
-        y = y - VERSION_GAP
+        card:SetHeight(innerY + CARD_CHROME)
+        y = y - card:GetHeight() - VERSION_GAP
+    end
+
+    if self._footRule then
+        NUL.SetTextureColor(self._footRule,
+            NUL.WithAlpha(theme.colors.border.subtle, 0.6))
     end
 
     local totalHeight = math.abs(y) + PADDING
@@ -238,6 +294,12 @@ function News:Show()
     self:_Build()
     self:_Populate()
     self.frame:Show()
+
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0, function()
+            if self.frame and self.frame:IsShown() then self:_Populate() end
+        end)
+    end
 end
 
 function News:Hide()
@@ -268,6 +330,12 @@ function News:MaybeAutoOpen()
     local s = NBK.db and NBK.db.settings
     if not s then return end
     if not NBK:_VersionGreater(latest, s.lastSeenNews) then return end
+
+    local visible = NBK:GetVisibleNews()
+    if #visible == 0 or not NBK:_VersionGreater(visible[1].version, s.lastSeenNews) then
+        s.lastSeenNews = latest
+        return
+    end
 
     if C_Timer and C_Timer.After then
         C_Timer.After(0.4, function() self:Show() end)

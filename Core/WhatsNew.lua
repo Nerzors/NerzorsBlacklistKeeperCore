@@ -24,7 +24,95 @@ function NBK:_VersionGreater(a, b)
     return false
 end
 
+function NBK:GetVisibleNews()
+    local out = {}
+    for _, entry in ipairs(self.WHATS_NEW or {}) do
+        local sections = {}
+        for _, section in ipairs(entry.sections or {}) do
+            local items = {}
+            for _, item in ipairs(section.items or {}) do
+                local sub = (type(item) == "table" and item.sub) or section.sub
+                if self:ShouldShowForModule(sub) then
+                    items[#items + 1] = { item = item, sub = sub }
+                end
+            end
+            if #items > 0 then
+                sections[#sections + 1] = { kind = section.kind, items = items }
+            end
+        end
+        if #sections > 0 then
+            out[#out + 1] = {
+                version   = entry.version,
+                date      = entry.date,
+                highlight = entry.highlight,
+                sections  = sections,
+            }
+        end
+    end
+    return out
+end
+
 NBK.WHATS_NEW = {
+    {
+        version   = "0.43.0",
+        date      = "2026-07-23",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "Ignore-list integration: blacklisted players you mute can now be ignored by the game as well - no chat, no whispers, no invites from them. It's off by default; switch it on under Settings > Notifications.",
+                        de = "Anbindung an die Ignorieren-Liste: Blacklist-Spieler, die du stummschaltest, können jetzt auch vom Spiel ignoriert werden - dann kommen von ihnen weder Chat noch Flüstern oder Einladungen durch. Standardmäßig aus; einzuschalten unter Einstellungen > Benachrichtigungen.",
+                    },
+                    {
+                        en = "Import from your ignore list: already ignoring people? Pull them onto your blacklist in one go - you pick who first, nothing happens behind your back.",
+                        de = "Import aus der Ignorieren-Liste: Du ignorierst schon Spieler? Hol sie mit einem Klick auf die Blacklist - du wählst vorher aus, wen; es passiert nichts ungefragt.",
+                    },
+                    {
+                        en = "Taking someone off the blacklist lifts the ignore again - but only if the addon was the one that set it. Players you ignored by hand stay untouched.",
+                        de = "Nimmst du jemanden von der Blacklist, wird auch das Ignorieren aufgehoben - aber nur, wenn das Addon es gesetzt hat. Von Hand ignorierte Spieler bleiben unangetastet.",
+                    },
+                },
+            },
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "\"What's new?\" rebuilt: every version is its own card you can fold open and shut. Anything you haven't read starts open, so skipping a few updates now gives you all of them at a glance instead of one endless stack.",
+                        de = "\"Was ist neu?\" überarbeitet: Jede Version ist eine eigene Karte zum Auf- und Zuklappen. Offen ist, was du noch nicht gelesen hast - wer mehrere Updates übersprungen hat, sieht sie alle auf einen Blick statt als endlosen Stapel.",
+                    },
+                    {
+                        en = "Entries now show which module they belong to, and entries for modules you haven't installed are hidden entirely.",
+                        de = "Einträge zeigen jetzt, zu welchem Modul sie gehören - und Einträge zu Modulen, die du nicht installiert hast, werden gar nicht erst angezeigt.",
+                    },
+                },
+            },
+            {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "The minimap tooltip listed \"Tooltip\" as an active module, although it has been part of the main addon since 0.39.0.",
+                        de = "Der Minimap-Tooltip führte \"Tooltip\" als aktives Modul, obwohl es seit 0.39.0 fest zum Haupt-Addon gehört.",
+                    },
+                    {
+                        en = "\"Statistics\" was missing from that same module list even when installed.",
+                        de = "\"Statistik\" fehlte in derselben Modulliste, obwohl es installiert war.",
+                        sub = "_Statistics",
+                    },
+                },
+            },
+            {
+                kind  = "note",
+                items = {
+                    {
+                        en = "The game's ignore list holds far fewer players than your blacklist does. Once it's full, the rest simply stay blacklisted without being ignored - you'll get one message when that happens, not one per player.",
+                        de = "Die Ignorieren-Liste des Spiels fasst deutlich weniger Spieler als deine Blacklist. Ist sie voll, bleiben die übrigen einfach nur geblacklistet, ohne ignoriert zu werden - du bekommst dann eine Meldung, nicht eine pro Spieler.",
+                    },
+                },
+            },
+        },
+    },
     {
         version   = "0.42.0",
         date      = "2026-07-18",
@@ -36,6 +124,7 @@ NBK.WHATS_NEW = {
                     {
                         en = "Statistics: a new tab with charts over your blacklist - growth per month, top reasons and zones, class spread, the players you run into most, and what the chat filters have spared you. Built entirely from data the addon already had, so it's meaningful from the first login.",
                         de = "Statistik: ein neuer Reiter mit Diagrammen zu deiner Blacklist - Wachstum pro Monat, Top-Gründe und -Zonen, Klassenverteilung, die Spieler, denen du am häufigsten begegnest, und was dir die Chat-Filter erspart haben. Komplett aus bereits vorhandenen Daten gebaut, also gleich beim ersten Login aussagekräftig.",
+                        sub = "_Statistics",
                     },
                 },
             },
@@ -45,6 +134,7 @@ NBK.WHATS_NEW = {
                     {
                         en = "Lua error from the Message History while in combat in a dungeon or raid (\"attempt to compare local 'text' a secret string value\"). Chat text is protected in instances now; the history no longer trips over that.",
                         de = "Lua-Fehler des Nachrichtenverlaufs im Kampf in Dungeons und Schlachtzügen (\"attempt to compare local 'text' a secret string value\"). Chat-Text ist in Instanzen geschützt; der Verlauf stolpert nicht mehr darüber.",
+                        sub = "_ChatFilters",
                     },
                     {
                         en = "Dropdowns were missing their arrow, so they didn't read as dropdowns.",
@@ -104,10 +194,12 @@ NBK.WHATS_NEW = {
                     {
                         en = "Message History: chat from muted blacklisted players is no longer lost. It's saved and viewable in the new \"Message history\" tab - a list of players, and clicking one opens a detail window with every message and where it was said (whisper, party, raid, trade, ...).",
                         de = "Nachrichtenverlauf: Die Nachrichten von Blacklist-Spieler (Mute) geht nicht mehr verloren. Er wird gespeichert und im neuen Reiter \"Nachrichtenverlauf\" einsehbar - Dies ist eine Liste von Spielern: ein Klick darauf öffnet ein Detailfenster mit jeder Nachricht und dem jeweiligen Kanal (Flüstern, Gruppe, Schlachtzug, Handel …).",
+                        sub = "_ChatFilters",
                     },
                     {
                         en = "Message history keeps messages for a configurable time (default 30 days), older ones are cleaned up automatically on login. Time span, on/off and \"Clear all\" live in the chat filters settings.",
                         de = "Nachrichten werden für einen konfigurierbaren Zeitraum aufbewahrt (Standard 30 Tage), ältere Nachrichten werden beim Einloggen automatisch gelöscht. Einstellungen für den Zeitraum, die Aktivierung/Deaktivierung sowie die Option \"Alles löschen\" finden sich in den Chatfilter-Optionen.",
+                        sub = "_ChatFilters",
                     },
                 },
             },
@@ -135,6 +227,7 @@ NBK.WHATS_NEW = {
                     {
                         en = "Message history only archives what's actually hidden. Turn on \"Hide chat messages from blacklisted players\" (Notifications) so muted players' chat is hidden from chat - and saved to history.",
                         de = "Der Nachrichtenverlauf speichert nur, was auch wirklich ausgeblendet wird. Aktiviere \"Hide chat messages from blacklisted players\" (Benachrichtigungen), damit der Chat stummgeschalteter Spieler ausgeblendet - und im Verlauf gesichert - wird.",
+                        sub = "_ChatFilters",
                     },
                 },
             },
@@ -220,6 +313,7 @@ NBK.WHATS_NEW = {
                     {
                         en = "Mythic+ \"Remember player?\" popup opened the moment you inserted the keystone instead of after the run. It now waits for a real run (at least 30 seconds elapsed) before showing up.",
                         de = "Mythic+ \"Spieler merken?\"-Popup öffnete sich beim Einsetzen des Keystones statt nach dem Run. Es wartet jetzt auf einen echten Run (mindestens 30 Sekunden Spielzeit), bevor es erscheint.",
+                        sub = "_RememberMe",
                     },
                 },
             },
@@ -263,6 +357,7 @@ NBK.WHATS_NEW = {
                     {
                         en = "Auto-Sync receive popup redesigned: clean card with accent stripe, class-coloured player name, and the entry's note if one was attached.",
                         de = "Auto-Sync Empfangs-Popup neu gestaltet: aufgeräumte Karte mit farbigem Akzentstreifen, Spielername in Klassenfarbe und Notiz (falls eine mitgeschickt wurde).",
+                        sub = "_Sync",
                     },
                 },
             },
@@ -272,6 +367,7 @@ NBK.WHATS_NEW = {
                     {
                         en = "Auto-Sync ignored the \"Share this entry\" checkbox when adding a player - entries went out anyway. Now respected.",
                         de = "Auto-Sync ignorierte das \"Diesen Eintrag teilen\"-Häkchen beim Hinzufügen - Einträge wurden trotzdem geteilt. Wird jetzt respektiert.",
+                        sub = "_Sync",
                     },
                 },
             },
@@ -287,10 +383,12 @@ NBK.WHATS_NEW = {
                     {
                         en = "Auto-Sync: automatically share new blacklist entries the moment you add them. Pick recipients: your guild, online friends on your realm, or a custom name list.",
                         de = "Auto-Sync: neu hinzugefügte Blacklist-Einträge sofort automatisch teilen. Empfänger wählbar: eigene Gilde, Online-Freunde auf deinem Realm oder eine selbst zusammengestellte Namensliste.",
+                        sub = "_Sync",
                     },
                     {
                         en = "Sync now supports the Remember-Me list too, not just the blacklist.",
                         de = "Sync unterstützt jetzt auch die Remember-Me-Liste, nicht mehr nur die Blacklist.",
+                        sub = "_Sync",
                     },
                 },
             },

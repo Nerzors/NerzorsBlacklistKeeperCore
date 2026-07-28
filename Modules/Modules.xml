@@ -13,6 +13,9 @@
   <!-- Tooltip: blacklist info on mouseover unit tooltips.
        Folded back into Core in v0.38.x (was the _Tooltip sub-addon). -->
   <Script file="Tooltip\Tooltip.lua"/>
+  <!-- IgnoreSync: bridge to WoW's own /ignore list. Loads before Config so
+       the Notifications tab can reach it for the import button. -->
+  <Script file="IgnoreSync\IgnoreSync.lua"/>
   <!-- Config is split across multiple files (Tabs/, Dialogs/, helpers).
        See Config/Config.xml for the load order. -->
   <Include file="Config\Config.xml"/>

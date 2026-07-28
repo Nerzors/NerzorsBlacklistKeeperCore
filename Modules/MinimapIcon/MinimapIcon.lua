@@ -74,17 +74,11 @@ function MinimapIcon:Build()
         GameTooltip:SetText("|cff9b59b6" .. L["Nerzors Blacklist Keeper"] .. "|r")
         GameTooltip:AddLine((L["%d entries"]):format(NBK:CountEntries()), 1, 1, 1)
 
-        local subs = {
-            { key = "Tooltip",     label = L["Tooltip"]      or "Tooltip"      },
-            { key = "ChatFilters", label = L["Chat filters"] or "Chat filters" },
-            { key = "GroupFinder", label = L["Group Finder"] or "Group Finder" },
-            { key = "Sync",        label = L["Sharing"]      or "Sharing"      },
-            { key = "Recents",     label = L["Recents"]      or "Recents"      },
-            { key = "RememberMe",  label = L["Remember Me"]  or "Remember Me"  },
-        }
         local active = {}
-        for _, sub in ipairs(subs) do
-            if NBK:GetModule(sub.key) then active[#active + 1] = sub.label end
+        for _, m in ipairs(NBK.OPTIONAL_MODULES) do
+            if NBK:GetModule(m.key) then
+                active[#active + 1] = L[m.labelKey] or m.labelKey
+            end
         end
         if #active > 0 then
             GameTooltip:AddLine(" ")

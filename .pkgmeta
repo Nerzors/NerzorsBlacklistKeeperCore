@@ -1,15 +1,8 @@
 package-as: NerzorsBlacklistKeeper
 
-# Core-Only ships just the main addon (repo root) plus its shared-assets
-# dependency, so this is the only folder to lift back out.
 move-folders:
   NerzorsBlacklistKeeper/NerzorsBlacklistKeeper_Data: NerzorsBlacklistKeeper_Data
 
-# Third-party libs are pulled fresh at build time INTO the Data addon - the
-# only addon that ships a Libs/ folder and the only one whose TOC loads them.
-# (Paths must point there; a bare "Libs/…" would land in the main addon,
-# where nothing loads it.) NerzorsUILib-1.0 is ours and stays vendored in the
-# repo - deliberately NOT listed here.
 externals:
   NerzorsBlacklistKeeper_Data/Libs/LibStub:
     url: https://repos.wowace.com/wow/libstub/trunk

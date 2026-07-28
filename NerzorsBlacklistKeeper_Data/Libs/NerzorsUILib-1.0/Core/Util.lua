@@ -35,6 +35,18 @@ function NUL.WithAlpha(c, alpha)
     return { r = r, g = g, b = b, a = alpha or 1 }
 end
 
+-- Color table → "rrggbb", the form WoW's |cffRRGGBB escape wants. The
+-- inverse of NUL.hex. For inline colouring inside a single string, where
+-- SetFontColor can't help because only part of the text is tinted.
+function NUL.ToHex(c)
+    if not c then return "ffffff" end
+    local r, g, b = rgba(c)
+    return ("%02x%02x%02x"):format(
+        math.floor(r * 255 + 0.5),
+        math.floor(g * 255 + 0.5),
+        math.floor(b * 255 + 0.5))
+end
+
 -- Apply a color to a FontString.
 function NUL.SetFontColor(fs, c)
     if not fs or not c then return end

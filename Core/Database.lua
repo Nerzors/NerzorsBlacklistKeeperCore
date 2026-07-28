@@ -16,6 +16,8 @@ local DEFAULTS = {
         filterChat    = true,
         autoMute      = true,
 
+        autoIgnore    = false,
+
         presetReasons = nil,
 
         minimapIcon = { hide = false, angle = 225 },

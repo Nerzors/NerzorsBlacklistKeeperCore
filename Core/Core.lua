@@ -11,6 +11,35 @@ NBK.callbacks = {}
 
 NBK._subAddons = {}
 
+NBK.OPTIONAL_MODULES = {
+    { tag = "_ChatFilters", key = "ChatFilters", labelKey = "Chat filters" },
+    { tag = "_GroupFinder", key = "GroupFinder", labelKey = "Group Finder" },
+    { tag = "_Sync",        key = "Sync",        labelKey = "Sharing"      },
+    { tag = "_Recents",     key = "Recents",     labelKey = "Recents"      },
+    { tag = "_RememberMe",  key = "RememberMe",  labelKey = "Remember Me"  },
+    { tag = "_Statistics",  key = "Statistics",  labelKey = "Statistics"   },
+}
+
+function NBK:ShouldShowForModule(name)
+    if not name or name == "" then return true end
+    for _, m in ipairs(self.OPTIONAL_MODULES) do
+        if m.tag == name or m.key == name then
+            return self:GetModule(m.key) ~= nil
+        end
+    end
+    return true
+end
+
+function NBK:GetModuleLabel(name)
+    if not name or name == "" then return nil end
+    for _, m in ipairs(self.OPTIONAL_MODULES) do
+        if m.tag == name or m.key == name then
+            return (self.L and self.L[m.labelKey]) or m.labelKey
+        end
+    end
+    return name
+end
+
 local frame = CreateFrame("Frame", addonName .. "EventFrame")
 NBK.frame = frame
 

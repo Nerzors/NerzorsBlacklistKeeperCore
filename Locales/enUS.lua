@@ -174,3 +174,14 @@ L["Mark private"]     = true
 
 L["/nbk (no args) - open window"] = true
 L["/nbk config - open settings"] = true
+
+L["Ignore list"] = true
+L["Also add muted players to the game's ignore list"] = true
+L["The game's ignore list holds far fewer players than your blacklist."] = true
+L["Import from ignore list"] = true
+L["Pick the ignored players you want on your blacklist."] = true
+L["Your ignore list is full - those players stay on the blacklist, but the game won't ignore them."] = true
+L["Imported from ignore list"] = true
+L["Imported %d player(s) from the ignore list."] = true
+L["The ignore list isn't available on this client."] = true
+L["Nothing to import - every ignored player is already on your blacklist."] = true
