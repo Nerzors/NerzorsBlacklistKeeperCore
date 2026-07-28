@@ -32,16 +32,22 @@ local function splitSender(sender)
     return name, realm
 end
 
-local function senderIsMuted(sender)
-    local name, realm = splitSender(sender)
-    if not name then return false end
-    return NBK:IsMuted(name, realm)
-end
-
-local function hardFilter(_, _, _, sender)
+local function hardFilter(_, event, msg, sender, ...)
     local settings = NBK.db and NBK.db.settings or {}
     if settings.filterChat == false then return false end
-    return senderIsMuted(sender)
+
+    local name, realm = splitSender(sender)
+    if not name then return false end
+    if not NBK:IsMuted(name, realm) then return false end
+
+    local mh = NBK:GetModule("MessageHistory")
+    if mh and mh.RecordFromFilter then
+
+        local channelBaseName = select(7, ...)
+        mh:RecordFromFilter(name, realm, event, msg, channelBaseName)
+    end
+
+    return true
 end
 
 local function whisperSoftWarn(_, _, _, sender)

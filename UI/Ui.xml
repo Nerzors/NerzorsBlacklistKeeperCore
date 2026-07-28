@@ -7,4 +7,8 @@
        stays out of NerzorsUILib (it depends on NBK.CLASS_SPRITE_* data). -->
   <Script file="Theme.lua"/>
   <Script file="ClassIcon.lua"/>
+  <!-- ColumnHeader.lua: shared header-cell behaviour for the list tabs
+       (Blacklist, Remember Me, Recents), so narrow icon columns don't each
+       reinvent how to render a header that doesn't fit its own label. -->
+  <Script file="ColumnHeader.lua"/>
 </Ui>

@@ -229,9 +229,14 @@ end
 function IgnoreSync:OnEnable()
     if not self:IsAvailable() then return end
 
-    NBK:RegisterEvent("IGNORELIST_CHANGED", function()
-        if self._importFrame and self._importFrame:IsShown() then
-            self:ShowImport()
-        end
+    local ok, err = pcall(function()
+        NBK:RegisterEvent("IGNORELIST_UPDATE", function()
+            if self._importFrame and self._importFrame:IsShown() then
+                self:ShowImport()
+            end
+        end)
     end)
+    if not ok then
+        NBK:Print("IgnoreSync: ignore-list refresh unavailable (" .. tostring(err) .. ")")
+    end
 end

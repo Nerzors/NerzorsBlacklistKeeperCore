@@ -3,8 +3,9 @@ local _, NBK = ...
 function NBK:LocalizeNewsItem(item)
     if type(item) == "string" then return item end
     if type(item) ~= "table" then return tostring(item) end
-    local loc = GetLocale and GetLocale() or "enUS"
-    return item[loc] or item.enUS or item.en or item[1] or ""
+    local loc   = (GetLocale and GetLocale()) or "enUS"
+    local short = loc:sub(1, 2):lower()
+    return item[loc] or item[short] or item.enUS or item.en or item[1] or ""
 end
 
 function NBK:_VersionGreater(a, b)
@@ -53,6 +54,45 @@ function NBK:GetVisibleNews()
 end
 
 NBK.WHATS_NEW = {
+    {
+        version   = "0.44.0",
+        date      = "2026-07-28",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "Lua error from the message history in dungeons and raids (\"attempt to perform string conversion on a secret string value\"). The history now receives messages through the normal chat filter instead of reading the protected in-instance chat directly, so it no longer trips over it.",
+                        de = "Lua-Fehler des Nachrichtenverlaufs in Dungeons und Schlachtzügen (\"attempt to perform string conversion on a secret string value\"). Der Verlauf bekommt Nachrichten jetzt über den normalen Chat-Filter, statt die geschützten Instanz-Chatdaten direkt abzugreifen - und stolpert nicht mehr darüber.",
+                        sub = "_ChatFilters",
+                    },
+                    {
+                        en = "\"What's new?\" showed up in English on non-English clients. Localised text is picked correctly now.",
+                        de = "\"Was ist neu?\" wurde auf nicht-englischen Clients auf Englisch angezeigt. Übersetzte Texte werden jetzt korrekt gewählt.",
+                    },
+                    {
+                        en = "A harmless error line at login about the ignore list. The ignore-list integration loads cleanly now.",
+                        de = "Eine harmlose Fehlerzeile beim Login zur Ignorieren-Liste. Die Ignorieren-Anbindung lädt jetzt sauber.",
+                    },
+                },
+            },
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "List columns read better when narrow: the class column (as an icon) and the note column show a small icon instead of a squeezed or cut-off header (\"N...\"), with the full name on hover.",
+                        de = "Schmale Listenspalten sind besser lesbar: die Klassen-Spalte (als Icon) und die Notiz-Spalte zeigen ein kleines Symbol statt einer gequetschten oder abgeschnittenen Überschrift (\"N...\"), mit dem vollen Namen beim Überfahren.",
+                    },
+                    {
+                        en = "The \"Saved messages\" window now wraps long messages across several lines instead of cutting them off, so you can read the whole thing.",
+                        de = "Das Fenster \"Gespeicherte Nachrichten\" bricht lange Nachrichten jetzt über mehrere Zeilen um, statt sie abzuschneiden - so ist der ganze Text lesbar.",
+                        sub = "_ChatFilters",
+                    },
+                },
+            },
+        },
+    },
     {
         version   = "0.43.0",
         date      = "2026-07-23",

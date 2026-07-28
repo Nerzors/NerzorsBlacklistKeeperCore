@@ -3,7 +3,7 @@
 ## Notes: Shared assets (Libs, Textures, Fonts, Sounds) for |cffbe4ae9NerzorsBlacklistKeeper|r and its sub-addons. Required.
 ## Notes-deDE: Geteilte Ressourcen (Libs, Texturen, Schriftarten, Sounds) für |cffbe4ae9NerzorsBlacklistKeeper|r und seine Sub-Addons. Erforderlich.
 ## Author: Nerzors
-## Version: 0.43.0
+## Version: 0.44.0
 ## Group: NerzorsBlacklistKeeper
 ## IconTexture: Interface\AddOns\NerzorsBlacklistKeeper_Data\Textures\NerzorsBlacklistKeeper_Midnight_Logo
 ## Category: Social

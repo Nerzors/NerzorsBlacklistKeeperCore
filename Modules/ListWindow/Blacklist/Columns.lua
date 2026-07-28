@@ -78,11 +78,19 @@ function BlacklistTab:ComputeColumns()
     if s.classDisplay == "name" then
         table.insert(cols, { key = "class", label = L["Class"], width = 80, sortable = true })
     else
-        table.insert(cols, { key = "class", label = L["Class"], width = 22, sortable = true })
+
+        table.insert(cols, {
+            key = "class", label = L["Class"], width = 26,
+            sortable = true, compact = true,
+        })
     end
 
     table.insert(cols, { key = "reason", label = L["Reason"], width = 0, flex = true, sortable = true })
-    table.insert(cols, { key = "note",   label = L["Note"],   width = 36, sortable = false })
+
+    table.insert(cols, {
+        key = "note", label = L["Note"], width = 36,
+        sortable = false, compact = true, icon = "notes.png",
+    })
 
     if s.showZoneColumn then
         table.insert(cols, { key = "zone", label = L["Zone"], width = 120, sortable = true })

@@ -99,6 +99,8 @@ function BlacklistTab:_RebuildLayout()
         arrow:Hide()
         cell._arrow = arrow
 
+        NBK:SetupColumnHeader(cell, col)
+
         if col.sortable then
             cell:EnableMouse(true)
             cell:SetScript("OnMouseDown", function() self_ref:_SetSort(col.key) end)
@@ -119,6 +121,17 @@ function BlacklistTab:_RebuildLayout()
         local t = NUL:GetTheme()
         local col = cell._col
         local active = col.sortable and self.sortKey == col.key
+
+        if NBK:PaintColumnHeader(cell, col, active) then
+            if active and cell._arrow then
+                cell._arrow:SetTexture(NBK:IconPath(
+                    (self.sortDir == "desc") and "arrow-down.png" or "arrow-up.png"))
+            elseif cell._arrow and cell._arrow:IsShown() then
+                cell._arrow:SetTexture(NBK:IconPath("arrow-down.png"))
+            end
+            return
+        end
+
         cell._label:SetText(col.label or "")
         NUL.SetFontColor(cell._label, active and t.colors.accent.primary or t.colors.text.muted)
 
