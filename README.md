@@ -66,7 +66,7 @@ NBK V1 is retired and will no longer receive updates. *Rest in peace, V1 you ser
 | Co-Author | Veplo (Discord: Veplo) |
 | Language | English / Deutsch |
 | Game Version | WoW Retail, Classic Era, Classic MoP |
-| Current Branch | 2.0 Development (2.0.0-dev.0.42.0) |
+| Current Branch | 2.0 Development (c2.0.0-dev.0.45.0) |
 
 ---
 
