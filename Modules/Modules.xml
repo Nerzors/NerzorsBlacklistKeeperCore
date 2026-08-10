@@ -20,6 +20,9 @@
        See Config/Config.xml for the load order. -->
   <Include file="Config\Config.xml"/>
   <Script file="MinimapIcon\MinimapIcon.lua"/>
+  <!-- BlizzOptions: an entry in the game's AddOns options list that opens the
+       real config window. Loads after Config so GetModule("Config") resolves. -->
+  <Script file="BlizzOptions\BlizzOptions.lua"/>
   <!-- News: "What's new?" window driven by NBK.WHATS_NEW.
        Loads after Config/MinimapIcon so its slash-command registration
        and Settings-tab button (future) have those modules available. -->

@@ -55,6 +55,27 @@ end
 
 NBK.WHATS_NEW = {
     {
+        version   = "0.45.0",
+        date      = "2026-08-07",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "Statistics: a new \"Top realms\" card showing which realms your blacklist spans, alongside the top reasons and zones.",
+                        de = "Statistik: eine neue Karte „Top-Realms\", die zeigt, auf welche Realms sich deine Blacklist verteilt - neben den Top-Gründen und -Zonen.",
+                        sub = "_Statistics",
+                    },
+                    {
+                        en = "NBK now appears in the game's own settings (Options > AddOns), with a button that opens the addon's settings window - where you'd look first for any addon.",
+                        de = "NBK erscheint jetzt in den Spiel-Einstellungen (Optionen > AddOns), mit einem Knopf, der das Einstellungsfenster des Addons öffnet - dort, wo man bei einem Addon zuerst sucht.",
+                    },
+                },
+            },
+        },
+    },
+    {
         version   = "0.44.0",
         date      = "2026-07-28",
         highlight = true,

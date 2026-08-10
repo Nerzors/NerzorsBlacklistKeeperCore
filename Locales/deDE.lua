@@ -181,3 +181,6 @@ L["Imported from ignore list"] = "Aus Ignorieren-Liste importiert"
 L["Imported %d player(s) from the ignore list."] = "%d Spieler aus der Ignorieren-Liste importiert."
 L["The ignore list isn't available on this client."] = "Die Ignorieren-Liste ist auf diesem Client nicht verfügbar."
 L["Nothing to import - every ignored player is already on your blacklist."] = "Nichts zu importieren - alle ignorierten Spieler stehen bereits auf deiner Blacklist."
+
+L["All settings live in the addon's own window."] = "Alle Einstellungen befinden sich im eigenen Fenster des Addons."
+L["Open settings"] = "Einstellungen öffnen"

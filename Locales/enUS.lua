@@ -185,3 +185,6 @@ L["Imported from ignore list"] = true
 L["Imported %d player(s) from the ignore list."] = true
 L["The ignore list isn't available on this client."] = true
 L["Nothing to import - every ignored player is already on your blacklist."] = true
+
+L["All settings live in the addon's own window."] = true
+L["Open settings"] = true
