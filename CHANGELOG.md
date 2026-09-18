@@ -1,5 +1,9 @@
 # What's new? (Last 3 Changes/Updates)
 
+## c2.0.0-dev.0.45.2 (by Veplo)
+### New
+- add WoW:Forever (patch 1.60.1)
+
 
 ## c2.0.0-dev.0.45.0 (by Veplo)
 ### New

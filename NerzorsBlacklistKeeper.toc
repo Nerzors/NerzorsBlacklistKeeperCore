@@ -1,9 +1,9 @@
-## Interface: 120000, 120001, 120005, 120007, 120100
+## Interface: 120007, 120100, 120105
 ## Title: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r
 ## Notes: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r adds a handy blacklist management feature that allows you to quickly block and manage unwanted players.
 ## Notes-deDE: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r bietet eine praktische Funktion zur Verwaltung einer Blacklist, mit der du unerwünschte Spieler schnell blockieren und verwalten kannst.
 ## Author: Nerzors
-## Version: 0.45.1
+## Version: 0.45.2
 ## Dependencies: NerzorsBlacklistKeeper_Data
 ## SavedVariables: NBKDB
 ## IconTexture: Interface\AddOns\NerzorsBlacklistKeeper_Data\Textures\NerzorsBlacklistKeeper_Midnight_Logo
