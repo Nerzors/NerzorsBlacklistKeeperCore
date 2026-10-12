@@ -188,3 +188,11 @@ L["Nothing to import - every ignored player is already on your blacklist."] = tr
 
 L["All settings live in the addon's own window."] = true
 L["Open settings"] = true
+
+L["Select"] = true
+L["Done"] = true
+L["Select all"] = true
+L["Select none"] = true
+L["Delete"] = true
+L["%d selected"] = true
+L["Delete %d selected entries?"] = true

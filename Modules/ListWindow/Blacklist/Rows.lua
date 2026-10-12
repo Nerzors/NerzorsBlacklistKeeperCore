@@ -103,7 +103,10 @@ function BlacklistTab:MakeRowBuilder(columns)
 
         for i, col in ipairs(columns) do
             local cell, fixed
-            if col.key == "class" then
+            if col.key == "select" then
+                cell = NUL:Checkbox(row, { size = "small" })
+                fixed = true
+            elseif col.key == "class" then
                 if BlacklistTab:DisplaySettings().classDisplay == "name" then
                     cell = NUL:CreateLabel(row, {
                         text = "", color = theme.colors.text.muted,
@@ -167,7 +170,15 @@ function BlacklistTab:MakeRowBuilder(columns)
             for i, col in ipairs(columns) do
                 local c = cells[i]
 
-                if col.key == "name" then
+                if col.key == "select" then
+
+                    local key = NBK:NormalizeKey(entry.name, entry.realm)
+                    c:SetChecked(key ~= nil and BlacklistTab:IsSelected(key))
+                    c:SetOnChange(function(checked)
+                        BlacklistTab:SetRowSelected(entry, checked)
+                    end)
+
+                elseif col.key == "name" then
                     local text
                     if dispS.combinedName then
                         text = ("%s-%s"):format(BlacklistTab:ColoredName(entry, dispS.colorNameByClass), entry.realm)

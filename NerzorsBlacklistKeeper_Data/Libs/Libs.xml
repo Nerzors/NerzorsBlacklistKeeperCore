@@ -8,6 +8,9 @@
   <Include file="CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
   <Include file="LibSharedMedia-3.0\lib.xml"/>
   <Include file="LibDeflate\lib.xml"/>
+  <!-- LibDataBroker: powers the broker launcher (Titan Panel / ElvUI data
+       texts / etc). Needs CallbackHandler above. -->
+  <Include file="LibDataBroker-1.1\lib.xml"/>
 
   <!-- In-house UI library. Depends on LibStub above. -->
   <Include file="NerzorsUILib-1.0\NerzorsUILib-1.0.xml"/>

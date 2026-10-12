@@ -23,6 +23,8 @@
   <!-- BlizzOptions: an entry in the game's AddOns options list that opens the
        real config window. Loads after Config so GetModule("Config") resolves. -->
   <Script file="BlizzOptions\BlizzOptions.lua"/>
+  <!-- BrokerLauncher: LibDataBroker object for Titan/ElvUI-style bars. -->
+  <Script file="BrokerLauncher\BrokerLauncher.lua"/>
   <!-- News: "What's new?" window driven by NBK.WHATS_NEW.
        Loads after Config/MinimapIcon so its slash-command registration
        and Settings-tab button (future) have those modules available. -->

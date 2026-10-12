@@ -66,6 +66,10 @@ function BlacklistTab:ComputeColumns()
     local s = self:DisplaySettings()
     local cols = {}
 
+    if self.selectMode then
+        table.insert(cols, { key = "select", label = "", width = 24, sortable = false })
+    end
+
     table.insert(cols, {
         key = "name", label = L["Name"],
         width = s.combinedName and 170 or 110, sortable = true,

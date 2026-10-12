@@ -32,9 +32,18 @@ function BlacklistTab:_Build(parent)
     })
     addBtn:SetPoint("LEFT", searchBox, "RIGHT", 8, 0)
 
+    local selectBtn = NUL:Button(root, {
+        label = L["Select"] or "Select", height = 26,
+        onClick = function() self:ToggleSelectMode() end,
+    })
+    selectBtn:SetPoint("LEFT", addBtn, "RIGHT", 8, 0)
+    self.selectBtn = selectBtn
+
     local countLabel = NUL:CreateLabel(root, { text = "", color = theme.colors.text.muted })
     countLabel:SetPoint("RIGHT")
     self.countLabel = countLabel
+
+    self:_BuildActionBar(root)
 
     self.layoutAnchor = searchBox
     self:_RebuildLayout()

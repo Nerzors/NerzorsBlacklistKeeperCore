@@ -69,29 +69,9 @@ function MinimapIcon:Build()
     btn:SetScript("OnDragStop",  function(self) self:SetScript("OnUpdate", nil) end)
 
     btn:SetScript("OnEnter", function(self)
-        local L = NBK.L
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:SetText("|cff9b59b6" .. L["Nerzors Blacklist Keeper"] .. "|r")
-        GameTooltip:AddLine((L["%d entries"]):format(NBK:CountEntries()), 1, 1, 1)
 
-        local active = {}
-        for _, m in ipairs(NBK.OPTIONAL_MODULES) do
-            if NBK:GetModule(m.key) then
-                active[#active + 1] = L[m.labelKey] or m.labelKey
-            end
-        end
-        if #active > 0 then
-            GameTooltip:AddLine(" ")
-            GameTooltip:AddLine(L["Modules"] or "Modules", 1, 0.82, 0)
-            for _, label in ipairs(active) do
-                GameTooltip:AddLine("  |cff5cb85c|TInterface\\Buttons\\UI-CheckBox-Check:0:0:0:0|t|r " .. label, 0.85, 0.85, 0.85)
-            end
-        end
-
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddLine(L["Left-click: open list"],     0.7, 0.7, 0.7)
-        GameTooltip:AddLine(L["Right-click: settings"],     0.7, 0.7, 0.7)
-        GameTooltip:AddLine(L["Drag: move around minimap"], 0.7, 0.7, 0.7)
+        NBK:PopulateLauncherTooltip(GameTooltip, { drag = true })
         GameTooltip:Show()
     end)
     btn:SetScript("OnLeave", GameTooltip_Hide)

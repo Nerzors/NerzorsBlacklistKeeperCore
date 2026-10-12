@@ -55,6 +55,26 @@ end
 
 NBK.WHATS_NEW = {
     {
+        version   = "0.46.0",
+        date      = "2026-08-25",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "Data-broker support: NBK now appears on Titan Panel, ElvUI data texts and similar bars as a button - alongside the minimap icon. Left-click opens the list, right-click the settings.",
+                        de = "Datenleisten-Unterstützung: NBK erscheint jetzt auch in Titan Panel, ElvUI-Datentexten und ähnlichen Leisten als Knopf - zusätzlich zum Minimap-Icon. Links-Klick öffnet die Liste, Rechts-Klick die Einstellungen.",
+                    },
+                    {
+                        en = "Multi-select on the blacklist: a new \"Select\" button reveals checkboxes so you can mark several entries and delete them together, or mark them shareable/private in one go. Plus \"select all / none\".",
+                        de = "Mehrfachauswahl in der Blacklist: ein neuer „Auswählen\"-Knopf blendet Kästchen ein - so kannst du mehrere Einträge markieren und gemeinsam löschen oder auf einen Schlag als teilbar/privat markieren. Dazu „Alle/keine auswählen\".",
+                    },
+                },
+            },
+        },
+    },
+    {
         version   = "0.45.0",
         date      = "2026-08-07",
         highlight = true,

@@ -16,5 +16,6 @@
   <Script file="Blacklist\BlacklistTab.lua"/>
   <Script file="Blacklist\Columns.lua"/>
   <Script file="Blacklist\Rows.lua"/>
+  <Script file="Blacklist\BulkActions.lua"/>
   <Script file="Blacklist\Dialog.lua"/>
 </Ui>

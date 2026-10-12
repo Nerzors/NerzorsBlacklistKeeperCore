@@ -184,3 +184,11 @@ L["Nothing to import - every ignored player is already on your blacklist."] = "N
 
 L["All settings live in the addon's own window."] = "Alle Einstellungen befinden sich im eigenen Fenster des Addons."
 L["Open settings"] = "Einstellungen öffnen"
+
+L["Select"] = "Auswählen"
+L["Done"] = "Fertig"
+L["Select all"] = "Alle auswählen"
+L["Select none"] = "Keine auswählen"
+L["Delete"] = "Löschen"
+L["%d selected"] = "%d ausgewählt"
+L["Delete %d selected entries?"] = "%d ausgewählte Einträge löschen?"
