@@ -184,5 +184,5 @@ end
 function Database:OnEnable()
     local count = 0
     for _ in pairs(self.db.entries) do count = count + 1 end
-    NBK:Print(("loaded v%s - %d entries"):format(NBK.version, count))
+    NBK:Print(NBK.L["loaded v%s - %d entries"]:format(NBK.version, count))
 end

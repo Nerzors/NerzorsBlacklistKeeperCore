@@ -7,30 +7,102 @@
 --   label   string         Text content (Button + Pill).
 --   icon    string         Texture path or short name (IconButton).
 --   width   number|"auto"  Fixed px or auto-fit-to-label (text Button only).
+--                          A fixed width still grows when the label needs
+--                          more room (a longer translation), never shrinks.
+--   fit     boolean        Text Button only, default true. false keeps a
+--                          fixed width exactly (e.g. Dropdown option rows).
 --   height  number         Defaults to theme.metrics.rowHeight - 4.
---   style   string         "default" | "accent" | "danger".
+--   style   string         primary | secondary | danger | ghost.
+--                          Compatibility: default=secondary, accent=primary.
 --   plain   boolean        IconButton only - drop the bg + border, hover
 --                          feedback via icon brightness (= NUL:ImageButton).
 --   tooltip string         Hover tooltip text.
 --   onClick function       Click handler. Receives the button as `self`.
 --   selected boolean       Pill only - initial toggled state.
+--   selectedStyle string   Pill only - role while selected (default primary).
 --
--- All buttons implement :SetLabel / :SetEnabled / :_repaint.
+-- Text buttons/Pills implement SetLabel; all variants implement SetEnabled.
 
 local NUL = LibStub("NerzorsUILib-1.0")
 
--- Resolve resting + hover background colors per style. Resting buttons use
--- a low-alpha accent ("dim") rather than a separate theme token so theme
--- variants only need to override one color slot to re-style every button.
-local function styleColors(theme, style)
+local aliases = {default = "secondary", accent = "primary"}
+local roles = {primary = true, secondary = true, danger = true, ghost = true}
+
+-- Themes may override colors.btn[role][normal|hover|pressed|disabled].
+-- Every state contains bg/text/border and optionally icon. Missing fields,
+-- states or whole palettes fall back to the theme's general vocabulary:
+-- primary/danger fill with their colour (35 % at rest), secondary/ghost
+-- light up as a neutral surface, and the text is whatever reads on the
+-- resolved fill (NUL:ReadableTextOn), so even a partial palette stays legible.
+function NUL:ResolveButtonColors(style, state, theme)
+    theme = theme or self:GetTheme()
+    local role = aliases[style] or style
+    if not roles[role] then role = "secondary" end
+    state = state or "normal"
     local c = theme.colors
-    if style == "accent" then
-        return NUL.WithAlpha(c.accent.primary, 0.35), c.accent.primary
-    elseif style == "danger" then
-        return NUL.WithAlpha(c.state.danger,   0.35), c.state.danger
+    local active = state == "hover" or state == "pressed"
+    local bg = c.bg.panel
+    if role == "primary" then bg = active and c.accent.primary or NUL.WithAlpha(c.accent.primary, 0.35)
+    elseif role == "danger" then bg = active and c.state.danger or NUL.WithAlpha(c.state.danger, 0.35)
+    elseif role == "ghost" then bg = active and c.bg.hover or NUL.WithAlpha(c.bg.panel, 0)
+    elseif active then bg = c.bg.hover end
+    local fallback = {bg = bg,
+        border = active and c.border.accent or c.border.subtle,
+        icon = role == "danger" and c.state.danger or nil}
+    local palette = c.btn and c.btn[role]
+    local normal = palette and palette.normal or {}
+    local current = palette and palette[state] or {}
+    local out = {}
+    for _, field in ipairs({"bg", "border", "icon"}) do
+        out[field] = current[field] or normal[field] or fallback[field]
     end
-    return c.bg.panel, c.accent.primary
+    out.text = current.text or normal.text
+        or (state == "disabled" and c.text.disabled)
+        or NUL:ReadableTextOn(out.bg, theme)
+    return out
 end
+
+local function stateOf(b)
+    if not b._enabled then return "disabled" end
+    if b._pressed then return "pressed" end
+    if b._hovered then return "hover" end
+    return "normal"
+end
+
+-- Enabled state lives in our own flag only. The native Button:Disable()
+-- would also stop OnEnter/OnLeave, so tooltips on disabled buttons and the
+-- hover reset below would no longer fire; OnClick checks the flag instead.
+local function wireState(b)
+    function b:SetEnabled(v)
+        self._enabled = v and true or false
+        if not self._enabled then self._pressed = false end
+        self:_repaint(NUL:GetTheme())
+    end
+    function b:IsEnabled() return self._enabled end
+    b:SetScript("OnEnter", function(self)
+        self._hovered = true; self:_repaint(NUL:GetTheme())
+    end)
+    b:SetScript("OnLeave", function(self)
+        self._hovered, self._pressed = false, false; self:_repaint(NUL:GetTheme())
+    end)
+    b:SetScript("OnMouseDown", function(self, button)
+        if self._enabled and (not button or button == "LeftButton") then
+            self._pressed = true; self:_repaint(NUL:GetTheme())
+        end
+    end)
+    b:SetScript("OnMouseUp", function(self)
+        self._pressed = false; self:_repaint(NUL:GetTheme())
+    end)
+    b:HookScript("OnHide", function(self)
+        self._hovered, self._pressed = false, false; self:_repaint(NUL:GetTheme())
+    end)
+end
+
+-- Horizontal room around a label (both sides together) when a button sizes
+-- itself to its text. A fixed-width button only grows once its label leaves
+-- less than LABEL_MIN_PAD, so small square ones ("+", "x") stay as they are.
+local LABEL_PAD     = 24
+local LABEL_MIN_PAD = 8
 
 -- Centralised tooltip behaviour so all button variants behave identically
 -- on hover. Routes through the themed NUL tooltip (Widgets/Tooltip.lua)
@@ -48,6 +120,7 @@ function NUL:Button(parent, opts)
     local theme = self:GetTheme()
 
     local autoWidth = (opts.width == "auto" or opts.width == nil)
+    local fit       = opts.fit ~= false
     local height    = opts.height or (theme.metrics.rowHeight - 4)
     b:SetSize(type(opts.width) == "number" and opts.width or 80, height)
 
@@ -62,44 +135,48 @@ function NUL:Button(parent, opts)
 
     function b:AutoSize(minWidth, padding)
         minWidth = minWidth or 60
-        padding  = padding  or 24
+        padding  = padding  or LABEL_PAD
         local w = math.ceil(self.label:GetStringWidth()) + padding
         self:SetWidth(math.max(minWidth, w))
     end
 
-    function b:SetLabel(text)
-        self.label:SetText(text or "")
-        if autoWidth then self:AutoSize() end
+    -- Auto-width buttons re-fit both ways; fixed-width ones only grow, so a
+    -- longer translation stays inside the frame without reflowing layouts
+    -- that already fit.
+    function b:_FitLabel()
+        if autoWidth then self:AutoSize(); return end
+        if not fit then return end
+        local textW = math.ceil(self.label:GetStringWidth())
+        if textW + LABEL_MIN_PAD > self:GetWidth() then
+            self:SetWidth(textW + LABEL_PAD)
+        end
     end
 
-    function b:SetEnabled(v)
-        self._enabled = v and true or false
-        self:_repaint(NUL:GetTheme())
+    function b:SetLabel(text)
+        self.label:SetText(text or "")
+        self:_FitLabel()
     end
 
     function b:_repaint(t)
-        local rest, hover = styleColors(t, self._style)
-        self._restColor  = rest
-        self._hoverColor = hover
-        NUL.SetTextureColor(self.bg, rest)
-        NUL:RecolorBorder(self.borders, t.colors.border.subtle)
-        local fc = self._enabled and t.colors.text.primary or t.colors.text.disabled
-        NUL.SetFontColor(self.label, fc)
+        local colors = NUL:ResolveButtonColors(self._style, stateOf(self), t)
+        NUL.SetTextureColor(self.bg, colors.bg)
+        NUL:RecolorBorder(self.borders, colors.border)
+        NUL.SetFontColor(self.label, colors.text)
+        self.label:ClearAllPoints()
+        local down = self._pressed and self._enabled
+        self.label:SetPoint("CENTER", down and 1 or 0, down and -1 or 0)
     end
 
-    b:SetScript("OnEnter", function(self)
-        if not self._enabled then return end
-        NUL.SetTextureColor(self.bg, self._hoverColor)
-        NUL:RecolorBorder(self.borders, NUL:GetTheme().colors.border.accent)
+    wireState(b)
+    -- The custom font reports GetStringWidth() == 0 until it has been drawn
+    -- once, so a cold first measure comes out short: fit again on show and
+    -- one frame later.
+    b:HookScript("OnShow", function(self)
+        self:_FitLabel()
+        if C_Timer and C_Timer.After then
+            C_Timer.After(0, function() self:_FitLabel() end)
+        end
     end)
-    b:SetScript("OnLeave", function(self)
-        NUL.SetTextureColor(self.bg, self._restColor)
-        NUL:RecolorBorder(self.borders, NUL:GetTheme().colors.border.subtle)
-    end)
-    b:SetScript("OnMouseDown", function(self)
-        if self._enabled then self.label:SetPoint("CENTER", 1, -1) end
-    end)
-    b:SetScript("OnMouseUp", function(self) self.label:SetPoint("CENTER") end)
     if opts.onClick then
         b:SetScript("OnClick", function(self) if self._enabled then opts.onClick(self) end end)
     end
@@ -107,7 +184,7 @@ function NUL:Button(parent, opts)
     attachTooltip(b, opts.tooltip)
     self:_Track(b)
     b:_repaint(theme)
-    if autoWidth then b:AutoSize() end
+    b:_FitLabel()
     return b
 end
 
@@ -122,7 +199,8 @@ end
 -- Brightness is driven via icon:SetAlpha (rest/hover) while the HUE stays on
 -- SetVertexColor. Keeping the two channels separate lets callers own the hue
 -- (e.g. the blacklist row's mute/share toggles tint the icon accent/muted)
--- without the button's own repaint/hover clobbering it.
+-- without the button's own repaint/hover clobbering it. Chromed buttons take
+-- the role's text colour as hue, plain ones only an explicit icon token.
 
 function NUL:IconButton(parent, opts)
     opts = opts or {}
@@ -157,44 +235,27 @@ function NUL:IconButton(parent, opts)
     end
 
     function b:SetIcon(name) self.icon:SetTexture(NUL:ResolveIcon(name)) end
-    function b:SetEnabled(v)
-        self._enabled = v and true or false
-        self:_repaint(NUL:GetTheme())
-    end
     function b:_repaint(t)
+        local state = stateOf(self)
+        local colors = NUL:ResolveButtonColors(self._style, state, t)
         if self.bg then
-            local rest, hover = styleColors(t, self._style)
-            self._restColor, self._hoverColor = rest, hover
-            NUL.SetTextureColor(self.bg, rest)
-            NUL:RecolorBorder(self.borders, t.colors.border.subtle)
+            NUL.SetTextureColor(self.bg, colors.bg)
+            NUL:RecolorBorder(self.borders, colors.border)
         end
-        -- HUE only: danger tints red; default leaves whatever hue the caller
-        -- set (white by default, or a toggle's accent/muted tint). Brightness
-        -- is applied separately via SetAlpha so we never fight that tint.
-        if self._style == "danger" then
-            local d = t.colors.state.danger
-            self.icon:SetVertexColor(d.r, d.g, d.b, 1)
+        -- Plain toggles own their hue (mute/share in blacklist rows).
+        -- Only an explicit icon token, e.g. danger, takes ownership of hue.
+        local tint = colors.icon or (not self._plain and colors.text)
+        if tint then
+            self.icon:SetVertexColor(tint.r, tint.g, tint.b, tint.a or 1)
         end
-        self.icon:SetAlpha(self:_iconRestAlpha())
+        local alpha = self:_iconRestAlpha()
+        if self._enabled and self._plain then
+            alpha = state == "pressed" and 0.65 or (state == "hover" and 1 or alpha)
+        end
+        self.icon:SetAlpha(alpha)
     end
 
-    b:SetScript("OnEnter", function(self)
-        if not self._enabled then return end
-        if self._plain then
-            self.icon:SetAlpha(1)
-        else
-            NUL.SetTextureColor(self.bg, self._hoverColor)
-            NUL:RecolorBorder(self.borders, NUL:GetTheme().colors.border.accent)
-        end
-    end)
-    b:SetScript("OnLeave", function(self)
-        if self._plain then
-            self.icon:SetAlpha(self:_iconRestAlpha())
-        else
-            NUL.SetTextureColor(self.bg, self._restColor)
-            NUL:RecolorBorder(self.borders, NUL:GetTheme().colors.border.subtle)
-        end
-    end)
+    wireState(b)
     if opts.onClick then
         b:SetScript("OnClick", function(self) if self._enabled then opts.onClick(self) end end)
     end
@@ -236,6 +297,8 @@ function NUL:Pill(parent, opts)
 
     b.bg      = self:FillBackground(b)
     b.borders = self:AddBorder(b, nil, theme.metrics.borderThickness)
+    b._enabled = true
+    b._style = opts.style or "secondary"
     b._selected = opts.selected and true or false
 
     function b:SetSelected(v)
@@ -249,21 +312,16 @@ function NUL:Pill(parent, opts)
     end
 
     function b:_repaint(t)
-        if self._selected then
-            NUL.SetTextureColor(self.bg, t.colors.accent.primary)
-        else
-            NUL.SetTextureColor(self.bg, t.colors.bg.panel)
-        end
-        NUL.SetFontColor(self.label, t.colors.text.primary)
-        NUL:RecolorBorder(self.borders, t.colors.border.subtle)
+        local role = self._selected and (opts.selectedStyle or "primary") or self._style
+        local colors = NUL:ResolveButtonColors(role, stateOf(self), t)
+        NUL.SetTextureColor(self.bg, colors.bg)
+        NUL.SetFontColor(self.label, colors.text)
+        NUL:RecolorBorder(self.borders, colors.border)
     end
 
-    b:SetScript("OnEnter", function(self)
-        if self._selected then return end
-        NUL.SetTextureColor(self.bg, NUL:GetTheme().colors.bg.hover)
-    end)
-    b:SetScript("OnLeave", function(self) self:_repaint(NUL:GetTheme()) end)
+    wireState(b)
     b:SetScript("OnClick", function(self)
+        if not self._enabled then return end
         if opts.onClick then opts.onClick(self)
         else self:SetSelected(not self._selected) end
     end)

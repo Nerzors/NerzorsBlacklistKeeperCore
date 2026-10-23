@@ -1,6 +1,6 @@
 -- NerzorsUILib-1.0 :: Widgets/Window.lua
 -- Themed floating window: title bar, drag-to-move, close button, optional
--- gradient background (Sci-Fi theme), optional resize grip with bounds
+-- gradient background (gradient themes, e.g. "Forever"), optional resize grip with bounds
 -- and persistence, and a flexible "brand logo" that can either sit inline
 -- in the title bar ("embed" mode) or break out of the window edge like a
 -- CSS `position: absolute` element ("absolute" mode).
@@ -316,8 +316,10 @@ function NUL:Window(opts)
             end
         end
 
+        -- Hover in accent.primary: secondary is a dark surface tone in the
+        -- NBK themes and made the grip fainter on hover instead of brighter.
         grip:SetScript("OnEnter", function()
-            local c = NUL:GetTheme().colors.accent.secondary
+            local c = NUL:GetTheme().colors.accent.primary
             for _, d in ipairs(dots) do NUL.SetTextureColor(d, c) end
         end)
         grip:SetScript("OnLeave", function()

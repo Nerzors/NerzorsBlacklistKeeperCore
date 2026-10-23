@@ -261,10 +261,10 @@ function BlacklistTab:_ShowAddDialog(prefill)
     end
     dialog:SetOnAccept(function(values)
         if not values.name or values.name == "" then
-            return false, "name required"
+            return false, L["name required"]
         end
         local entry, err = NBK:AddPlayer(values.name, nil, values.reason)
-        if not entry then return false, err end
+        if not entry then return false, L[err] end
         local fields = {
             notes  = values.notes or "",
             mute   = values.mute and true or false,

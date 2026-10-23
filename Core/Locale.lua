@@ -21,21 +21,33 @@ local currentLocaleName = GetLocale() or "enUS"
 
 if currentLocaleName == "enGB" then currentLocaleName = "enUS" end
 
+local LOCALE_FALLBACK = {
+    esES = "esMX",
+}
+
+local function pick(loc, key)
+    local v = loc and loc[key]
+    if type(v) == "string" then return v end
+end
+
 local L = setmetatable({}, {
     __index = function(_, key)
-        local loc = NBK.locales[currentLocaleName]
-        if loc then
-            local v = loc[key]
-            if type(v) == "string" then return v end
-        end
-        local def = NBK.defaultLocale
-        if def then
-            local v = def[key]
-            if type(v) == "string" then return v end
-        end
-        return key
+        return pick(NBK.locales[currentLocaleName], key)
+            or pick(NBK.locales[LOCALE_FALLBACK[currentLocaleName]], key)
+            or pick(NBK.defaultLocale, key)
+            or key
     end,
 })
 
 NBK.L = L
 NBK.currentLocale = currentLocaleName
+
+function NBK:FormatDate(ts)
+    if not ts then return "-" end
+    return date(L["%d.%m.%Y"], ts)
+end
+
+function NBK:FormatDateTime(ts)
+    if not ts then return "-" end
+    return date(L["%d.%m. %H:%M"], ts)
+end

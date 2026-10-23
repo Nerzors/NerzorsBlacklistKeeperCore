@@ -130,7 +130,8 @@ function NBK:AddPlayer(name, realm, reason, unit)
     local ignoreSync = self:GetModule("IgnoreSync")
     if ignoreSync then ignoreSync:OnEntryAdded(entry) end
 
-    self:Print(("added |cff%s%s|r-%s"):format(self:GetClassHex(class), cleanName, cleanRealm))
+    self:Print(self.L["added %s"]:format(
+        ("|cff%s%s|r-%s"):format(self:GetClassHex(class), cleanName, cleanRealm)))
 
     if self._FireApiEvent then
         self:_FireApiEvent("BLACKLIST_ENTRY_ADDED", cleanName, cleanRealm, entry)
@@ -147,7 +148,7 @@ function NBK:RemovePlayer(name, realm)
     local ignoreSync = self:GetModule("IgnoreSync")
     if ignoreSync then ignoreSync:OnEntryRemoved(entry) end
 
-    self:Print(("removed %s-%s"):format(entry.name, entry.realm))
+    self:Print(self.L["removed %s"]:format(("%s-%s"):format(entry.name, entry.realm)))
     if self._FireApiEvent then
         self:_FireApiEvent("BLACKLIST_ENTRY_REMOVED", entry.name, entry.realm)
     end

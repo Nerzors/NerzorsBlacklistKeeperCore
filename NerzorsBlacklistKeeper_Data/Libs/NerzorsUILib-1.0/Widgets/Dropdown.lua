@@ -66,6 +66,7 @@ function NUL:Dropdown(parent, opts)
                 label  = opt.label,
                 width  = width - 4,
                 height = rowH - 2,
+                fit    = false,   -- rows stay as wide as the popup
                 onClick = function()
                     self:SetValue(opt.key)
                     hidePopup()

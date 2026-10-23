@@ -45,14 +45,15 @@ function handlers.add(args)
     local target, rest = args:match("^(%S+)%s*(.*)$")
     if not target then return usage() end
     local entry, err = NBK:AddPlayer(target, nil, rest ~= "" and rest or nil)
-    if not entry then NBK:Print("could not add:", err) end
+
+    if not entry then NBK:Print(NBK.L["could not add:"], NBK.L[err]) end
 end
 
 function handlers.remove(args)
     local target = args:match("^(%S+)")
     if not target then return usage() end
     local ok, err = NBK:RemovePlayer(target)
-    if not ok then NBK:Print("could not remove:", err) end
+    if not ok then NBK:Print(NBK.L["could not remove:"], NBK.L[err]) end
 end
 
 handlers.rm = handlers.remove
@@ -61,25 +62,27 @@ handlers.delete = handlers.remove
 function handlers.check(args)
     local target = args:match("^(%S+)")
     if not target then return usage() end
+    local L = NBK.L
     local entry = NBK:GetPlayer(target)
     if entry then
         local color = NBK:GetClassHex(entry.class)
-        NBK:Print(("|cff%s%s|r-%s - reason: %s (zone: %s)"):format(
-            color, entry.name, entry.realm,
+        local details = L["reason: %s (zone: %s)"]:format(
             entry.reason ~= "" and entry.reason or "-",
-            entry.zone ~= "" and entry.zone or "-"))
+            entry.zone ~= "" and entry.zone or "-")
+        NBK:Print(("|cff%s%s|r-%s - %s"):format(color, entry.name, entry.realm, details))
     else
-        NBK:Print("not on the list:", target)
+        NBK:Print(L["not on the list:"], target)
     end
 end
 
 function handlers.list()
+    local L = NBK.L
     local count = NBK:CountEntries()
     if count == 0 then
-        NBK:Print("blacklist is empty")
+        NBK:Print(L["blacklist is empty"])
         return
     end
-    NBK:Print(("%d entries:"):format(count))
+    NBK:Print(L["%d entries:"]:format(count))
     for _, entry in pairs(NBK:GetEntries()) do
         local color = NBK:GetClassHex(entry.class)
         local reason = entry.reason ~= "" and entry.reason or "-"
@@ -88,39 +91,39 @@ function handlers.list()
 end
 
 function handlers.share(args)
+    local L = NBK.L
     if not NBK:GetModule("Sync") then
-        NBK:Print("share unavailable - install NerzorsBlacklistKeeper_Sync")
+        NBK:Print(L["share unavailable - install NerzorsBlacklistKeeper_Sync"])
         return
     end
     local first = args:match("^(%S+)")
     if not first or first == "" then
-        NBK:Print("usage: /nbk share <name[-realm]> | /nbk share guild | /nbk share show")
+        NBK:Print(L["usage:"], "/nbk share <name[-realm]> | /nbk share guild | /nbk share show")
         return
     end
     local lower = first:lower()
+    local ok, sentOrErr
     if lower == "guild" then
-        local ok, sentOrErr = NBK:Share("GUILD")
-        if not ok then NBK:Print("share failed:", sentOrErr) end
+        ok, sentOrErr = NBK:Share("GUILD")
     elseif lower == "party" then
-        local ok, sentOrErr = NBK:Share("PARTY")
-        if not ok then NBK:Print("share failed:", sentOrErr) end
+        ok, sentOrErr = NBK:Share("PARTY")
     elseif lower == "raid" then
-        local ok, sentOrErr = NBK:Share("RAID")
-        if not ok then NBK:Print("share failed:", sentOrErr) end
+        ok, sentOrErr = NBK:Share("RAID")
     elseif lower == "show" then
-        NBK:ShowPendingShare()
+        return NBK:ShowPendingShare()
     else
-        local ok, sentOrErr = NBK:Share("WHISPER", first)
-        if not ok then NBK:Print("share failed:", sentOrErr) end
+        ok, sentOrErr = NBK:Share("WHISPER", first)
     end
+    if not ok then NBK:Print(L["share failed:"], L[sentOrErr]) end
 end
 
 function handlers.theme(args)
     local NUL = LibStub("NerzorsUILib-1.0")
+    local L = NBK.L
     local first = (args or ""):match("^(%S*)$")
     if not first or first == "" or first:lower() == "list" then
         local active = NUL:GetCurrentThemeName() or "-"
-        NBK:Print(("themes (active: |cff48a8dc%s|r):"):format(active))
+        NBK:Print(L["themes (active: %s):"]:format("|cff48a8dc" .. active .. "|r"))
         for _, name in ipairs(NUL:GetThemeNames()) do
             local marker = (name == active) and "|cff48a8dc*|r " or "  "
             NBK:Print("  " .. marker .. name)
@@ -128,12 +131,12 @@ function handlers.theme(args)
         return
     end
     if not NUL:HasTheme(first) then
-        NBK:Print(("unknown theme: %s (try /nbk theme list)"):format(first))
+        NBK:Print(L["unknown theme: %s (try /nbk theme list)"]:format(first))
         return
     end
     local ok = NUL:SetTheme(first)
     if ok then
-        NBK:Print(("theme: |cff48a8dc%s|r"):format(first))
+        NBK:Print(L["theme: %s"]:format("|cff48a8dc" .. first .. "|r"))
     end
 end
 
@@ -158,7 +161,7 @@ SlashCmdList.NBK = function(msg)
     if cmd == "" then return handlers.show() end
     local h = handlers[cmd]
     if not h then
-        NBK:Print("unknown command:", cmd)
+        NBK:Print(NBK.L["unknown command:"], cmd)
         return usage()
     end
     h(rest or "")

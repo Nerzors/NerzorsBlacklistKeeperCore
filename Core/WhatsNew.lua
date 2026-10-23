@@ -3,7 +3,8 @@ local _, NBK = ...
 function NBK:LocalizeNewsItem(item)
     if type(item) == "string" then return item end
     if type(item) ~= "table" then return tostring(item) end
-    local loc   = (GetLocale and GetLocale()) or "enUS"
+
+    local loc   = NBK.currentLocale or "enUS"
     local short = loc:sub(1, 2):lower()
     return item[loc] or item[short] or item.enUS or item.en or item[1] or ""
 end
@@ -34,7 +35,9 @@ function NBK:GetVisibleNews()
             for _, item in ipairs(section.items or {}) do
                 local sub = (type(item) == "table" and item.sub) or section.sub
                 if self:ShouldShowForModule(sub) then
-                    items[#items + 1] = { item = item, sub = sub }
+                    local go = type(item) == "table" and item.go or nil
+                    if go and not self:CanGoTo(go) then go = nil end
+                    items[#items + 1] = { item = item, sub = sub, go = go }
                 end
             end
             if #items > 0 then
@@ -54,6 +57,108 @@ function NBK:GetVisibleNews()
 end
 
 NBK.WHATS_NEW = {
+    {
+        version   = "2.0.0",
+        date      = "2026-10-24",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "NBK now speaks eight languages: on top of English and German it comes in Italian, French, Portuguese (Brazil), Spanish (Latin America and Spain) and Russian. The language follows your game client automatically - nothing to set up.",
+                        de = "NBK spricht jetzt acht Sprachen: Zu Englisch und Deutsch kommen Italienisch, Französisch, Portugiesisch (Brasilien), Spanisch (Lateinamerika und Spanien) und Russisch. Die Sprache richtet sich automatisch nach deinem Spiel-Client - einzustellen ist nichts.",
+                    },
+                    {
+                        en = "New \"Ignore list\" tab: see the game's ignore list right in NBK, tick several players and remove them in one go - with the option to take them off your blacklist too. Players that are also blacklisted show their date, reason and note, and the rest can be moved to NBK with one click.",
+                        de = "Neuer Reiter \"Ignorieren-Liste\": Die Ignorieren-Liste des Spiels direkt in NBK - mehrere Spieler anhaken und auf einmal entfernen, auf Wunsch auch gleich von der Blacklist. Wer zusätzlich auf der Blacklist steht, zeigt Datum, Grund und Notiz; alle anderen lassen sich mit einem Klick in NBK übernehmen.",
+                        go = "list:ignore",
+                    },
+                    {
+                        en = "NBK now notes when a player first shows up on your ignore list (the game itself keeps no date), and tells you when the game removes a character from it because it no longer exists.",
+                        de = "NBK merkt sich jetzt, seit wann ein Spieler auf deiner Ignorieren-Liste steht (das Spiel selbst speichert kein Datum), und meldet, wenn das Spiel einen Charakter daraus entfernt, weil es ihn nicht mehr gibt.",
+                    },
+                    {
+                        en = "The \"What's New\" window now features a \"Show me\" option, which takes you directly to the areas that have changed.",
+                        de = "Das Fenster „Was ist neu?“ enthält jetzt die Option „Zeig es mir“, die dich direkt zu den geänderten Bereichen führt.",
+                    },
+                    {
+                        en = "Chat messages and slash-command replies (/nbk list, /nbk check, sharing errors and so on) are translated now too - before, they were always in English.",
+                        de = "Auch Chat-Meldungen und Antworten auf Slash-Befehle (/nbk list, /nbk check, Fehler beim Teilen usw.) sind jetzt übersetzt - bisher kamen sie immer auf Englisch.",
+                    },
+                    {
+                        en = "WoW: Forever support: the same download now runs there too. Like on Classic, you get everything except Group Finder and Remember Me.",
+                        de = "Unterstützung für WoW: Forever: Der gleiche Download läuft jetzt auch dort. Wie auf Classic gibt es alles außer Gruppensuche und Merken.",
+                    },
+                },
+            },
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "The [Import from ignore list] button has been moved to the \"Advanced\" section of the settings.",
+                        de = "Funktion [Aus Ignorierliste importieren] wurde in den Bereich \"Erweitert\" der Einstellungen verschoben.",
+                        go = "settings:Advanced",
+                    },
+                    {
+                        en = "The setting \"Also add muted players to the game's ignore list\" remains under \"Notifications\".",
+                        de = "Die Einstellung \"Stummgeschaltete Spieler auch zur Ignorieren-Liste des Spiels hinzufügen\" verbleibt unter \"Benachrichtigungen\".",
+                        go = "settings:Notifications",
+                    },
+                    {
+                        en = "Dates follow your language: 19/10/2026 on French, Spanish, Italian and Portuguese clients; English, German and Russian keep 19.10.2026.",
+                        de = "Datumsangaben richten sich nach deiner Sprache: 19/10/2026 auf französischen, spanischen, italienischen und portugiesischen Clients; Englisch, Deutsch und Russisch bleiben bei 19.10.2026.",
+                    },
+                    {
+                        en = "The \"Sci-Fi\" theme is now \"Forever\": in the style of WoW: Forever. If you were using Sci-Fi, you're switched over automatically.",
+                        de = "Das Design \"Sci-Fi\" heißt jetzt \"Forever\": im Stil von WoW: Forever. Wer Sci-Fi genutzt hat, wird automatisch umgestellt.",
+                        go = "settings:Display",
+                    },
+                    {
+                        en = "New button look: every theme has its own, calmer button colours, main actions stand out, and you can see a button being pressed.",
+                        de = "Neues Knopf-Design: Jedes Theme hat eigene, ruhigere Farben für Knöpfe, Haupt-Aktionen heben sich ab, und man sieht, wenn ein Knopf gedrückt wird.",
+                    },
+                },
+            },
+            {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "A few buttons and labels were worded differently depending on which modules you had installed (for example \"Add to Blacklist\"). They now read the same everywhere.",
+                        de = "Ein paar Knöpfe und Beschriftungen hießen unterschiedlich, je nachdem, welche Module installiert waren (etwa \"Auf die Sperrliste\"). Sie lauten jetzt überall gleich.",
+                        sub = "_Sync",
+                    },
+                    {
+                        en = "Statistics was listed as \"out of date\" on Classic Era clients running 1.15.9.",
+                        de = "Statistik wurde auf Classic-Era-Clients mit 1.15.9 als \"veraltet\" geführt.",
+                        sub = "_Statistics",
+                    },
+                    {
+                        en = "With an outdated Data folder, Statistics printed a cryptic message instead of asking you to update it.",
+                        de = "Auf englischen Clients gab Statistik bei veraltetem Data-Ordner eine kryptische Meldung aus statt eines Update-Hinweises.",
+                        sub = "_Statistics",
+                    },
+                    {
+                        en = "Button text was hard to read on hover in some themes, especially Forever - fixed with the new button look. Buttons also grow with longer translations instead of letting the text run over the edge.",
+                        de = "Die Schrift auf Knöpfen war beim Überfahren mit der Maus in manchen Themes schwer lesbar, vor allem in Forever - mit dem neuen Knopf-Design behoben. Außerdem wachsen Knöpfe bei längeren Übersetzungen mit, statt den Text über den Rand laufen zu lassen.",
+                    },
+                },
+            },
+            {
+                kind  = "note",
+                items = {
+                    {
+                        en = "2.0.0 is the first stable release of NBK V2. Version numbers are plain from now on: 2.0.1 for fixes, 2.1.0 for new features - no more \"-dev\".",
+                        de = "2.0.0 ist die erste stabile Version von NBK V2. Versionsnummern sind ab jetzt schlicht: 2.0.1 für Fehlerbehebungen, 2.1.0 für neue Funktionen - kein „-dev\" mehr.",
+                    },
+                    {
+                        en = "The new translations are complete, but not all of them have been proofread by native speakers yet. Spotted a clumsy line? Let us know - corrections are very welcome. This \"What's new?\" window stays in English and German.",
+                        de = "Die neuen Übersetzungen sind vollständig, aber noch nicht alle von Muttersprachlern gegengelesen. Dir fällt eine holprige Stelle auf? Sag uns Bescheid - Korrekturen sind sehr willkommen. Dieses \"Was ist neu?\"-Fenster bleibt auf Englisch und Deutsch.",
+                    },
+                },
+            },
+        },
+    },
     {
         version   = "0.46.0",
         date      = "2026-08-25",
@@ -86,6 +191,7 @@ NBK.WHATS_NEW = {
                         en = "Statistics: a new \"Top realms\" card showing which realms your blacklist spans, alongside the top reasons and zones.",
                         de = "Statistik: eine neue Karte „Top-Realms\", die zeigt, auf welche Realms sich deine Blacklist verteilt - neben den Top-Gründen und -Zonen.",
                         sub = "_Statistics",
+                        go = "list:statistics",
                     },
                     {
                         en = "NBK now appears in the game's own settings (Options > AddOns), with a button that opens the addon's settings window - where you'd look first for any addon.",
@@ -145,10 +251,12 @@ NBK.WHATS_NEW = {
                     {
                         en = "Ignore-list integration: blacklisted players you mute can now be ignored by the game as well - no chat, no whispers, no invites from them. It's off by default; switch it on under Settings > Notifications.",
                         de = "Anbindung an die Ignorieren-Liste: Blacklist-Spieler, die du stummschaltest, können jetzt auch vom Spiel ignoriert werden - dann kommen von ihnen weder Chat noch Flüstern oder Einladungen durch. Standardmäßig aus; einzuschalten unter Einstellungen > Benachrichtigungen.",
+                        go = "settings:Notifications",
                     },
                     {
                         en = "Import from your ignore list: already ignoring people? Pull them onto your blacklist in one go - you pick who first, nothing happens behind your back.",
                         de = "Import aus der Ignorieren-Liste: Du ignorierst schon Spieler? Hol sie mit einem Klick auf die Blacklist - du wählst vorher aus, wen; es passiert nichts ungefragt.",
+                        go = "settings:Advanced",
                     },
                     {
                         en = "Taking someone off the blacklist lifts the ignore again - but only if the addon was the one that set it. Players you ignored by hand stay untouched.",
@@ -206,6 +314,7 @@ NBK.WHATS_NEW = {
                         en = "Statistics: a new tab with charts over your blacklist - growth per month, top reasons and zones, class spread, the players you run into most, and what the chat filters have spared you. Built entirely from data the addon already had, so it's meaningful from the first login.",
                         de = "Statistik: ein neuer Reiter mit Diagrammen zu deiner Blacklist - Wachstum pro Monat, Top-Gründe und -Zonen, Klassenverteilung, die Spieler, denen du am häufigsten begegnest, und was dir die Chat-Filter erspart haben. Komplett aus bereits vorhandenen Daten gebaut, also gleich beim ersten Login aussagekräftig.",
                         sub = "_Statistics",
+                        go = "list:statistics",
                     },
                 },
             },
@@ -216,6 +325,7 @@ NBK.WHATS_NEW = {
                         en = "Lua error from the Message History while in combat in a dungeon or raid (\"attempt to compare local 'text' a secret string value\"). Chat text is protected in instances now; the history no longer trips over that.",
                         de = "Lua-Fehler des Nachrichtenverlaufs im Kampf in Dungeons und Schlachtzügen (\"attempt to compare local 'text' a secret string value\"). Chat-Text ist in Instanzen geschützt; der Verlauf stolpert nicht mehr darüber.",
                         sub = "_ChatFilters",
+                        go = "settings:ChatFilters",
                     },
                     {
                         en = "Dropdowns were missing their arrow, so they didn't read as dropdowns.",
@@ -309,191 +419,6 @@ NBK.WHATS_NEW = {
                         en = "Message history only archives what's actually hidden. Turn on \"Hide chat messages from blacklisted players\" (Notifications) so muted players' chat is hidden from chat - and saved to history.",
                         de = "Der Nachrichtenverlauf speichert nur, was auch wirklich ausgeblendet wird. Aktiviere \"Hide chat messages from blacklisted players\" (Benachrichtigungen), damit der Chat stummgeschalteter Spieler ausgeblendet - und im Verlauf gesichert - wird.",
                         sub = "_ChatFilters",
-                    },
-                },
-            },
-        },
-    },
-    {
-        version   = "0.39.0",
-        date      = "2026-06-19",
-        sections  = {
-            {
-                kind  = "changed",
-                items = {
-                    {
-                        en = "The \"Tooltip\" sub-addon is gone - it's now part of the core addon. You don't need to install it separately anymore. (You can delete the old NerzorsBlacklistKeeper_Tooltip folder.)",
-                        de = "Das \"Tooltip\"-Sub-Addon ist weg - es ist jetzt Teil des Haupt-Addons. Du brauchst es nicht mehr extra zu installieren. (Den alten Ordner NerzorsBlacklistKeeper_Tooltip kannst du löschen.)",
-                    },
-                },
-            },
-            {
-                kind  = "new",
-                items = {
-                    {
-                        en = "Tooltip settings now let you toggle each row separately: reason, notes, zone, encounter history, mute indicator, pinned indicator.",
-                        de = "Tooltip-Einstellungen erlauben jetzt jede Zeile einzeln an-/auszuschalten: Grund, Notizen, Zone, Begegnungs-Historie, Stumm-Marker, Pin-Marker.",
-                    },
-                },
-            },
-            {
-                kind  = "fixed",
-                items = {
-                    {
-                        en = "Lua error in dungeons and raids when hovering over players (\"attempt to compare local 'realm' a secret string value\"). Same family of bug as the older \"name\" one, now also fixed for the realm field and for the post-Mythic+ party capture.",
-                        de = "Lua-Fehler in Dungeons und Schlachtzügen beim Hovern von Spielern (\"attempt to compare local 'realm' a secret string value\"). Gleicher Bug-Typ wie damals bei \"name\", jetzt auch fürs Realm-Feld und für die M+-Gruppen-Erfassung behoben.",
-                    },
-                },
-            },
-        },
-    },
-    {
-        version   = "0.38.0",
-        date      = "2026-06-18",
-        sections  = {
-            {
-                kind  = "new",
-                items = {
-                    {
-                        en = "\"_Nameplates\" This module has been removed and is no longer active.",
-                        de = "\"_Nameplates\" Dieses Modul wurde entfernt und ist nicht mehr aktiv.",
-                    },
-                },
-            },
-            {
-                kind  = "fixed",
-                items = {
-                    {
-                        en = "Core \"Created by ...\" The links were wrong / incorrect.",
-                        de = "Core \"Created by ...\" Links waren falsch bzw. inkorrekt",
-                    },
-                },
-            },
-        },
-    },
-    {
-        version   = "0.37.3",
-        date      = "2026-05-18",
-        sections  = {
-            {
-                kind  = "new",
-                items = {
-                    {
-                        en = "\"What's New?\" window. Opens once after every update so you don't miss what changed.",
-                        de = "\"Was ist neu?\"-Fenster. Öffnet sich nach jedem Update einmal automatisch, damit du keine Änderungen verpasst.",
-                    },
-                    {
-                        en = "/nbk news to reopen this window any time.",
-                        de = "/nbk news zum jederzeit erneuten Öffnen.",
-                    },
-                },
-            },
-            {
-                kind  = "fixed",
-                items = {
-                    {
-                        en = "Mythic+ \"Remember player?\" popup opened the moment you inserted the keystone instead of after the run. It now waits for a real run (at least 30 seconds elapsed) before showing up.",
-                        de = "Mythic+ \"Spieler merken?\"-Popup öffnete sich beim Einsetzen des Keystones statt nach dem Run. Es wartet jetzt auf einen echten Run (mindestens 30 Sekunden Spielzeit), bevor es erscheint.",
-                        sub = "_RememberMe",
-                    },
-                },
-            },
-        },
-    },
-    {
-        version  = "0.37.2",
-        date     = "2026-05-18",
-        sections = {
-            {
-                kind  = "new",
-                items = {
-                    {
-                        en = "Logo on the main window can be freely positioned and overhang the frame edge.",
-                        de = "Logo am Hauptfenster ist frei positionierbar und darf über den Fensterrand ragen.",
-                    },
-                    {
-                        en = "New centered footer with quick-link icons for Website, Discord, GitHub and Ko-fi. Click an icon to copy the URL. Each icon individually toggle-able in Display settings.",
-                        de = "Neuer mittiger Footer mit Schnellzugriff-Icons für Website, Discord, GitHub und Ko-fi. Klick öffnet die URL zum Kopieren. Jedes Icon in den Darstellungs-Einstellungen einzeln abschaltbar.",
-                    },
-                },
-            },
-            {
-                kind  = "fixed",
-                items = {
-                    {
-                        en = "Logo used to render behind the window title - now in front.",
-                        de = "Logo lag hinter dem Fenstertitel - jetzt davor.",
-                    },
-                },
-            },
-        },
-    },
-    {
-        version  = "0.37.1",
-        date     = "2026-05-18",
-        sections = {
-            {
-                kind  = "new",
-                items = {
-                    {
-                        en = "Auto-Sync receive popup redesigned: clean card with accent stripe, class-coloured player name, and the entry's note if one was attached.",
-                        de = "Auto-Sync Empfangs-Popup neu gestaltet: aufgeräumte Karte mit farbigem Akzentstreifen, Spielername in Klassenfarbe und Notiz (falls eine mitgeschickt wurde).",
-                        sub = "_Sync",
-                    },
-                },
-            },
-            {
-                kind  = "fixed",
-                items = {
-                    {
-                        en = "Auto-Sync ignored the \"Share this entry\" checkbox when adding a player - entries went out anyway. Now respected.",
-                        de = "Auto-Sync ignorierte das \"Diesen Eintrag teilen\"-Häkchen beim Hinzufügen - Einträge wurden trotzdem geteilt. Wird jetzt respektiert.",
-                        sub = "_Sync",
-                    },
-                },
-            },
-        },
-    },
-    {
-        version  = "0.37.0",
-        date     = "2026-05-17",
-        sections = {
-            {
-                kind  = "new",
-                items = {
-                    {
-                        en = "Auto-Sync: automatically share new blacklist entries the moment you add them. Pick recipients: your guild, online friends on your realm, or a custom name list.",
-                        de = "Auto-Sync: neu hinzugefügte Blacklist-Einträge sofort automatisch teilen. Empfänger wählbar: eigene Gilde, Online-Freunde auf deinem Realm oder eine selbst zusammengestellte Namensliste.",
-                        sub = "_Sync",
-                    },
-                    {
-                        en = "Sync now supports the Remember-Me list too, not just the blacklist.",
-                        de = "Sync unterstützt jetzt auch die Remember-Me-Liste, nicht mehr nur die Blacklist.",
-                        sub = "_Sync",
-                    },
-                },
-            },
-            {
-                kind  = "fixed",
-                items = {
-                    {
-                        en = "Tooltip Lua error during Mythic+ combat (Blizzard's protected-data system). The tooltip hook now bows out gracefully in instances + combat.",
-                        de = "Tooltip-Lua-Fehler im Mythic+-Kampf (Blizzards Sicherheitssystem). Der Tooltip-Hook hält sich in Instanzen + Kampf jetzt sauber zurück.",
-                    },
-                },
-            },
-        },
-    },
-    {
-        version  = "0.35.0",
-        date     = "2026-05-15",
-        sections = {
-            {
-                kind  = "new",
-                items = {
-                    {
-                        en = "Multi-list export/import: both the blacklist and the Remember-Me list are exportable. Import auto-detects which list the string belongs to.",
-                        de = "Multi-List Export/Import: sowohl Blacklist als auch Remember-Me sind exportierbar. Import erkennt automatisch, zu welcher Liste der String gehört.",
                     },
                 },
             },

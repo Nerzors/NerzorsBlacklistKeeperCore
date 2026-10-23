@@ -2,10 +2,16 @@
 ## Title: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r Data
 ## Notes: Shared assets (Libs, Textures, Fonts, Sounds) for |cffbe4ae9NerzorsBlacklistKeeper|r and its sub-addons. Required.
 ## Notes-deDE: Geteilte Ressourcen (Libs, Texturen, Schriftarten, Sounds) für |cffbe4ae9NerzorsBlacklistKeeper|r und seine Sub-Addons. Erforderlich.
+## Notes-itIT: Risorse condivise (librerie, texture, font, suoni) per |cffbe4ae9NerzorsBlacklistKeeper|r e i suoi moduli. Obbligatorio.
+## Notes-frFR: Ressources partagées (bibliothèques, textures, polices, sons) pour |cffbe4ae9NerzorsBlacklistKeeper|r et ses modules. Obligatoire.
+## Notes-ptBR: Recursos compartilhados (bibliotecas, texturas, fontes, sons) para o |cffbe4ae9NerzorsBlacklistKeeper|r e seus módulos. Obrigatório.
+## Notes-esMX: Recursos compartidos (bibliotecas, texturas, fuentes, sonidos) para |cffbe4ae9NerzorsBlacklistKeeper|r y sus módulos. Obligatorio.
+## Notes-esES: Recursos compartidos (bibliotecas, texturas, fuentes, sonidos) para |cffbe4ae9NerzorsBlacklistKeeper|r y sus módulos. Obligatorio.
+## Notes-ruRU: Общие ресурсы (библиотеки, текстуры, шрифты, звуки) для |cffbe4ae9NerzorsBlacklistKeeper|r и его модулей. Обязательно.
 ## Author: Nerzors
-## Version: 0.46.1
+## Version: 2.0.0
 ## Group: NerzorsBlacklistKeeper
-## IconTexture: Interface\AddOns\NerzorsBlacklistKeeper_Data\Textures\NerzorsBlacklistKeeper_classic_Logo
+## IconTexture: Interface\AddOns\NerzorsBlacklistKeeper_Data\Textures\NerzorsBlacklistKeeper_Forever_Logo
 ## Category: Social
 
 Libs\Libs.xml

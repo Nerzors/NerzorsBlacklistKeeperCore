@@ -37,12 +37,13 @@ local function buildAdvancedTab(parent)
 
     local monthsDD = NUL:Dropdown(panel, {
         width = 110, height = 24,
+
         options = {
-            { key = 1,  label = (L["%d month"]  or "%d month"):format(1)   },
-            { key = 3,  label = (L["%d months"] or "%d months"):format(3)  },
-            { key = 6,  label = (L["%d months"] or "%d months"):format(6)  },
-            { key = 12, label = (L["%d months"] or "%d months"):format(12) },
-            { key = 24, label = (L["%d months"] or "%d months"):format(24) },
+            { key = 1,  label = L["1 month"]   },
+            { key = 3,  label = L["3 months"]  },
+            { key = 6,  label = L["6 months"]  },
+            { key = 12, label = L["12 months"] },
+            { key = 24, label = L["24 months"] },
         },
         value = Config:GetPath({"autoCleanup", "months"}, 6),
         onSelect = function(key)
@@ -108,7 +109,7 @@ local function buildAdvancedTab(parent)
     })
     resetBtn:SetPoint("LEFT", importBtn, "RIGHT", 8, 0)
 
-    panel.lastY = y - 36
+    y = y - 36
 
     local hint = NUL:CreateLabel(panel, {
         text  = L["Changes save automatically."],
@@ -117,6 +118,30 @@ local function buildAdvancedTab(parent)
     })
     hint:SetPoint("BOTTOMLEFT", 0, 0)
 
+    local ignoreSync = NBK:GetModule("IgnoreSync")
+    if ignoreSync and ignoreSync:IsAvailable() then
+        y = y - 14
+        local _, ny8 = Config:AddDivider(panel, y); y = ny8
+        local _, ny9 = Config:AddSectionLabel(panel, y, "Ignore list"); y = ny9
+
+        local importNote = NUL:CreateLabel(panel, {
+            text  = L["Import your WoW ignore list to NBK"],
+            size  = "xs",
+            color = theme.colors.text.muted,
+        })
+        importNote:SetPoint("TOPLEFT", 0, y)
+        y = y - 18
+
+        local importIgnoreBtn = NUL:Button(panel, {
+            label = L["Import from ignore list"],
+            width = 220, height = 24,
+            onClick = function() ignoreSync:ShowImport() end,
+        })
+        importIgnoreBtn:SetPoint("TOPLEFT", 0, y)
+        y = y - 32
+    end
+
+    panel.lastY = y
     return panel
 end
 

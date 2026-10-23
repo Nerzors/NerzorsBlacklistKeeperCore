@@ -40,6 +40,40 @@ function NBK:GetModuleLabel(name)
     return name
 end
 
+local function parseGoTo(target)
+    if type(target) ~= "string" then return nil end
+    return target:match("^(%a+):(.+)$")
+end
+
+function NBK:CanGoTo(target)
+    local where, key = parseGoTo(target)
+    if where == "settings" then
+        local cfg = self:GetModule("Config")
+        for _, tab in ipairs(cfg and cfg._tabs or {}) do
+            if tab.key == key then return true end
+        end
+    elseif where == "list" then
+        local lw = self:GetModule("ListWindow")
+        return (lw and lw.GetTabSpec and lw:GetTabSpec(key)) ~= nil
+    end
+    return false
+end
+
+function NBK:GoTo(target)
+    if not self:CanGoTo(target) then return false end
+    local where, key = parseGoTo(target)
+    if where == "settings" then
+        local cfg = self:GetModule("Config")
+        cfg:Show()
+        cfg:SelectTab(key)
+    else
+        local lw = self:GetModule("ListWindow")
+        lw:Show()
+        lw:SwitchTab(key)
+    end
+    return true
+end
+
 local frame = CreateFrame("Frame", addonName .. "EventFrame")
 NBK.frame = frame
 

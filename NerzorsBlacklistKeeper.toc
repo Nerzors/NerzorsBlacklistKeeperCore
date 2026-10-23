@@ -2,8 +2,14 @@
 ## Title: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r
 ## Notes: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r adds a handy blacklist management feature that allows you to quickly block and manage unwanted players.
 ## Notes-deDE: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r bietet eine praktische Funktion zur Verwaltung einer Blacklist, mit der du unerwünschte Spieler schnell blockieren und verwalten kannst.
+## Notes-itIT: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r aggiunge una pratica gestione della lista nera per bloccare e gestire rapidamente i giocatori indesiderati.
+## Notes-frFR: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r ajoute une gestion pratique de liste noire pour bloquer et gérer rapidement les joueurs indésirables.
+## Notes-ptBR: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r adiciona um gerenciamento prático de lista negra para bloquear e gerenciar rapidamente jogadores indesejados.
+## Notes-esMX: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r agrega una práctica lista negra para bloquear y administrar rápidamente a jugadores no deseados.
+## Notes-esES: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r añade una práctica lista negra para bloquear y gestionar rápidamente a jugadores no deseados.
+## Notes-ruRU: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r добавляет удобный блэклист, чтобы быстро блокировать нежелательных игроков и управлять ими.
 ## Author: Nerzors
-## Version: 0.46.1
+## Version: 2.0.0
 ## Dependencies: NerzorsBlacklistKeeper_Data
 ## SavedVariables: NBKDB
 ## IconTexture: Interface\AddOns\NerzorsBlacklistKeeper_Data\Textures\NerzorsBlacklistKeeper_Midnight_Logo

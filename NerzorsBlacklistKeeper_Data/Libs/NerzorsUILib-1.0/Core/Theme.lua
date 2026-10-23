@@ -10,7 +10,11 @@
 --     text   = { primary, muted, disabled, inverse },
 --     accent = { primary, secondary },
 --     state  = { success, warning, danger, info },
+--     btn    = { primary, secondary, danger, ghost }, -- optional button roles
 --   }
+-- A button role has normal/hover/pressed/disabled entries with bg/text/border
+-- and optional icon colors. Missing tokens use compatible widget fallbacks
+-- (NUL:ResolveButtonColors in Widgets/Button.lua).
 --   fonts      = { regular, bold, mono, heading }     -- font file paths
 --   fontSizes  = { xs, sm, md, lg, xl }
 --   spacing    = { xs, sm, md, lg }                   -- design tokens
@@ -27,7 +31,7 @@
 --
 -- Switching themes at runtime:
 --   NUL:SetTheme("Midnight")                 sets active + repaints + fires module hooks
---   /nbk theme Sci-Fi                        slash-command equivalent (host addon side)
+--   /nbk theme Forever                       slash-command equivalent (host addon side)
 --   NUL:RegisterThemeChangedCallback(fn)     fires (theme, name) on every swap
 --
 -- Path lookup:

@@ -81,13 +81,6 @@ local function buildNotificationsTab(parent)
         capNote:SetPoint("TOPLEFT", 0, y)
         y = y - 18
 
-        local importBtn = NUL:Button(panel, {
-            label = L["Import from ignore list"] or "Import from ignore list",
-            width = 200, height = 24,
-            onClick = function() ignoreSync:ShowImport() end,
-        })
-        importBtn:SetPoint("TOPLEFT", 0, y)
-        y = y - 32
     end
 
     panel.lastY = y

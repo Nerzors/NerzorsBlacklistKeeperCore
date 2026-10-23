@@ -53,6 +53,63 @@ function NUL.SetFontColor(fs, c)
     fs:SetTextColor(rgba(c))
 end
 
+-- ─── Contrast helpers ──────────────────────────────────────────────────
+-- WCAG 2.x relative luminance + contrast ratio. Lets a widget pick a
+-- readable text colour for whatever fill the theme hands it, instead of
+-- assuming light text works on every accent (it doesn't on a gold one).
+
+local function linear(v)
+    if v <= 0.03928 then return v / 12.92 end
+    return ((v + 0.055) / 1.055) ^ 2.4
+end
+
+function NUL.Luminance(c)
+    local r, g, b = rgba(c)
+    return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+end
+
+-- Contrast ratio of two colours: 1 (none) .. 21 (black on white).
+function NUL.Contrast(c1, c2)
+    local l1, l2 = NUL.Luminance(c1), NUL.Luminance(c2)
+    if l1 < l2 then l1, l2 = l2, l1 end
+    return (l1 + 0.05) / (l2 + 0.05)
+end
+
+-- `top` composited over an opaque `bottom`, using top's alpha as coverage.
+function NUL.Blend(top, bottom)
+    local r1, g1, b1, a = rgba(top)
+    local r2, g2, b2    = rgba(bottom)
+    return { r = r1 * a + r2 * (1 - a), g = g1 * a + g2 * (1 - a),
+             b = b1 * a + b2 * (1 - a), a = 1 }
+end
+
+-- Below this the theme's light text gives way to text.inverse (WCAG AA).
+NUL.MIN_TEXT_CONTRAST = 4.5
+
+-- Readable text colour on `fill`, staying inside the theme's palette: the
+-- first of text.primary, text.inverse, bg.base (the darkest surface - for
+-- themes whose inverse is a mid tone) that reaches MIN_TEXT_CONTRAST, or
+-- else whichever of them contrasts most. A translucent fill is judged over
+-- `under` (default bg.panel), which is what it sits on in practice.
+function NUL:ReadableTextOn(fill, theme, under)
+    theme = theme or self:GetTheme()
+    local c = theme.colors
+    if not fill then return c.text.primary end
+    local _, _, _, a = rgba(fill)
+    if a < 1 then fill = NUL.Blend(fill, under or c.bg.panel) end
+    local cands = { c.text.primary, c.text.inverse, c.bg.base }
+    local best, bestRatio = c.text.primary, 0
+    for i = 1, 3 do   -- not ipairs: a theme without text.inverse leaves a hole
+        local cand = cands[i]
+        if cand then
+            local ratio = NUL.Contrast(cand, fill)
+            if ratio >= NUL.MIN_TEXT_CONTRAST then return cand end
+            if ratio > bestRatio then best, bestRatio = cand, ratio end
+        end
+    end
+    return best
+end
+
 -- ─── Frame primitives ──────────────────────────────────────────────────
 
 function NUL:FillBackground(parent, color)

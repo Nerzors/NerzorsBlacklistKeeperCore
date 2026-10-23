@@ -16,7 +16,7 @@
 --   NUL._widgets     table  weak-keyed live widgets  (this file)
 --   NUL:<Widget>(...)       widget constructors      (Widgets/*.lua)
 
-local MAJOR, MINOR = "NerzorsUILib-1.0", 1
+local MAJOR, MINOR = "NerzorsUILib-1.0", 2
 local NUL, oldMinor = LibStub:NewLibrary(MAJOR, MINOR)
 if not NUL then return end -- already loaded at this or higher minor
 

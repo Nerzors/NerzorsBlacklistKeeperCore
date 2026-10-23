@@ -194,8 +194,10 @@ function ListWindow:_RebuildFooter()
     end
 
     if on("showVersion") then
-        local txt = (L["Version: %s"] or "Version: %s")
-            :format("2.0.0-dev." .. tostring(NBK.version))
+
+        local ver = tostring(NBK.version)
+        if ver:match("^0%.") then ver = "2.0.0-dev." .. ver end
+        local txt = (L["Version: %s"] or "Version: %s"):format(ver)
         table.insert(chunks, {
             kind = "label", text = txt,
             build = function(parent)

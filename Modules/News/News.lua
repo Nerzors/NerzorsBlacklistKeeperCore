@@ -5,27 +5,27 @@ local News = NBK:RegisterModule("News")
 
 local SECTION_META = {
     new = {
-        labelEn = "New",     labelDe = "Neu",
+        labelKey = "New",
         colorToken = "state.success",
     },
     fixed = {
-        labelEn = "Fixed",   labelDe = "Behoben",
+        labelKey = "Fixed",
         colorToken = "state.info",
     },
     changed = {
-        labelEn = "Changed", labelDe = "Geändert",
+        labelKey = "Changed",
         colorToken = "state.warning",
     },
     note = {
-        labelEn = "Note",    labelDe = "Hinweis",
+
+        labelKey = "Note (news section)",
         colorToken = "text.muted",
     },
 }
 
 local function sectionLabel(kind)
     local meta = SECTION_META[kind or "note"] or SECTION_META.note
-    local loc = GetLocale and GetLocale() or "enUS"
-    if loc == "deDE" then return meta.labelDe else return meta.labelEn end
+    return NBK.L[meta.labelKey]
 end
 
 local function tokenColor(theme, path)
@@ -49,6 +49,9 @@ local CARD_CHROME     = 40
 local BULLET_W        = 12
 local BULLET_GAP      = 4
 local ROW_INDENT      = 2
+local GO_PAD          = 6
+local GO_LINK_H       = 12
+local GO_LINK_GAP     = 2
 
 function News:_Build()
     if self.frame then return self.frame end
@@ -135,6 +138,7 @@ end
 
 function News:_Populate()
     local theme   = NUL:GetTheme()
+    local L       = NBK.L
     local content = self._content
     if not content then return end
 
@@ -239,10 +243,12 @@ function News:_Populate()
                         local badge = rec.sub and NBK:GetModuleLabel(rec.sub)
                         if badge then
                             text = ("|cff%s%s|r  %s"):format(
-                                NUL.ToHex(theme.colors.accent.secondary), badge, text)
+                                NUL.ToHex(theme.colors.accent.primary), badge, text)
                         end
 
-                        local row = CreateFrame("Frame", nil, card.content)
+                        local pad = rec.go and GO_PAD or 0
+
+                        local row = CreateFrame(rec.go and "Button" or "Frame", nil, card.content)
                         row:SetPoint("TOPLEFT",  card.content, "TOPLEFT",  ROW_INDENT, -innerY)
                         row:SetPoint("TOPRIGHT", card.content, "TOPRIGHT", 0,          -innerY)
 
@@ -250,7 +256,7 @@ function News:_Populate()
                             text = "•", size = "md",
                             color = theme.colors.accent.primary,
                         })
-                        bullet:SetPoint("TOPLEFT", 0, 0)
+                        bullet:SetPoint("TOPLEFT", pad, -pad)
                         bullet:SetWidth(BULLET_W)
 
                         local body = NUL:CreateLabel(row, {
@@ -260,10 +266,37 @@ function News:_Populate()
                         })
                         body:SetPoint("TOPLEFT", bullet, "TOPRIGHT", BULLET_GAP, 0)
 
-                        body:SetWidth(bodyTextWidth)
+                        body:SetWidth(bodyTextWidth - 2 * pad)
                         body:SetWordWrap(true)
 
                         local h = math.max(16, math.ceil(body:GetStringHeight() or 16) + 2)
+
+                        if rec.go then
+                            local link = NUL:CreateLabel(row, {
+                                text = L["Show me"] .. " »", size = "sm",
+                                color = theme.colors.accent.primary, wrap = false,
+                            })
+                            link:SetPoint("BOTTOMRIGHT", -GO_PAD, GO_PAD)
+                            h = GO_PAD + h + GO_LINK_GAP + GO_LINK_H + GO_PAD
+
+                            local fill    = NUL:FillBackground(row, NUL.WithAlpha(theme.colors.border.subtle, 0.25))
+                            local borders = NUL:AddBorder(row, theme.colors.accent.primary)
+                            row:SetScript("OnEnter", function()
+                                NUL.SetTextureColor(fill, NUL.WithAlpha(theme.colors.accent.primary, 0.12))
+                                NUL:RecolorBorder(borders, theme.colors.accent.primary)
+                            end)
+                            row:SetScript("OnLeave", function()
+                                NUL.SetTextureColor(fill, NUL.WithAlpha(theme.colors.border.subtle, 0.25))
+                                NUL:RecolorBorder(borders, theme.colors.accent.primary)
+                            end)
+
+                            local target = rec.go
+                            row:SetScript("OnClick", function()
+                                if self.frame then self.frame:Hide() end
+                                NBK:GoTo(target)
+                            end)
+                        end
+
                         row:SetHeight(h)
                         innerY = innerY + h + ITEM_GAP
                     end

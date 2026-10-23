@@ -5,4 +5,10 @@
   <!-- NBK Locales -->
   <Script file="enUS.lua"/>
   <Script file="deDE.lua"/>
+  <Script file="itIT.lua"/>
+  <Script file="frFR.lua"/>
+  <Script file="ptBR.lua"/>
+  <Script file="esMX.lua"/>
+  <Script file="esES.lua"/>
+  <Script file="ruRU.lua"/>
 </Ui>

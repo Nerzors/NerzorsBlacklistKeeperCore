@@ -179,10 +179,9 @@ function IgnoreSync:_BuildImport()
     return f
 end
 
-function IgnoreSync:_DoImport()
-    local keys = self._list and self._list:GetSelectedKeys() or {}
+function IgnoreSync:ImportNames(fulls)
     local added = 0
-    for _, full in ipairs(keys) do
+    for _, full in ipairs(fulls or {}) do
         local name, realm = splitIgnore(full)
         if name and not NBK:IsBlacklisted(name, realm) then
             local entry = NBK:AddPlayer(name, realm,
@@ -194,6 +193,12 @@ function IgnoreSync:_DoImport()
             end
         end
     end
+    return added
+end
+
+function IgnoreSync:_DoImport()
+    local keys = self._list and self._list:GetSelectedKeys() or {}
+    local added = self:ImportNames(keys)
     if self._importFrame then self._importFrame:Hide() end
 
     NBK:Print((NBK.L["Imported %d player(s) from the ignore list."]

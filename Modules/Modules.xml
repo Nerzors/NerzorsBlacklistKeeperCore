@@ -16,6 +16,10 @@
   <!-- IgnoreSync: bridge to WoW's own /ignore list. Loads before Config so
        the Notifications tab can reach it for the import button. -->
   <Script file="IgnoreSync\IgnoreSync.lua"/>
+  <!-- IgnoreManager: the "Ignore list" main-window tab (data + tab). Needs
+       IgnoreSync above and the ListWindow it registers its tab with. -->
+  <Script file="IgnoreManager\IgnoreManager.lua"/>
+  <Script file="IgnoreManager\IgnoreTab.lua"/>
   <!-- Config is split across multiple files (Tabs/, Dialogs/, helpers).
        See Config/Config.xml for the load order. -->
   <Include file="Config\Config.xml"/>

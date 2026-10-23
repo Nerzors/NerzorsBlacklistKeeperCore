@@ -1,6 +1,6 @@
 -- NerzorsUILib-1.0 :: Core/Gradient.lua
 -- Soft gradient backgrounds for windows/panels. Used by themes that opt
--- into the Sci-Fi gradient look (theme.window.useGradient = true).
+-- into a gradient theme such as NBK's "Forever" (theme.window.useGradient = true).
 --
 -- Reads theme.window.gradient.{start,end} as anchor colors; falls back
 -- to bg.base / bg.elevated so a theme without explicit gradient settings

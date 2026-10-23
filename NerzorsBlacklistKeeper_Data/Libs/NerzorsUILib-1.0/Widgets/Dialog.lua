@@ -68,6 +68,7 @@ function NUL:Dialog(opts)
 
     local cancel = NUL:Button(f.content, {
         label = opts.cancelLabel or (CANCEL or "Cancel"),
+        style = "secondary",
         width = 80, height = 24,
         onClick = function()
             f:Hide()
@@ -78,7 +79,7 @@ function NUL:Dialog(opts)
 
     local accept = NUL:Button(f.content, {
         label = opts.acceptLabel or (OKAY or "OK"),
-        width = 80, height = 24, style = "accent",
+        width = 80, height = 24, style = "primary",
     })
     accept:SetPoint("BOTTOMRIGHT", cancel, "BOTTOMLEFT", -6, 0)
 
