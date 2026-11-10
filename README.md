@@ -97,7 +97,7 @@ NBK also includes a positive **Remember Me** list for trusted players, recent pa
 1. Install from one of the **official sources** listed in
    [`LICENSE.md`](LICENSE.md): GitHub Releases, CurseForge or Wago.io.
 2. Extract so each folder lands directly in your AddOns directory
-   (`_retail_`, `_classic_era_`, `_classic_` or `_classic_beta_` for WoW: Forever -
+   (`_retail_`, `_classic_era_`, `_classic_` or `_forever_` -
    the same files work in all):
 
    ```
