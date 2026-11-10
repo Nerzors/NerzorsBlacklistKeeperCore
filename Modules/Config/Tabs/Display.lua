@@ -80,14 +80,26 @@ local function buildDisplayTab(parent)
     local refresh = function() Config:RefreshList() end
     local _, ny3 = Config:AddCheckboxRow(panel, y, "Color player names by class",
         {"display", "colorNameByClass"}, true, refresh); y = ny3
-    local _, ny4 = Config:AddCheckboxRow(panel, y, "Show name and realm in one column",
-        {"display", "combinedName"}, true, refresh); y = ny4
+
+    if not NBK:IsForever() then
+        local _, ny4 = Config:AddCheckboxRow(panel, y, "Show name and realm in one column",
+            {"display", "combinedName"}, true, refresh); y = ny4
+    end
     local _, ny5 = Config:AddCheckboxRow(panel, y, "Show zone column",
         {"display", "showZoneColumn"}, false, refresh); y = ny5
     local _, ny6 = Config:AddCheckboxRow(panel, y, "Show date-added column",
         {"display", "showAddedColumn"}, false, refresh); y = ny6
     local _, ny7 = Config:AddCheckboxRow(panel, y, "Show last-seen column",
         {"display", "showSeenColumn"}, false, refresh); y = ny7
+
+    local seasonal = NBK:GetModule("Seasonal")
+    if seasonal:inDecember() then
+        local snowCb, ny8 = Config:AddCheckboxRow(panel, y, "Christmas decoration in December",
+            {"display", "seasonalDecor"}, true, function()
+                if seasonal then seasonal:Refresh() end
+            end); y = ny8
+        NUL:AttachTooltip(snowCb, L["Snow on the buttons of the main window, automatically from 1 to 31 December."])
+    end
 
     local lw = NBK:GetModule("ListWindow")
     local registeredOrder = lw and lw._tabOrder or {}

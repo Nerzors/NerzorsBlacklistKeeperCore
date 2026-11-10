@@ -20,7 +20,7 @@ local function findUnitForPlayer(name, realm)
 
     local function matches(unit)
         if not UnitExists(unit) or not UnitIsPlayer(unit) then return false end
-        local n, r = UnitName(unit)
+        local n, r = NBK:UnitPlayer(unit)
         if n ~= name then return false end
         r = (r and r ~= "") and r or myRealm
         return r == realm
@@ -100,7 +100,7 @@ function NBK:AddPlayer(name, realm, reason, unit)
 
     local class, classColor = self:ResolveClass(cleanName, cleanRealm, unit)
     local zone = GetRealZoneText() or GetZoneText() or ""
-    local player = UnitName("player")
+    local player = self:PlayerName()
     local playerRealm = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName()
 
     local settings = self.db and self.db.settings or {}
@@ -114,7 +114,8 @@ function NBK:AddPlayer(name, realm, reason, unit)
         classColor = classColor,
         addedAt = time(),
         zone = zone,
-        reason = reason or "",
+
+        reason = self:ReasonKey(reason or ""),
         notes = "",
         mute = muteDefault,
         shareable = shareableDefault,
@@ -131,7 +132,7 @@ function NBK:AddPlayer(name, realm, reason, unit)
     if ignoreSync then ignoreSync:OnEntryAdded(entry) end
 
     self:Print(self.L["added %s"]:format(
-        ("|cff%s%s|r-%s"):format(self:GetClassHex(class), cleanName, cleanRealm)))
+        self:DisplayName(cleanName, cleanRealm, self:GetClassHex(class))))
 
     if self._FireApiEvent then
         self:_FireApiEvent("BLACKLIST_ENTRY_ADDED", cleanName, cleanRealm, entry)
@@ -148,7 +149,7 @@ function NBK:RemovePlayer(name, realm)
     local ignoreSync = self:GetModule("IgnoreSync")
     if ignoreSync then ignoreSync:OnEntryRemoved(entry) end
 
-    self:Print(self.L["removed %s"]:format(("%s-%s"):format(entry.name, entry.realm)))
+    self:Print(self.L["removed %s"]:format(self:DisplayName(entry.name, entry.realm)))
     if self._FireApiEvent then
         self:_FireApiEvent("BLACKLIST_ENTRY_REMOVED", entry.name, entry.realm)
     end
@@ -192,6 +193,7 @@ function NBK:UpdateEntry(name, realm, fields)
     local entry = self:GetPlayer(name, realm)
     if not entry then return false, "not found" end
     for k, v in pairs(fields) do entry[k] = v end
+    if fields.reason ~= nil then entry.reason = self:ReasonKey(fields.reason) end
     if self._FireApiEvent then
         self:_FireApiEvent("BLACKLIST_ENTRY_CHANGED", entry.name, entry.realm, entry)
     end

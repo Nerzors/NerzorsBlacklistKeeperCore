@@ -17,6 +17,16 @@ function NBK:RegisterLocaleStrings(locale, strings, isDefault)
     return L
 end
 
+NBK.flavorLocales = NBK.flavorLocales or {}
+
+function NBK:RegisterFlavorStrings(flavor, locale, strings)
+    if flavor ~= self.FLAVOR or type(locale) ~= "string" or type(strings) ~= "table" then return end
+    self.flavorLocales[locale] = self.flavorLocales[locale] or {}
+    for k, v in pairs(strings) do
+        if type(v) == "string" then self.flavorLocales[locale][k] = v end
+    end
+end
+
 local currentLocaleName = GetLocale() or "enUS"
 
 if currentLocaleName == "enGB" then currentLocaleName = "enUS" end
@@ -32,8 +42,13 @@ end
 
 local L = setmetatable({}, {
     __index = function(_, key)
-        return pick(NBK.locales[currentLocaleName], key)
-            or pick(NBK.locales[LOCALE_FALLBACK[currentLocaleName]], key)
+        local fallback = LOCALE_FALLBACK[currentLocaleName]
+        local flavor   = NBK.flavorLocales
+        return pick(flavor[currentLocaleName], key)
+            or (fallback and pick(flavor[fallback], key))
+            or pick(NBK.locales[currentLocaleName], key)
+            or pick(NBK.locales[fallback], key)
+            or pick(flavor.enUS, key)
             or pick(NBK.defaultLocale, key)
             or key
     end,

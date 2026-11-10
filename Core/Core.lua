@@ -18,6 +18,14 @@ NBK.OPTIONAL_MODULES = {
     { tag = "_Recents",     key = "Recents",     labelKey = "Recents"      },
     { tag = "_RememberMe",  key = "RememberMe",  labelKey = "Remember Me"  },
     { tag = "_Statistics",  key = "Statistics",  labelKey = "Statistics"   },
+    { tag = "_IgnoreManager", key = "IgnoreAllChars", labelKey = "Ignore Manager" },
+}
+
+NBK.RETAIL_ONLY_MODULES = { "_GroupFinder", "_RememberMe" }
+
+NBK.REMOVED_MODULES = {
+    { tag = "_Tooltip",    reason = "merged" },
+    { tag = "_Nameplates", reason = "discontinued" },
 }
 
 function NBK:ShouldShowForModule(name)
@@ -38,6 +46,112 @@ function NBK:GetModuleLabel(name)
         end
     end
     return name
+end
+
+local function detectFlavor()
+    local id = WOW_PROJECT_ID
+    if id == (WOW_PROJECT_MAINLINE or 1)       then return "retail"  end
+    if id == (WOW_PROJECT_CLASSIC or 2)        then return "era"     end
+    if id == (WOW_PROJECT_MISTS_CLASSIC or 19) then return "mop"     end
+    if id == (WOW_PROJECT_CAMELOT or 18)       then return "forever" end
+    return "unknown"
+end
+NBK.FLAVOR = detectFlavor()
+
+function NBK:GetFlavor() return self.FLAVOR end
+function NBK:IsRetail()  return self.FLAVOR == "retail" end
+function NBK:IsForever() return self.FLAVOR == "forever" end
+
+function NBK:IsClassic() return self.FLAVOR ~= "retail" end
+
+function NBK:UnitPlayer(unit)
+    local name, second = UnitName(unit)
+    if not self:IsForever() or not name then return name, second end
+    if issecretvalue and (issecretvalue(name) or issecretvalue(second)) then
+        return name, second
+    end
+    if type(second) == "string" and second ~= "" then
+        return name .. " " .. second, nil
+    end
+    return name, nil
+end
+
+function NBK:PlayerName()
+    return (self:UnitPlayer("player"))
+end
+
+function NBK:PlayerFullName()
+    local name  = self:PlayerName()
+    local realm = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName()
+    if not name or not realm then return nil end
+    return name .. "-" .. realm
+end
+
+function NBK:RealmSuffix(realm)
+    if not self:IsForever() then return "-" .. (realm or "") end
+    if realm == nil or (issecretvalue and issecretvalue(realm)) then return "" end
+    local own = GetNormalizedRealmName and GetNormalizedRealmName()
+    local norm = realm:gsub("%s+", ""):lower()
+    if norm == "" or not own or norm == own:lower() then return "" end
+    return "-" .. realm
+end
+
+function NBK:SplitNameArg(args)
+    if type(args) ~= "string" then return nil, "" end
+    local quoted, rest = args:match('^%s*"([^"]+)"%s*(.*)$')
+    if quoted then return quoted, rest end
+    local first, after = args:match("^%s*(%S+)%s*(.*)$")
+    if not first then return nil, "" end
+    if self:IsForever() and not first:find("-", 1, true) then
+        local second, rest2 = after:match("^(%S+)%s*(.*)$")
+        if second then return first .. " " .. second, rest2 end
+    end
+    return first, after
+end
+
+function NBK:DisplayName(name, realm, hex)
+    local shown = name or "?"
+    if hex then shown = ("|cff%s%s|r"):format(hex, shown) end
+    return shown .. self:RealmSuffix(realm)
+end
+
+function NBK:AddOnExists(name)
+    local C = C_AddOns
+    if C and C.DoesAddOnExist then
+        local ok, yes = pcall(C.DoesAddOnExist, name)
+        return ok and yes == true
+    end
+    local getInfo = (C and C.GetAddOnInfo) or GetAddOnInfo
+    if not getInfo then return false end
+    local ok, _, title, _, _, reason = pcall(getInfo, name)
+    return ok and title ~= nil and reason ~= "MISSING"
+end
+
+function NBK:IsAddOnLoaded(name)
+    local isLoaded = (C_AddOns and C_AddOns.IsAddOnLoaded) or IsAddOnLoaded
+    if not isLoaded then return false end
+    local ok, loaded = pcall(isLoaded, name)
+    return ok and loaded and true or false
+end
+
+function NBK:IsAddOnLoadable(name)
+    local getInfo = (C_AddOns and C_AddOns.GetAddOnInfo) or GetAddOnInfo
+    if not getInfo then return true end
+    local ok, _, _, _, loadable = pcall(getInfo, name)
+    if not ok then return true end
+    return loadable and true or false
+end
+
+function NBK:IsAddOnEnabled(name)
+    local C, me = C_AddOns, UnitName("player")
+    local ok, state
+    if C and C.GetAddOnEnableState then
+        ok, state = pcall(C.GetAddOnEnableState, name, me)
+    elseif GetAddOnEnableState then
+        ok, state = pcall(GetAddOnEnableState, me, name)
+    end
+    if ok and type(state) == "number" and state > 0 then return true end
+    return self:IsAddOnLoaded(name)
 end
 
 local function parseGoTo(target)
@@ -140,6 +254,12 @@ function NBK:OnLoad()
 end
 
 function NBK:OnLogin()
+
+    if self.ForeverNames then
+        local ok, err = pcall(self.ForeverNames.Run, self.ForeverNames)
+        if not ok then self:Print("ForeverNames failed:", err) end
+    end
+
     self._loginDone = true
     self:_CatchUpAllModules()
 

@@ -22,6 +22,16 @@
 --   selectedStyle string   Pill only - role while selected (default primary).
 --
 -- Text buttons/Pills implement SetLabel; all variants implement SetEnabled.
+--
+-- Decoration hook (text Button only):
+--   NUL:SetButtonDecor(fn)   fn(button) runs for every text Button now and
+--                            for each one created later. It owns whatever it
+--                            adds and must be idempotent: show it, hide it,
+--                            or leave the button alone. Used for purely
+--                            visual extras (seasonal snow) the lib needn't
+--                            know about.
+--   NUL:ApplyButtonDecor()   run the hook over all text Buttons again, e.g.
+--                            after the condition behind it changed.
 
 local NUL = LibStub("NerzorsUILib-1.0")
 
@@ -112,6 +122,27 @@ local function attachTooltip(frame, text)
     NUL:AttachTooltip(frame, text)
 end
 
+-- ─── Decoration hook ────────────────────────────────────────────────────
+
+local function decorate(b)
+    local fn = NUL._buttonDecor
+    if not fn then return end
+    local ok, err = pcall(fn, b)
+    if not ok then print("|cffff5555NerzorsUILib button decor error:|r", tostring(err)) end
+end
+
+function NUL:SetButtonDecor(fn)
+    self._buttonDecor = fn
+    self:ApplyButtonDecor()
+end
+
+function NUL:ApplyButtonDecor()
+    if not self._buttonDecor then return end
+    for w in pairs(self._widgets) do
+        if w._isTextButton then decorate(w) end
+    end
+end
+
 -- ─── Text Button ────────────────────────────────────────────────────────
 
 function NUL:Button(parent, opts)
@@ -183,8 +214,10 @@ function NUL:Button(parent, opts)
 
     attachTooltip(b, opts.tooltip)
     self:_Track(b)
+    b._isTextButton = true
     b:_repaint(theme)
     b:_FitLabel()
+    decorate(b)
     return b
 end
 

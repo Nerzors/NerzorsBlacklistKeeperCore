@@ -9,7 +9,7 @@
 ## Notes-esES: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r añade una práctica lista negra para bloquear y gestionar rápidamente a jugadores no deseados.
 ## Notes-ruRU: |cff48a8dcNerzors|r|cffbe4ae9BlacklistKeeper|r добавляет удобный блэклист, чтобы быстро блокировать нежелательных игроков и управлять ими.
 ## Author: Nerzors
-## Version: 2.0.0
+## Version: 2.1.0
 ## Dependencies: NerzorsBlacklistKeeper_Data
 ## SavedVariables: NBKDB
 ## IconTexture: Interface\AddOns\NerzorsBlacklistKeeper_Data\Textures\NerzorsBlacklistKeeper_classic_Logo

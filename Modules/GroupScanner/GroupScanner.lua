@@ -31,18 +31,17 @@ local function warn(entry)
 
     local L = NBK.L
     local color  = NBK:GetClassHex(entry.class)
-    local reason = (entry.reason and entry.reason ~= "") and entry.reason or L["no reason logged"]
+    local reason = (entry.reason and entry.reason ~= "") and NBK:ReasonText(entry.reason) or L["no reason logged"]
 
     if gw.chat ~= false then
-
-        local msg = (L["Group warning: %s-%s is on your blacklist - %s"]):format(
-            ("|cff%s%s|r"):format(color, entry.name), entry.realm, reason)
+        local msg = L["Group warning: %s is on your blacklist - %s"]:format(
+            NBK:DisplayName(entry.name, entry.realm, color), reason)
         NBK:Print("|cffff6666" .. msg .. "|r")
     end
 
     if gw.popup ~= false then
         StaticPopup_Show("NBK_GROUP_WARNING",
-            entry.name .. "-" .. entry.realm,
+            NBK:DisplayName(entry.name, entry.realm),
             reason)
     end
 
@@ -76,7 +75,7 @@ local function scan()
 
     for _, unit in ipairs(collectUnits()) do
         if UnitExists(unit) and UnitIsPlayer(unit) then
-            local name, realm = UnitName(unit)
+            local name, realm = NBK:UnitPlayer(unit)
             if name then
                 if not realm or realm == "" then
                     realm = GetNormalizedRealmName()

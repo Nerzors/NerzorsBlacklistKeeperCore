@@ -143,7 +143,8 @@ local function buildRichDialog(globalName, titleKey)
 
         local x, rowY, lineH = 0, 0, 22
         for _, preset in ipairs(presets) do
-            local label = L[preset] or preset
+
+            local label = NBK:ReasonText(preset)
             local pill = NUL:Pill(presetContainer, {
                 label = label,
                 onClick = function(self)
@@ -169,7 +170,7 @@ local function buildRichDialog(globalName, titleKey)
         values = values or {}
         self._nameEB:SetText(values.name or "")
         self._nameEB:SetCursorPosition(0)
-        self._reasonEB:SetText(values.reason or "")
+        self._reasonEB:SetText(NBK:ReasonText(values.reason) or "")
         self._reasonEB:SetCursorPosition(0)
         self._notesEB:SetText(values.notes or "")
         self._notesEB:SetCursorPosition(0)
@@ -197,7 +198,7 @@ local function buildRichDialog(globalName, titleKey)
             self._classDD:SetValue(values.class or "")
         end
 
-        local r = values.reason
+        local r = NBK:ReasonText(values.reason)
         for _, pill in ipairs(self._pills) do
             pill:SetSelected(pill.label:GetText() == r)
         end
@@ -260,10 +261,12 @@ function BlacklistTab:_ShowAddDialog(prefill)
         dialog._classDD:SetEnabled(not hasKnownClass)
     end
     dialog:SetOnAccept(function(values)
-        if not values.name or values.name == "" then
+
+        local name = values.name and strtrim(values.name):gsub("%s+", " ")
+        if not name or name == "" then
             return false, L["name required"]
         end
-        local entry, err = NBK:AddPlayer(values.name, nil, values.reason)
+        local entry, err = NBK:AddPlayer(name, nil, values.reason)
         if not entry then return false, L[err] end
         local fields = {
             notes  = values.notes or "",
@@ -299,7 +302,7 @@ function BlacklistTab:_ShowEditDialog(entry)
 
     if dialog._classDD then dialog._classDD:SetEnabled(true) end
     dialog:SetValues({
-        name      = entry.name .. "-" .. entry.realm,
+        name      = NBK:DisplayName(entry.name, entry.realm),
         reason    = entry.reason or "",
         notes     = entry.notes  or "",
         mute      = entry.mute,

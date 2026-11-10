@@ -27,6 +27,9 @@ local function buildPresetsTab(parent)
     Config:BuildManagedList(listArea, {
         reorderable    = true,
         addPlaceholder = L["Custom reason..."],
+
+        display        = function(v) return NBK:ReasonText(v) end,
+        normalize      = function(t) return NBK:ReasonKey(t) end,
         get = function()
             local s = Config:Settings()
             if type(s.presetReasons) ~= "table" then s.presetReasons = {} end

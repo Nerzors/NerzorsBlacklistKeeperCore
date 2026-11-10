@@ -69,7 +69,9 @@ function NBK:ExportString(opts)
     local sorted = {}
     for _, e in pairs(entries) do
         local key = spec.entryKey(e)
-        if key then sorted[#sorted + 1] = { key = key, entry = e } end
+        if key and (not opts.keys or opts.keys[key]) then
+            sorted[#sorted + 1] = { key = key, entry = e }
+        end
     end
     table.sort(sorted, function(a, b) return a.key < b.key end)
 
@@ -265,7 +267,8 @@ NBK:RegisterListType("blacklist", {
             realm     = fields[2],
             class     = (fields[3] ~= "" and fields[3]) or nil,
             addedAt   = addedAt > 0 and addedAt or time(),
-            reason    = fields[5] or "",
+
+            reason    = NBK:ReasonKey(fields[5] or ""),
             notes     = fields[6] or "",
             mute      = (fields[7] == "1"),
             zone      = fields[8] or "",
@@ -273,6 +276,8 @@ NBK:RegisterListType("blacklist", {
             shareable = shareable,
         }
         entry.classColor = entry.class and NBK:GetClassHex(entry.class) or nil
+
+        if NBK.ForeverNames then NBK.ForeverNames:FixRow(entry) end
         return entry
     end,
 

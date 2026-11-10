@@ -25,7 +25,7 @@ local function fieldValue(entry, key)
     if key == "name"   then return lc(entry.name)
     elseif key == "realm"  then return lc(entry.realm)
     elseif key == "class"  then return lc(entry.class)
-    elseif key == "reason" then return lc(entry.reason)
+    elseif key == "reason" then return lc(NBK:ReasonText(entry.reason))
     elseif key == "zone"   then return lc(entry.zone)
     elseif key == "added"  then return entry.addedAt or 0
     elseif key == "seen"   then return entry.lastSeen or 0
@@ -48,11 +48,13 @@ end
 function BlacklistTab:SortedEntries(filter, sortKey, sortDir)
     local list = {}
     filter = filter and filter:lower() or ""
+
+    local byRealm = not NBK:IsForever()
     for _, entry in pairs(NBK:GetEntries()) do
         if filter == ""
            or entry.name:lower():find(filter, 1, true)
-           or (entry.realm  or ""):lower():find(filter, 1, true)
-           or (entry.reason or ""):lower():find(filter, 1, true)
+           or (byRealm and (entry.realm or ""):lower():find(filter, 1, true))
+           or (NBK:ReasonText(entry.reason) or ""):lower():find(filter, 1, true)
            or (entry.zone   or ""):lower():find(filter, 1, true) then
             table.insert(list, entry)
         end
@@ -69,12 +71,13 @@ function BlacklistTab:ComputeColumns()
         table.insert(cols, { key = "select", label = "", width = 24, sortable = false })
     end
 
+    local combined = s.combinedName or NBK:IsForever()
     table.insert(cols, {
         key = "name", label = L["Name"],
-        width = s.combinedName and 170 or 110, sortable = true,
+        width = combined and 170 or 110, sortable = true,
     })
 
-    if not s.combinedName then
+    if not combined then
         table.insert(cols, { key = "realm", label = L["Realm"], width = 100, sortable = true })
     end
 

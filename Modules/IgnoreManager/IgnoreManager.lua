@@ -26,10 +26,7 @@ local function store()
 end
 
 local function charKey()
-    local name  = UnitName("player")
-    local realm = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName()
-    if not name or not realm then return nil end
-    return name .. "-" .. realm
+    return NBK:PlayerFullName()
 end
 
 function IgnoreManager:_CharData(create)
@@ -53,6 +50,7 @@ function IgnoreManager:Snapshot()
 
     local now = time()
     c.firstScanAt = c.firstScanAt or now
+    c.class = select(2, UnitClass("player")) or c.class
 
     local present = {}
     for _, full in ipairs(IS:GetIgnoreList()) do
@@ -228,8 +226,18 @@ function IgnoreManager:OnEnable()
     pcall(function()
         NBK:RegisterEvent("IGNORELIST_UPDATE", function() self:_OnListUpdate() end)
     end)
+
+    pcall(function()
+        NBK:RegisterEvent("FRIENDLIST_UPDATE", function()
+            if not self._ready then self:_OnListUpdate() end
+        end)
+    end)
     pcall(function()
         NBK:RegisterEvent("CHAT_MSG_SYSTEM", function(_, msg) self:_OnSystemMessage(msg) end)
     end)
-    self:RequestList()
+    if (C_FriendList.GetNumIgnores() or 0) > 0 then
+        self:_OnListUpdate()
+    else
+        self:RequestList()
+    end
 end

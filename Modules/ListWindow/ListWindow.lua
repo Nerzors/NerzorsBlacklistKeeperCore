@@ -63,7 +63,7 @@ function ListWindow:Build()
     })
     self.frame = f
     f:SetPositionKey("ListWindow", NBK.db)
-    f:MakeResizable({ minW = 700, minH = 420, maxW = 1600, maxH = 1100 })
+    f:MakeResizable({ minW = 760, minH = 420, maxW = 1600, maxH = 1100 })
     f:RestorePosition()
 
     self._resizeDirty = false

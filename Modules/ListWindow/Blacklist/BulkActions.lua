@@ -59,47 +59,62 @@ function BlacklistTab:_BuildActionBar(root)
     bar:SetPoint("TOPRIGHT", root, "TOPRIGHT", 0, 0)
     bar:Hide()
 
-    local count = NUL:CreateLabel(bar, { text = "", color = theme.colors.text.muted })
+    local count = NUL:CreateLabel(bar, {
+        text = "", color = theme.colors.text.muted, justifyH = "LEFT", wrap = false,
+    })
     count:SetPoint("LEFT", 2, 0)
+    count:SetWidth(100)
     bar._count = count
 
-    local x = 150
-    local function place(btn, w)
-        btn:SetPoint("LEFT", bar, "LEFT", x, 0)
-        x = x + w + 6
+    local function fitCountSlot()
+        local shown = count:GetText()
+        count:SetText((L["%d selected"] or "%d selected"):format(999))
+        local w = math.ceil(count:GetStringWidth() or 0)
+        count:SetText(shown or "")
+        if w > 0 then count:SetWidth(w) end
+    end
+    bar:HookScript("OnShow", function()
+        fitCountSlot()
+        if C_Timer and C_Timer.After then C_Timer.After(0, fitCountSlot) end
+    end)
+
+    local prev
+    local function place(btn)
+        btn:SetPoint("LEFT", prev or count, "RIGHT", prev and 6 or 12, 0)
+        prev = btn
     end
 
     local selAll = NUL:Button(bar, {
         label = L["Select all"] or "Select all", height = 22, width = 100,
         onClick = function() self:_ToggleSelectAll() end,
     })
-    place(selAll, 100)
+    place(selAll)
     bar._selAll = selAll
+
+    local export = NUL:Button(bar, {
+        label = L["Export..."], height = 22, width = 100,
+        onClick = function() self:_ExportSelected() end,
+    })
+    place(export)
 
     local del = NUL:Button(bar, {
         label = L["Delete"] or "Delete", height = 22, width = 90, style = "danger",
         onClick = function() self:_DeleteSelected() end,
     })
-    place(del, 90)
+    place(del)
 
     if NBK:GetModule("Sync") then
         local share = NUL:Button(bar, {
             label = L["Mark shareable"] or "Mark shareable", height = 22, width = 130,
             onClick = function() self:_MarkSelected("shareable", true) end,
         })
-        place(share, 130)
+        place(share)
         local priv = NUL:Button(bar, {
             label = L["Mark private"] or "Mark private", height = 22, width = 120,
             onClick = function() self:_MarkSelected("shareable", false) end,
         })
-        place(priv, 120)
+        place(priv)
     end
-
-    local cancel = NUL:Button(bar, {
-        label = L["Cancel"] or "Cancel", height = 22, width = 90,
-        onClick = function() self:ToggleSelectMode() end,
-    })
-    cancel:SetPoint("RIGHT", bar, "RIGHT", 0, 0)
 
     self.actionBar = bar
     return bar
@@ -143,6 +158,15 @@ function BlacklistTab:_ToggleSelectAll()
     end
     self:_Refresh()
     self:_UpdateActionBar()
+end
+
+function BlacklistTab:_ExportSelected()
+    if self:SelectedCount() == 0 then return end
+    local Config = NBK:GetModule("Config")
+    if not (Config and Config.ShowExportDialog) then return end
+    local keys = {}
+    for key in pairs(self.selected) do keys[key] = true end
+    Config:ShowExportDialog({ keys = keys })
 end
 
 function BlacklistTab:_DeleteSelected()

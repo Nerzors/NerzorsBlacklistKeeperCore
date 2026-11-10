@@ -4,8 +4,10 @@ if not Config then return end
 
 local NUL = LibStub("NerzorsUILib-1.0")
 
-function Config:ShowExportDialog()
+function Config:ShowExportDialog(opts)
     if self._exportDlg then
+        self._exportDlg._keys = opts and opts.keys or nil
+        self._exportDlg._all  = opts and opts.all or nil
         self:_refreshExportDialog()
         self._exportDlg:Show()
         return
@@ -23,6 +25,8 @@ function Config:ShowExportDialog()
     f:SetFrameLevel(200)
     self._exportDlg = f
     f._listId = "blacklist"
+    f._keys   = opts and opts.keys or nil
+    f._all    = opts and opts.all or nil
 
     local content = f.content
 
@@ -48,6 +52,7 @@ function Config:ShowExportDialog()
             end,
         })
         listDD:SetPoint("LEFT", pickLabel, "RIGHT", 8, 0)
+        f._listDD = listDD
         topInset = -36
     end
 
@@ -101,20 +106,36 @@ function Config:_refreshExportDialog()
     local f = self._exportDlg
     if not f then return end
     local L = NBK.L
-    local listId = f._listId or "blacklist"
+    local keys = f._keys
 
-    local sharedOnly = (listId == "blacklist")
+    local locked = keys or f._all
+    local listId = locked and "blacklist" or (f._listId or "blacklist")
+    if f._listDD then
+        f._listDD:SetValue(listId)
+        f._listDD:SetEnabled(not locked)
+    end
+
+    local sharedOnly = (listId == "blacklist") and not f._all
         and (NBK:GetSyncSetting("exportSharedOnly", false) and true or false)
         or false
 
-    local text, count = NBK:ExportString({ list = listId, sharedOnly = sharedOnly })
+    local text, count = NBK:ExportString({ list = listId, sharedOnly = sharedOnly, keys = keys })
 
     f._eb:SetText(NBK:EscapeForDisplay(text or ""))
 
     local spec      = NBK:GetListType(listId)
     local listLabel = (spec and spec.label) or listId
     local summary
-    if sharedOnly then
+    if keys then
+        local selected = 0
+        for _ in pairs(keys) do selected = selected + 1 end
+        if (count or 0) < selected then
+            summary = L["%d of %d selected entries exported (private ones skipped)."]
+                :format(count or 0, selected)
+        else
+            summary = L["%d selected entries exported."]:format(count or 0)
+        end
+    elseif sharedOnly then
         summary = (L["%d shareable entries exported."]
             or "%d shareable entries exported."):format(count or 0)
     else

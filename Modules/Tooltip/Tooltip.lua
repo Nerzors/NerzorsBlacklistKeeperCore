@@ -23,7 +23,7 @@ end
 
 local function reasonLine(entry, L)
     if entry.reason and entry.reason ~= "" then
-        return entry.reason
+        return NBK:ReasonText(entry.reason)
     end
     return DIM .. L["no reason logged"] .. "|r"
 end
@@ -37,7 +37,7 @@ local function onTooltipSetUnit(tooltip)
     if not UnitExists("mouseover") then return end
     if not UnitIsPlayer("mouseover") then return end
 
-    local name, realm = UnitName("mouseover")
+    local name, realm = NBK:UnitPlayer("mouseover")
     if not name then return end
     realm = realm or GetNormalizedRealmName()
 

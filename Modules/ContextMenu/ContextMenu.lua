@@ -35,7 +35,7 @@ local function extractPlayer(contextData)
 
     local unit = contextData.unit
     if unit and UnitExists(unit) and UnitIsPlayer(unit) then
-        local name, realm = UnitName(unit)
+        local name, realm = NBK:UnitPlayer(unit)
         if name then
             if not realm or realm == "" then
                 realm = GetNormalizedRealmName()
@@ -59,7 +59,7 @@ local function extractPlayer(contextData)
 end
 
 local function isOwnPlayer(name, realm)
-    local me = UnitName("player")
+    local me = NBK:PlayerName()
     local myRealm = GetNormalizedRealmName() or GetRealmName() or ""
     return name == me and (realm or "") == myRealm
 end
@@ -111,7 +111,7 @@ local function buildCoreBlacklistActions(rootDescription, name, realm, unit, con
 
                 local class = NBK.ResolveClass and NBK:ResolveClass(name, realm, unit) or nil
                 lw:ShowAddDialog({
-                    name  = name .. "-" .. realm,
+                    name  = NBK:DisplayName(name, realm),
                     class = class,
                 })
             end

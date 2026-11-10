@@ -68,10 +68,10 @@ local function whisperSoftWarn(_, _, _, sender)
 
     local L = NBK.L
     local hex = NBK:GetClassHex(entry.class)
-    local reason = (entry.reason and entry.reason ~= "") and entry.reason
+    local reason = (entry.reason and entry.reason ~= "") and NBK:ReasonText(entry.reason)
                  or L["no reason logged"]
-    NBK:Print((L["whisper from blacklisted |cff%s%s|r-%s (%s)"] )
-        :format(hex, name, realm or "", reason))
+    NBK:Print(L["whisper from blacklisted %s (%s)"]
+        :format(NBK:DisplayName(name, realm, hex), reason))
 
     return false
 end

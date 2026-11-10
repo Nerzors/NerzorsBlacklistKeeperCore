@@ -10,8 +10,13 @@ local ROW_HEIGHT = 26
 local GAP        = 4
 local LEFT_PAD   = 8
 
+local CHAR_VIEW   = "char"
+local TOGGLE_H    = 26
+
 local ui = {}
 IgnoreTab.selected = {}
+IgnoreTab._views, IgnoreTab._viewOrder = {}, {}
+IgnoreTab._activeView = CHAR_VIEW
 
 local function columns()
     local L = NBK.L
@@ -90,7 +95,7 @@ local function tooltipBody(e)
         lines[#lines + 1] = " "
         lines[#lines + 1] = ("|cff%s%s|r"):format(accent, L["Blacklisted"])
         lines[#lines + 1] = ("%s: %s"):format(L["Added"], NBK:FormatDate(e.bl.addedAt))
-        local reason = e.bl.reason ~= "" and e.bl.reason or L["no reason logged"]
+        local reason = e.bl.reason ~= "" and NBK:ReasonText(e.bl.reason) or L["no reason logged"]
         lines[#lines + 1] = ("%s: %s"):format(L["Reason"], reason)
         if e.bl.notes and e.bl.notes ~= "" then
             lines[#lines + 1] = ("%s: %s"):format(L["Note"], e.bl.notes)
@@ -172,13 +177,13 @@ local function makeRowBuilder(cols)
 
             c.class:SetClass(e.class)
             local hex = e.class and NBK:GetClassHex(e.class) or "ffffff"
-            c.name:SetText(("|cff%s%s|r-%s"):format(hex, e.name or "?", e.realm or ""))
+            c.name:SetText(NBK:DisplayName(e.name, e.realm, hex))
             c.since:SetText(sinceText(e))
 
             if e.bl then
                 c.added:SetText(NBK:FormatDate(e.bl.addedAt))
                 NUL.SetFontColor(c.added, t.colors.accent.primary)
-                c.reason:SetText(e.bl.reason or "")
+                c.reason:SetText(NBK:ReasonText(e.bl.reason) or "")
             else
                 c.added:SetText("-")
                 NUL.SetFontColor(c.added, t.colors.text.muted)
@@ -192,7 +197,7 @@ local function makeRowBuilder(cols)
 
             r:SetScript("OnEnter", function(self)
                 NUL:ShowTooltipMultiline(self, {
-                    title = ("%s-%s"):format(e.name or "?", e.realm or ""),
+                    title = NBK:DisplayName(e.name, e.realm),
                     body  = tooltipBody(e),
                 })
             end)
@@ -220,6 +225,11 @@ function IgnoreTab:_BuildRemoveDialog()
     f.alsoBL = NUL:Checkbox(f.content, { label = "" })
     f.alsoBL:SetPoint("TOPLEFT", 0, -44)
     f.alsoBL:SetWidth(370)
+
+    f.pinned = NUL:CreateLabel(f.content, {
+        text = "", size = "sm", justifyH = "LEFT", color = theme.colors.text.muted,
+    })
+    f.pinned:SetPoint("TOPLEFT", f.alsoBL, "BOTTOMLEFT", 24, -2)
 
     local accept = NUL:Button(f.content, {
         label = L["Remove"], width = 120, height = 26, style = "danger",
@@ -250,9 +260,12 @@ function IgnoreTab:ConfirmRemove(entries)
         NBK:Print(L["Select at least one player first."])
         return
     end
-    local onBlacklist = 0
+    local onBlacklist, pinned = 0, 0
     for _, e in ipairs(entries) do
-        if e.bl then onBlacklist = onBlacklist + 1 end
+        if e.bl then
+            onBlacklist = onBlacklist + 1
+            if e.bl.pinned then pinned = pinned + 1 end
+        end
     end
 
     local f = self:_BuildRemoveDialog()
@@ -261,6 +274,8 @@ function IgnoreTab:ConfirmRemove(entries)
     f.alsoBL:SetLabel(L["Also remove them from the blacklist (%d)"]:format(onBlacklist))
     f.alsoBL:SetChecked(false)
     f.alsoBL:SetShown(onBlacklist > 0)
+    f.pinned:SetText(L["Pinned among them: %d"]:format(pinned))
+    f.pinned:SetShown(pinned > 0)
     f:Show()
 end
 
@@ -274,27 +289,37 @@ function IgnoreTab:_Build(parent)
     root:SetAllPoints()
     ui.root = root
 
-    ui.search = NUL:EditBox(root, {
+    local view = CreateFrame("Frame", nil, root)
+    view:SetAllPoints()
+    ui.charView = view
+
+    local host = CreateFrame("Frame", nil, root)
+    host:SetPoint("TOPLEFT", root, "TOPLEFT", 0, -(TOGGLE_H + 8))
+    host:SetPoint("BOTTOMRIGHT")
+    host:Hide()
+    ui.viewHost = host
+
+    ui.search = NUL:EditBox(view, {
         width = 260, height = 26,
         placeholder = L["Search name, realm, reason..."],
         onTextChanged = function() IgnoreTab:Refresh() end,
     })
     ui.search:SetPoint("TOPLEFT")
 
-    ui.count = NUL:CreateLabel(root, { text = "", color = theme.colors.text.muted })
-    ui.count:SetPoint("RIGHT", root, "TOPRIGHT", 0, -13)
+    ui.count = NUL:CreateLabel(view, { text = "", color = theme.colors.text.muted })
+    ui.count:SetPoint("RIGHT", view, "TOPRIGHT", 0, -13)
 
-    ui.hint = NUL:CreateLabel(root, {
+    ui.hint = NUL:CreateLabel(view, {
         text  = L["The game doesn't store dates - \"Ignored since\" is when NBK first saw the entry."],
         size  = "sm",
         color = theme.colors.text.muted,
     })
     ui.hint:SetPoint("TOPLEFT", ui.search, "BOTTOMLEFT", 2, -6)
 
-    local bar = CreateFrame("Frame", nil, root)
+    local bar = CreateFrame("Frame", nil, view)
     bar:SetHeight(26)
     bar:SetPoint("TOPLEFT",  ui.hint, "BOTTOMLEFT", -2, -6)
-    bar:SetPoint("TOPRIGHT", root, "TOPRIGHT", 0, 0)
+    bar:SetPoint("TOPRIGHT", view, "TOPRIGHT", 0, 0)
     ui.bar = bar
 
     ui.selAll = NUL:Button(bar, {
@@ -322,12 +347,12 @@ function IgnoreTab:_Build(parent)
     ui.selCount = NUL:CreateLabel(bar, { text = "", color = theme.colors.text.muted })
     ui.selCount:SetPoint("RIGHT", bar, "RIGHT", 0, 0)
 
-    local header = buildHeader(root, cols)
+    local header = buildHeader(view, cols)
     header:SetPoint("TOPLEFT", bar, "BOTTOMLEFT", 0, -6)
     header:SetPoint("RIGHT")
     ui.header = header
 
-    local list = NUL:ScrollList(root, {
+    local list = NUL:ScrollList(view, {
         rowHeight  = ROW_HEIGHT,
         rowBuilder = makeRowBuilder(cols),
     })
@@ -335,18 +360,88 @@ function IgnoreTab:_Build(parent)
     list.container:SetPoint("BOTTOMRIGHT")
     ui.list = list
 
-    self:Refresh()
+    if #self._viewOrder > 0 then self:_BuildToggle() end
+    self:SetView(self._activeView)
     return root
+end
+
+function IgnoreTab:RegisterView(spec)
+    if type(spec) ~= "table" or type(spec.key) ~= "string"
+       or spec.key == CHAR_VIEW or self._views[spec.key] then return end
+    self._views[spec.key] = spec
+    table.insert(self._viewOrder, spec.key)
+    table.sort(self._viewOrder, function(a, b)
+        return (self._views[a].order or 50) < (self._views[b].order or 50)
+    end)
+
+    if ui.root then
+        if ui.toggle then ui.toggle:Hide(); ui.toggle = nil end
+        self:_BuildToggle()
+        self:SetView(self._activeView)
+    end
+end
+
+function IgnoreTab:GetActiveView() return self._activeView end
+
+function IgnoreTab:_BuildToggle()
+    if not ui.root or ui.toggle then return end
+    local L = NBK.L
+    local toggle = CreateFrame("Frame", nil, ui.root)
+    toggle:SetSize(1, TOGGLE_H)
+    toggle:SetPoint("TOPRIGHT", ui.root, "TOPRIGHT", 0, 0)
+    ui.toggle, ui.pills = toggle, {}
+
+    local items = { { key = CHAR_VIEW, labelKey = "This character" } }
+    for _, key in ipairs(self._viewOrder) do items[#items + 1] = self._views[key] end
+
+    local prev
+    for i = #items, 1, -1 do
+        local v = items[i]
+        local pill = NUL:Pill(toggle, {
+            label   = L[v.labelKey] or v.labelKey,
+            onClick = function() IgnoreTab:SetView(v.key) end,
+        })
+        pill:SetPoint("RIGHT", prev or toggle, prev and "LEFT" or "RIGHT", prev and -4 or 0, 0)
+        ui.pills[v.key] = pill
+        prev = pill
+    end
+
+    ui.count:ClearAllPoints()
+    ui.count:SetPoint("RIGHT", prev, "LEFT", -12, 0)
+
+    local function refit()
+        for _, p in pairs(ui.pills) do p:SetLabel(p.label:GetText()) end
+    end
+    toggle:SetScript("OnShow", function()
+        refit()
+        if C_Timer and C_Timer.After then C_Timer.After(0, refit) end
+    end)
+end
+
+function IgnoreTab:SetView(key)
+    if key ~= CHAR_VIEW and not self._views[key] then key = CHAR_VIEW end
+    self._activeView = key
+    if not ui.root then return end
+
+    ui.charView:SetShown(key == CHAR_VIEW)
+    ui.viewHost:SetShown(key ~= CHAR_VIEW)
+    for k, v in pairs(self._views) do
+        if k == key and not v._frame then v._frame = v.build(ui.viewHost) end
+        if v._frame then v._frame:SetShown(k == key) end
+    end
+    for k, p in pairs(ui.pills or {}) do p:SetSelected(k == key) end
+    self:Refresh()
 end
 
 function IgnoreTab:_Visible()
     local filter = (ui.search and ui.search:GetText() or ""):lower()
+    local byRealm = not NBK:IsForever()
     local out = {}
     for _, e in ipairs(IgnoreManager:GetEntries()) do
-        local reason = e.bl and e.bl.reason or ""
+        local reason = e.bl and NBK:ReasonText(e.bl.reason) or ""
         if filter == ""
            or (e.name or ""):lower():find(filter, 1, true)
-           or (e.realm or ""):lower():find(filter, 1, true)
+           or (byRealm and (e.realm or ""):lower():find(filter, 1, true))
            or reason:lower():find(filter, 1, true) then
             out[#out + 1] = e
         end
@@ -393,6 +488,9 @@ function IgnoreTab:Refresh()
     NUL.SetFontColor(ui.count, (n >= cap - 5) and theme.colors.state.warning or theme.colors.text.muted)
 
     self:_UpdateActionBar()
+
+    local v = self._views[self._activeView]
+    if v and v._frame and v.refresh then v.refresh() end
 end
 
 function IgnoreManager:RefreshTab() IgnoreTab:Refresh() end

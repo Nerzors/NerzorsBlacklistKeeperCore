@@ -33,4 +33,10 @@
        Loads after Config/MinimapIcon so its slash-command registration
        and Settings-tab button (future) have those modules available. -->
   <Script file="News\News.lua"/>
+  <!-- LegacyCheck: login window for leftover sub-addons that were folded
+       into the core or dropped (NBK.REMOVED_MODULES in Core/Core.lua). -->
+  <Script file="LegacyCheck\LegacyCheck.lua"/>
+  <!-- Seasonal: December snow on the main window's buttons, via the
+       NerzorsUILib button decoration hook. -->
+  <Script file="Seasonal\Seasonal.lua"/>
 </Ui>

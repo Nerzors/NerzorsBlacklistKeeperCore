@@ -38,16 +38,17 @@ function IgnoreSync:GetIgnoreList()
     return out
 end
 
-function IgnoreSync:IsIgnored(name, realm)
-    local C    = api()
-    local full = ignoreName(name, realm)
-    if not C or not full then return false end
-    if C.IsIgnored then return C.IsIgnored(full) and true or false end
-
-    for _, n in ipairs(self:GetIgnoreList()) do
-        if n == full then return true end
+function IgnoreSync:ListEntry(name, realm)
+    local key = NBK:NormalizeKey(name, realm)
+    if not key then return nil end
+    for _, full in ipairs(self:GetIgnoreList()) do
+        if NBK:NormalizeKey(full) == key then return full end
     end
-    return false
+    return nil
+end
+
+function IgnoreSync:IsIgnored(name, realm)
+    return self:ListEntry(name, realm) ~= nil
 end
 
 function IgnoreSync:GetUntracked()
@@ -103,7 +104,7 @@ end
 
 function IgnoreSync:Remove(name, realm)
     local C    = api()
-    local full = ignoreName(name, realm)
+    local full = self:ListEntry(name, realm) or ignoreName(name, realm)
     if not C or not full then return false end
     self._pending[full] = nil
     C.DelIgnore(full)
@@ -184,8 +185,8 @@ function IgnoreSync:ImportNames(fulls)
     for _, full in ipairs(fulls or {}) do
         local name, realm = splitIgnore(full)
         if name and not NBK:IsBlacklisted(name, realm) then
-            local entry = NBK:AddPlayer(name, realm,
-                NBK.L["Imported from ignore list"] or "Imported from ignore list")
+
+            local entry = NBK:AddPlayer(name, realm, "Imported from ignore list")
             if entry then
 
                 entry.ignoredByNBK = false

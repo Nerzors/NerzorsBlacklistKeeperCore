@@ -9,6 +9,9 @@
   <Script file="Database.lua"/>
   <Script file="API.lua"/>
   <Script file="Serializer.lua"/>
+  <!-- ForeverNames.lua: TEMPORARY until 2.2.0 - switches names saved the
+       old WoW: Forever way (docs/game-flavors.md §8). -->
+  <Script file="ForeverNames.lua"/>
   <!-- PublicAPI.lua: the stable LibNBKApi-1.0 surface for other addons.
        Loads after API.lua/Serializer.lua so NBK:_FireApiEvent exists by
        the time any mutation runs. -->

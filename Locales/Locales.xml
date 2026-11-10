@@ -11,4 +11,6 @@
   <Script file="esMX.lua"/>
   <Script file="esES.lua"/>
   <Script file="ruRU.lua"/>
+  <!-- Texts that differ on WoW: Forever; ignored on every other client. -->
+  <Script file="Forever.lua"/>
 </Ui>

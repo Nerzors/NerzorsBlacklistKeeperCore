@@ -9,7 +9,7 @@
 ## Notes-esES: Recursos compartidos (bibliotecas, texturas, fuentes, sonidos) para |cffbe4ae9NerzorsBlacklistKeeper|r y sus módulos. Obligatorio.
 ## Notes-ruRU: Общие ресурсы (библиотеки, текстуры, шрифты, звуки) для |cffbe4ae9NerzorsBlacklistKeeper|r и его модулей. Обязательно.
 ## Author: Nerzors
-## Version: 2.0.0
+## Version: 2.1.0
 ## Group: NerzorsBlacklistKeeper
 ## IconTexture: Interface\AddOns\NerzorsBlacklistKeeper_Data\Textures\NerzorsBlacklistKeeper_classic_Logo
 ## Category: Social

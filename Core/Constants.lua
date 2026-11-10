@@ -11,6 +11,31 @@ NBK.PRESET_REASONS = {
     "Other",
 }
 
+NBK.BUILTIN_REASONS = { ["Imported from ignore list"] = true }
+for _, r in ipairs(NBK.PRESET_REASONS) do NBK.BUILTIN_REASONS[r] = true end
+
+function NBK:ReasonText(reason)
+    if reason and self.BUILTIN_REASONS[reason] then return self.L[reason] end
+    return reason
+end
+
+local reasonKeys
+function NBK:ReasonKey(text)
+    if type(text) ~= "string" then return text end
+    if not reasonKeys then
+        reasonKeys = {}
+        for key in pairs(self.BUILTIN_REASONS) do
+            reasonKeys[key] = key
+            for _, loc in pairs(self.locales or {}) do
+                local v = rawget(loc, key)
+                if type(v) == "string" and not reasonKeys[v] then reasonKeys[v] = key end
+            end
+        end
+    end
+    local trimmed = text:match("^%s*(.-)%s*$")
+    return reasonKeys[trimmed] or text
+end
+
 NBK.MEDIA = {
     iconBase    = "Interface\\AddOns\\NerzorsBlacklistKeeper_Data\\Textures\\icons\\",
     classBase   = "Interface\\AddOns\\NerzorsBlacklistKeeper_Data\\Textures\\class\\",

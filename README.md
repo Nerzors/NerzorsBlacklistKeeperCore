@@ -129,6 +129,7 @@ instead - it contains these two plus every module.
 | `_Recents` | Recent party-mate tracking. | Optional |
 | `_RememberMe` | Positive list, star ratings, Mythic+ prompt. *(Retail only)* | Optional |
 | `_Statistics` | Charts dashboard over your blacklist. | Optional |
+| `_IgnoreManager` | The "All characters" view in the "Ignore list" tab shows the ignore lists of all your characters | Optional |
 
 > In the **Core-Only** edition you get *Blacklist*, *Group Warning* and
 > *Tooltip*. Everything below that line lives in the optional modules and

@@ -81,7 +81,7 @@ NUL:RegisterTheme("Nerzors", withShape({
         btn = buttonPalette({
             text = "#e6edf3", muted = "#8b9aa8",
             primary = {normal = "#21445b", hover = "#2b5773", pressed = "#19374b", border = "#3b7396", hoverBorder = "#5594b8"},
-            secondary = {normal = "#161e26", hover = "#243240", pressed = "#1d2731", border = "#2a3744", hoverBorder = "#486078"},
+            secondary = {normal = "#161e26", hover = "#243240", pressed = "#1d2731", border = "#2a3744", hoverBorder = "#506a85"},
             disabled = {bg = "#17232d", text = "#8795a3", border = "#2a3744"},
         }),
         bg = {
@@ -120,7 +120,7 @@ NUL:RegisterTheme("Midnight", withShape({
         btn = buttonPalette({
             text = "#ece6f3", muted = "#9b8fb0",
             primary = {normal = "#402d53", hover = "#523968", pressed = "#322341", border = "#805899", hoverBorder = "#a779be"},
-            secondary = {normal = "#15101e", hover = "#281e36", pressed = "#1d1628", border = "#2c2238", hoverBorder = "#665077"},
+            secondary = {normal = "#15101e", hover = "#281e36", pressed = "#1d1628", border = "#2c2238", hoverBorder = "#705883"},
             disabled = {bg = "#201a29", text = "#9689a4", border = "#34283f"},
         }),
         bg = {

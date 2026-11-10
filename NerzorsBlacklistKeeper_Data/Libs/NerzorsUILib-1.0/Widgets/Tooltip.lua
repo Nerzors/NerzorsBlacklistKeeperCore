@@ -65,9 +65,23 @@ local function ensureTip()
     return f
 end
 
+-- The tooltip reuses its two FontStrings, and WoW keeps the height a
+-- FontString was laid out with for its previous text. Every text is first
+-- measured on one long line (naturalWidth), so a text that then wraps would
+-- stay one line tall and end in "…". Free the height before measuring and
+-- before the final text, and pin it to the wrapped text afterwards.
+local function freeHeight(fs) fs:SetHeight(0) end
+
+local function pinHeight(fs)
+    local h = math.max(12, math.ceil(fs:GetStringHeight() or 12))
+    fs:SetHeight(h)
+    return h
+end
+
 -- Natural single-line width of `text` on `fs` (measured at a large scratch
 -- width with wrapping off, so the frame's prior width doesn't skew it).
 local function naturalWidth(fs, text)
+    freeHeight(fs)
     fs:SetWordWrap(false)
     fs:SetWidth(4000)
     fs:SetText(text or "")
@@ -109,9 +123,10 @@ function NUL:ShowTooltip(owner, text, opts)
         w = math.max(1, math.ceil(nat))
         f.body:SetWidth(w)
     end
+    freeHeight(f.body)
     f.body:SetText(text)
     f.body:Show()
-    local h = math.max(12, math.ceil(f.body:GetStringHeight() or 12))
+    local h = pinHeight(f.body)
 
     f:SetSize(w + PAD_X * 2, h + PAD_TOP + PAD_BOT)
     anchorTo(f, owner, opts.anchor or "TOP")
@@ -141,9 +156,10 @@ function NUL:ShowTooltipMultiline(owner, opts)
         f.title:SetPoint("TOPLEFT", PAD_X, y)
         f.title:SetWordWrap(false)
         f.title:SetWidth(contentW)
+        freeHeight(f.title)
         f.title:SetText(title)
         f.title:Show()
-        local th = math.ceil(f.title:GetStringHeight() or 12)
+        local th = pinHeight(f.title)
         y = y - th - TITLE_GAP
         totalH = totalH + th + TITLE_GAP
     else
@@ -155,9 +171,10 @@ function NUL:ShowTooltipMultiline(owner, opts)
         f.body:SetPoint("TOPLEFT", PAD_X, y)
         f.body:SetWordWrap(true)
         f.body:SetWidth(contentW)
+        freeHeight(f.body)
         f.body:SetText(body)
         f.body:Show()
-        totalH = totalH + math.ceil(f.body:GetStringHeight() or 12)
+        totalH = totalH + pinHeight(f.body)
     else
         f.body:Hide()
     end

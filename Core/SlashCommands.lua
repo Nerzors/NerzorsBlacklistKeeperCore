@@ -2,17 +2,22 @@ local _, NBK = ...
 
 local Slash = NBK:RegisterModule("SlashCommands")
 
+local function nameArg()
+    return "<" .. NBK.L["name[-realm]"] .. ">"
+end
+
 local function usage()
     local L = NBK.L
+    local who = nameArg()
     NBK:Print("|cffffd100" .. L["/nbk (no args) - open window"] .. "|r")
     NBK:Print("|cffffd100" .. L["/nbk config - open settings"] .. "|r")
-    NBK:Print("|cffffd100/nbk add|r <name[-realm]> [reason]")
-    NBK:Print("|cffffd100/nbk remove|r <name[-realm]>")
-    NBK:Print("|cffffd100/nbk check|r <name[-realm]>")
+    NBK:Print("|cffffd100/nbk add|r " .. who .. " [reason]")
+    NBK:Print("|cffffd100/nbk remove|r " .. who)
+    NBK:Print("|cffffd100/nbk check|r " .. who)
     NBK:Print("|cffffd100/nbk list|r")
 
     if NBK:GetModule("Sync") then
-        NBK:Print("|cffffd100/nbk share|r <name[-realm]> |cff888c99" .. (L["share via whisper"] or "share via whisper") .. "|r")
+        NBK:Print("|cffffd100/nbk share|r " .. who .. " |cff888c99" .. (L["share via whisper"] or "share via whisper") .. "|r")
         NBK:Print("|cffffd100/nbk share guild|r |cff888c99" .. (L["broadcast to guild"] or "broadcast to guild") .. "|r")
     end
 
@@ -42,7 +47,7 @@ handlers.options  = handlers.config
 handlers.settings = handlers.config
 
 function handlers.add(args)
-    local target, rest = args:match("^(%S+)%s*(.*)$")
+    local target, rest = NBK:SplitNameArg(args)
     if not target then return usage() end
     local entry, err = NBK:AddPlayer(target, nil, rest ~= "" and rest or nil)
 
@@ -50,7 +55,7 @@ function handlers.add(args)
 end
 
 function handlers.remove(args)
-    local target = args:match("^(%S+)")
+    local target = NBK:SplitNameArg(args)
     if not target then return usage() end
     local ok, err = NBK:RemovePlayer(target)
     if not ok then NBK:Print(NBK.L["could not remove:"], NBK.L[err]) end
@@ -60,16 +65,16 @@ handlers.rm = handlers.remove
 handlers.delete = handlers.remove
 
 function handlers.check(args)
-    local target = args:match("^(%S+)")
+    local target = NBK:SplitNameArg(args)
     if not target then return usage() end
     local L = NBK.L
     local entry = NBK:GetPlayer(target)
     if entry then
         local color = NBK:GetClassHex(entry.class)
         local details = L["reason: %s (zone: %s)"]:format(
-            entry.reason ~= "" and entry.reason or "-",
+            entry.reason ~= "" and NBK:ReasonText(entry.reason) or "-",
             entry.zone ~= "" and entry.zone or "-")
-        NBK:Print(("|cff%s%s|r-%s - %s"):format(color, entry.name, entry.realm, details))
+        NBK:Print(("%s - %s"):format(NBK:DisplayName(entry.name, entry.realm, color), details))
     else
         NBK:Print(L["not on the list:"], target)
     end
@@ -85,8 +90,8 @@ function handlers.list()
     NBK:Print(L["%d entries:"]:format(count))
     for _, entry in pairs(NBK:GetEntries()) do
         local color = NBK:GetClassHex(entry.class)
-        local reason = entry.reason ~= "" and entry.reason or "-"
-        print(("  |cff%s%s|r-%s - %s"):format(color, entry.name, entry.realm, reason))
+        local reason = entry.reason ~= "" and NBK:ReasonText(entry.reason) or "-"
+        print(("  %s - %s"):format(NBK:DisplayName(entry.name, entry.realm, color), reason))
     end
 end
 
@@ -98,7 +103,7 @@ function handlers.share(args)
     end
     local first = args:match("^(%S+)")
     if not first or first == "" then
-        NBK:Print(L["usage:"], "/nbk share <name[-realm]> | /nbk share guild | /nbk share show")
+        NBK:Print(L["usage:"], "/nbk share " .. nameArg() .. " | /nbk share guild | /nbk share show")
         return
     end
     local lower = first:lower()
@@ -112,7 +117,7 @@ function handlers.share(args)
     elseif lower == "show" then
         return NBK:ShowPendingShare()
     else
-        ok, sentOrErr = NBK:Share("WHISPER", first)
+        ok, sentOrErr = NBK:Share("WHISPER", (NBK:SplitNameArg(args)))
     end
     if not ok then NBK:Print(L["share failed:"], L[sentOrErr]) end
 end

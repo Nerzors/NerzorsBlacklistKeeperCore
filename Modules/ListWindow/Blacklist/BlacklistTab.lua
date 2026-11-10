@@ -230,6 +230,8 @@ function BlacklistTab:OnEnable()
         order    = 10,
         build    = function(parent) return BlacklistTab:_Build(parent) end,
         refresh  = function() BlacklistTab:_Refresh() end,
+
+        onShow   = function() BlacklistTab:_Refresh() end,
         rebuildLayout = function() BlacklistTab:_RebuildLayout() end,
         showAddDialog  = function(_, prefill) BlacklistTab:_ShowAddDialog(prefill) end,
         showEditDialog = function(_, entry)   BlacklistTab:_ShowEditDialog(entry) end,

@@ -79,7 +79,7 @@ function Config:_makeNavButton(parent, text, iconPath)
             NUL.SetTextureColor(b.bg, t.colors.bg.hover)
             accent:Show()
             NUL.SetTextureColor(accent, t.colors.accent.primary)
-            b.label:SetTextColor(1, 1, 1, 1)
+            NUL.SetFontColor(b.label, t.colors.text.primary)
             if icon then icon:SetVertexColor(1, 1, 1, 1) end
         else
             NUL.SetTextureColor(b.bg, t.colors.bg.base)

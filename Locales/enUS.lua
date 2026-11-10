@@ -50,7 +50,7 @@ L["Remove from blacklist"]          = "Remove from Blacklist"
 L["Presets:"] = true
 L["Custom reason..."] = true
 L["Mute chat from this player"] = true
-L["Remove %s-%s from blacklist?"] = true
+L["Remove %s from blacklist?"] = true
 
 L["Bad player"] = true
 L["Quitter"] = true
@@ -139,6 +139,8 @@ L["Merge - add new only"] = true
 L["Overwrite - replace duplicates"] = true
 L["Replace - wipe current, import all"] = true
 L["%d entries exported."] = true
+L["%d selected entries exported."] = true
+L["%d of %d selected entries exported (private ones skipped)."] = true
 L["Invalid input - missing !NBK1! header."] = true
 L["Found %d entries: %d new, %d duplicate. Skipped: %d."] = true
 L["Import done: +%d added, %d skipped, %d overwritten, %d removed."] = true
@@ -149,8 +151,8 @@ L["Blacklisted"] = true
 L["no reason logged"] = true
 L["Added in"] = true
 L["Chat muted"] = true
-L["whisper from blacklisted |cff%s%s|r-%s (%s)"] = true
-L["Group warning: %s-%s is on your blacklist - %s"] = true
+L["whisper from blacklisted %s (%s)"] = true
+L["Group warning: %s is on your blacklist - %s"] = true
 L["Open list"] = true
 L["Left-click: open list"] = true
 L["Right-click: settings"] = true
@@ -171,6 +173,7 @@ L["Nameplates"] = true
 L["Chat filters"] = true
 L["Group Finder"] = true
 L["Sharing"] = true
+L["Ignore Manager"] = true
 L["Recents"] = true
 L["Remember Me"] = true
 
@@ -193,6 +196,7 @@ L["Mark private"]     = true
 
 L["/nbk (no args) - open window"] = true
 L["/nbk config - open settings"] = true
+L["name[-realm]"] = true
 
 L["Ignore list"] = true
 L["Also add muted players to the game's ignore list"] = true
@@ -244,6 +248,8 @@ L["Import to NBK"] = true
 L["Remove from ignore list"] = true
 L["Remove %d selected players from the game's ignore list?"] = true
 L["Also remove them from the blacklist (%d)"] = true
+L["Pinned among them: %d"] = true
+L["This character"] = true
 L["Removed from the ignore list: %d"] = true
 L["Removed from the blacklist: %d"] = true
 L["Select at least one player first."] = true
@@ -252,3 +258,29 @@ L["%s no longer exists - the game removed it from your ignore list."] = true
 L["Characters that no longer exist are still on your blacklist: %d. Remove them from the blacklist?"] = true
 L["added %s"] = true
 L["removed %s"] = true
+
+L["NBK Core Information"] = true
+L["You still have outdated NBK sub-addons enabled in your AddOns folder:"] = true
+L["Now part of the core - no longer needed."] = true
+L["No longer supported and discontinued."] = true
+L["You can delete or disable them; we recommend deleting them."] = true
+L["To delete them: in the Battle.net app, click the cog next to 'Play' and choose 'Show in Explorer' (Mac: 'Show in Finder'). In the folder of your game version (%s) open %s and delete the folders listed above."] = true
+L["Disable and reload"] = true
+L["Only available on Retail, so turned off on this client: %s"] = true
+
+L["Switched %d blacklist entries to WoW: Forever names (first and second name)."] = true
+L["Removed %d entries in the old form that were already on the blacklist with first and second name."] = true
+
+L["WoW: Forever: correcting names"] = true
+L["On WoW: Forever every character has a first and a second name. Up to 2.1.0-beta.1, NBK saved the second name as the realm when you added a player through the target, the context menu or the group (\"First-Second\" instead of \"First Second\"). The tooltip and the group warning didn't recognize these entries, and the same player could end up on the list twice."] = true
+L["NBK now switches these entries to the correct form, once. Entries affected: %d"] = true
+L["Of these, %d are already on your blacklist in the correct form. The correct entry stays, the old copy is removed."] = true
+L["NBK recognizes the old form automatically. If an entry doesn't come out right, we're sorry - please check your blacklist afterwards and edit or re-add it. To be safe, you can export your blacklist first."] = true
+L["\"Later\" closes this window; it comes back at your next login."] = true
+L["already listed - old copy removed"] = true
+L["Later"] = true
+L["Export first"] = true
+L["Switch now"] = true
+
+L["Christmas decoration in December"] = true
+L["Snow on the buttons of the main window, automatically from 1 to 31 December."] = true

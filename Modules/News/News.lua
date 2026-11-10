@@ -198,7 +198,7 @@ function News:_Populate()
             local pill   = CreateFrame("Frame", nil, card)
             local pillFS = NUL:CreateLabel(pill, {
                 text = label, size = "xs",
-                color = theme.colors.text.inverse,
+                color = NUL:ReadableTextOn(theme.colors.accent.primary, theme),
                 justifyH = "CENTER", wrap = false,
             })
             pillFS:SetPoint("CENTER")

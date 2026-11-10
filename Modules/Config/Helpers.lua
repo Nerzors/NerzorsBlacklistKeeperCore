@@ -149,7 +149,7 @@ function Config:BuildManagedList(parent, opts)
 
             return function(r, entry, i)
                 r._idx = i
-                label:SetText(tostring(entry))
+                label:SetText(tostring(opts.display and opts.display(entry) or entry))
                 if r._up   then r._up:SetEnabled(i > 1) end
                 if r._down then r._down:SetEnabled(i < #get()) end
             end
@@ -164,7 +164,7 @@ function Config:BuildManagedList(parent, opts)
         local txt = addBox and addBox:GetText()
         txt = txt and txt:match("^%s*(.-)%s*$")
         if txt and txt ~= "" then
-            table.insert(get(), txt)
+            table.insert(get(), opts.normalize and opts.normalize(txt) or txt)
             addBox:SetText("")
             refresh()
         end

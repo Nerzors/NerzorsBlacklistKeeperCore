@@ -1,6 +1,6 @@
 local _, NBK = ...
 
-local DB_VERSION = 4
+local DB_VERSION = 5
 
 local function defaultPresets()
     local t = {}
@@ -141,6 +141,15 @@ local function migrateV3toV4(db)
     end
 end
 
+local function migrateV4toV5(db)
+
+    if type(db.entries) == "table" then
+        for _, entry in pairs(db.entries) do
+            if type(entry.reason) == "string" then entry.reason = NBK:ReasonKey(entry.reason) end
+        end
+    end
+end
+
 local function migrateV2toV3(db)
 
     local defaultShareable = true
@@ -168,6 +177,7 @@ function Database:OnInitialize()
     if fromVer < 2 then migrateV1toV2(NBKDB) end
     if fromVer < 3 then migrateV2toV3(NBKDB) end
     if fromVer < 4 then migrateV3toV4(NBKDB) end
+    if fromVer < 5 then migrateV4toV5(NBKDB) end
 
     mergeDefaults(NBKDB, DEFAULTS)
 

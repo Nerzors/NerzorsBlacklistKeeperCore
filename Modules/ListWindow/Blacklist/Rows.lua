@@ -181,7 +181,8 @@ function BlacklistTab:MakeRowBuilder(columns)
                 elseif col.key == "name" then
                     local text
                     if dispS.combinedName then
-                        text = ("%s-%s"):format(BlacklistTab:ColoredName(entry, dispS.colorNameByClass), entry.realm)
+                        text = BlacklistTab:ColoredName(entry, dispS.colorNameByClass)
+                            .. NBK:RealmSuffix(entry.realm)
                     else
                         text = BlacklistTab:ColoredName(entry, dispS.colorNameByClass)
                     end
@@ -198,7 +199,7 @@ function BlacklistTab:MakeRowBuilder(columns)
                     end
 
                 elseif col.key == "reason" then
-                    c:SetText((entry.reason and entry.reason ~= "") and entry.reason or "|cff666666-|r")
+                    c:SetText((entry.reason and entry.reason ~= "") and NBK:ReasonText(entry.reason) or "|cff666666-|r")
 
                 elseif col.key == "zone" then
                     c:SetText(entry.zone or "")
@@ -250,7 +251,7 @@ function BlacklistTab:MakeRowBuilder(columns)
 
                     c.remove:SetScript("OnClick", function()
                         NUL:Confirm({
-                            text = (L["Remove %s-%s from blacklist?"]):format(entry.name, entry.realm),
+                            text = L["Remove %s from blacklist?"]:format(NBK:DisplayName(entry.name, entry.realm)),
                             onAccept = function()
                                 NBK:RemovePlayer(entry.name, entry.realm)
                                 BlacklistTab:_Refresh()

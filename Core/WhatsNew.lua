@@ -9,21 +9,44 @@ function NBK:LocalizeNewsItem(item)
     return item[loc] or item[short] or item.enUS or item.en or item[1] or ""
 end
 
+local function parseVersion(v)
+    v = (tostring(v):gsub("%+.*$", ""))
+    local core, pre = v:match("^([^%-]*)%-(.+)$")
+    local nums = {}
+    for n in (core or v):gmatch("%d+") do nums[#nums + 1] = tonumber(n) end
+    local ids
+    if pre then
+        ids = {}
+        for id in pre:gmatch("[^%.]+") do ids[#ids + 1] = tonumber(id) or id:lower() end
+    end
+    return nums, ids
+end
+
+local function comparePre(x, y)
+    for i = 1, math.max(#x, #y) do
+        local p, q = x[i], y[i]
+        if p == nil then return -1 end
+        if q == nil then return 1 end
+        if p ~= q then
+            if type(p) ~= type(q) then return type(p) == "number" and -1 or 1 end
+            return p < q and -1 or 1
+        end
+    end
+    return 0
+end
+
 function NBK:_VersionGreater(a, b)
     if not a then return false end
     if not b then return true end
-    local function parts(v)
-        local t = {}
-        for n in tostring(v):gmatch("(%d+)") do t[#t + 1] = tonumber(n) or 0 end
-        return t
+    local na, pa = parseVersion(a)
+    local nb, pb = parseVersion(b)
+    for i = 1, math.max(#na, #nb) do
+        local x, y = na[i] or 0, nb[i] or 0
+        if x ~= y then return x > y end
     end
-    local pa, pb = parts(a), parts(b)
-    local len = math.max(#pa, #pb)
-    for i = 1, len do
-        local na, nb = pa[i] or 0, pb[i] or 0
-        if na ~= nb then return na > nb end
-    end
-    return false
+    if not pa then return pb ~= nil end
+    if not pb then return false end
+    return comparePre(pa, pb) > 0
 end
 
 function NBK:GetVisibleNews()
@@ -34,7 +57,10 @@ function NBK:GetVisibleNews()
             local items = {}
             for _, item in ipairs(section.items or {}) do
                 local sub = (type(item) == "table" and item.sub) or section.sub
-                if self:ShouldShowForModule(sub) then
+                local flavor = (type(item) == "table" and item.flavor) or section.flavor
+                local onFlavor = not flavor or flavor == self.FLAVOR
+                              or (flavor == "classic" and self:IsClassic())
+                if self:ShouldShowForModule(sub) and onFlavor then
                     local go = type(item) == "table" and item.go or nil
                     if go and not self:CanGoTo(go) then go = nil end
                     items[#items + 1] = { item = item, sub = sub, go = go }
@@ -57,6 +83,133 @@ function NBK:GetVisibleNews()
 end
 
 NBK.WHATS_NEW = {
+    {
+        version   = "2.1.0",
+        date      = "2026-11-10",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "Ignore Manager: This module extends the ignore list in NBK. The new \"All Characters\" view in the \"Ignore List\" tab gives you an overview of the ignore lists across all your characters. See who is ignored on which character and how up to date each list is. Log in with each character at least once to complete the overview.",
+                        de = "Ignore-Manager: Dieses Module erweitert die Ignore-List in NBK. Die neue Ansicht \"Alle Charaktere\" im Reiter \"Ignorieren-Liste\" bietet dir eine Übersicht über die Ignorieren-Listen all deiner Charaktere. Sieh auf einen Blick, welcher Spieler auf welchem Charakter ignoriert wird und wie aktuell die jeweiligen Listen sind. Melde dich mit jedem Charakter mindestens einmal an, um die Übersicht zu vervollständigen.",
+                        sub = "_IgnoreManager",
+                        go  = "list:ignore",
+                    },
+                    {
+                        en = "Manage ignore lists across characters: Add or remove players from another character's ignore list without switching characters. Simply click the corresponding field to schedule a change. The change will be applied the next time that character logs in. You can choose whether NBK asks for confirmation first or applies changes automatically under \"Notifications\".",
+                        de = "Charakterübergreifende Verwaltung: Füge Spieler zur Ignorieren-Liste anderer Charaktere hinzu oder entferne sie, ohne den Charakter wechseln zu müssen. Klicke dazu einfach auf das entsprechende Feld. Die Änderung wird beim nächsten Login des betroffenen Charakters übernommen. Unter \"Benachrichtigungen\" kannst du festlegen, ob NBK vorher nachfragen oder die Änderungen automatisch durchführen soll.",
+                        sub = "_IgnoreManager",
+                        go  = "settings:Notifications",
+                    },
+                    {
+                        en = "\"Ignore Everywhere\" and \"Remove Everywhere\": Select multiple players to add them to or remove them from the ignore lists of all your characters at once. Changes take effect immediately on your current character and on the next login for all other characters.",
+                        de = "\"Überall ignorieren\" und \"Überall entfernen\": Wähle mehrere Spieler aus, um sie gleichzeitig auf allen deinen Charakteren zu ignorieren oder von den Ignorieren-Listen zu entfernen. Änderungen werden auf deinem aktuellen Charakter sofort und auf allen anderen beim nächsten Login übernommen.",
+                        sub = "_IgnoreManager",
+                        go  = "list:ignore",
+                    },
+                    {
+                        en = "Clean up outdated entries: Characters that no longer exist are shown in grey on characters whose ignore lists have not yet been updated. Use \"Clean Up\" to remove these entries from the overview and, optionally, from your blacklist.",
+                        de = "Veraltete Einträge bereinigen: Charaktere, die nicht mehr existieren, werden auf Charakteren mit noch nicht aktualisierten Ignorieren-Listen ausgegraut dargestellt. Mit \"Aufräumen\" kannst du diese Einträge aus der Übersicht und auf Wunsch auch aus deiner Blacklist entfernen.",
+                        sub = "_IgnoreManager",
+                    },
+                    {
+                        en = "WoW: Forever: names now read \"First Second\" everywhere, without the long server ID behind them. The realm column, the \"name and realm in one column\" setting and the \"Top realms\" card are gone there, and the search no longer matches the server ID.",
+                        de = "WoW: Forever: Namen stehen jetzt überall als \"Hauptname Zweitname\" da, ohne die lange Server-Kennung dahinter. Realm-Spalte, die Einstellung \"Name und Realm in einer Spalte\" und die Karte \"Top-Realms\" gibt es dort nicht mehr, und die Suche findet nicht mehr alles über die Server-Kennung.",
+                        flavor = "forever",
+                    },
+                    {
+                        en = "WoW: Forever: slash commands take both names - /nbk add First Second reason. Texts that talked about realms are worded for Forever.",
+                        de = "WoW: Forever: Slash-Befehle nehmen beide Namen - /nbk add Hauptname Zweitname Grund. Texte, die von Realms sprachen, sind für Forever umformuliert.",
+                        flavor = "forever",
+                    },
+                    {
+                        en = "Export only what you ticked: \"Export...\" in the blacklist's selection bar exports just the selected players.",
+                        de = "Ausgewählte Spieler exportieren: Über die neue Option \"Exportieren...\" in der Auswahlleiste der Blacklist kannst du gezielt die ausgewählten Spieler exportieren, anstatt die gesamte Liste zu exportieren.",
+                        go = "list:blacklist",
+                    },
+                    {
+                        en = "Names with spaces work in slash commands everywhere when you put them in quotes: /nbk add \"Name\" reason.",
+                        de = "Namen mit Leerzeichen gehen in Slash-Befehlen überall, wenn sie in Anführungszeichen stehen: /nbk add \"Name\" Grund.",
+                    },
+                    {
+                        en = "If outdated NBK sub-addons (Tooltip, Nameplates) are still enabled, NBK tells you at login and can disable them for you.",
+                        de = "Sind noch veraltete NBK-Sub-Addons (Tooltip, Nameplates) aktiviert, weist NBK beim Login darauf hin und kann sie für dich deaktivieren.",
+                    },
+                    {
+                        en = "Group Finder and Remember Me only work on Retail. On other clients NBK now switches them off once, so the AddOn list no longer shows them as enabled.",
+                        de = "Gruppensuche und Merken gibt es nur auf Retail. Auf anderen Clients schaltet NBK sie jetzt einmal aus, damit die AddOn-Liste sie nicht mehr als aktiviert zeigt.",
+                        flavor = "classic",
+                    },
+                },
+            },
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "Localized ignore reasons: Built-in reasons such as \"Toxic\" or \"Quitter\" are now displayed in your selected language. This also applies to existing entries and lists shared by other players.",
+                        de = "Lokalisierte Ignoriergründe: Vordefinierte Gründe wie \"Toxisch\" oder \"Abbrecher\" werden jetzt in deiner eingestellten Sprache angezeigt. Das gilt auch für bestehende Einträge und Listen, die andere Spieler mit dir teilen.",
+                    },
+                    {
+                        en = "The remove dialog of the \"Ignore list\" tab says how many pinned entries would leave the blacklist too.",
+                        de = "Das Entfernen-Fenster im Reiter \"Ignorieren-Liste\" zeigt, wie viele angeheftete Einträge dadurch aus deiner Blacklist entfernt würden.",
+                        go = "list:ignore",
+                    },
+                    {
+                        en = "Interface improvements: The main window's minimum width has been increased slightly to ensure all tabs fit in every supported language. The redundant \"Cancel\" button has been removed from the blacklist's selection bar, as \"Done\" serves the same purpose. Button spacing has also been improved to prevent overlapping text in longer translations.",
+                        de = "Verbesserungen an der GUI: Die Mindestbreite des Hauptfensters wurde leicht erhöht, damit alle Reiter in jeder unterstützten Sprache ausreichend Platz haben. In der Auswahlleiste der Blacklist wurde die überflüssige Schaltfläche \"Abbrechen\" entfernt, da \"Fertig\" dieselbe Funktion erfüllt. Außerdem wurden die Abstände der Schaltflächen optimiert, damit sich längere Übersetzungen nicht mehr überlappen.",
+                    },
+                    {
+                        en = "Button frames on hover are easier to see in the Nerzors and Midnight themes.",
+                        de = "Knopf-Rahmen beim Überfahren mit der Maus sind in den Themes Nerzors und Midnight besser zu sehen.",
+                    },
+                },
+            },
+            {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "WoW: Forever: a player picked from the target, the group or a tooltip and the same player from the ignore list or chat were stored as two different players. They are one now, so the tooltip and the group warning recognize them either way. Entries saved the old way are switched once: a window explains it first, lists every entry and lets you export your blacklist before.",
+                        de = "WoW: Forever: Ein Spieler über Ziel, Gruppe oder Tooltip und derselbe Spieler aus Ignorieren-Liste oder Chat galten als zwei verschiedene. Jetzt ist es einer, Tooltip und Gruppenwarnung erkennen ihn auf beiden Wegen. Alte Einträge stellt NBK einmalig um: Ein Fenster erklärt es vorher, zeigt jeden Eintrag und bietet an, die Blacklist vorher zu exportieren.",
+                        flavor = "forever",
+                    },
+                    {
+                        en = "Fixed an issue where removing players from the ignore list could fail silently if the game returned their names with different capitalization, such as lowercase letters.",
+                        de = "Ein Fehler wurde behoben, durch den das Entfernen von Spielern aus der Ignorieren-Liste unbemerkt fehlschlagen konnte, wenn das Spiel deren Namen mit abweichender Groß- und Kleinschreibung zurückgab.",
+                    },
+                    {
+                        en = "After \"Import to NBK\" in the \"Ignore list\" tab, the player now shows up in the blacklist right away.",
+                        de = "Nach \"In NBK übernehmen\" im Reiter \"Ignorieren-Liste\" steht der Spieler jetzt sofort in der Blacklist.",
+                        go = "list:blacklist",
+                    },
+                    {
+                        en = "Fixed an issue where multi-line tooltips were cut off after the first line instead of displaying their full content.",
+                        de = "Ein Fehler wurde behoben, durch den mehrzeilige Tooltips nach der ersten Zeile abgeschnitten wurden, anstatt den vollständigen Inhalt anzuzeigen.",
+                    },
+                    {
+                        en = "Month names in Statistics now follow your game language.",
+                        de = "Monatsnamen in der Statistik richten sich jetzt nach deiner Spielsprache.",
+                        sub = "_Statistics",
+                    },
+                    {
+                        en = "The hint above the chat filter whitelist was always in English.",
+                        de = "Der Hinweis über der Whitelist der Chatfilter war immer auf Englisch.",
+                        sub = "_ChatFilters",
+                    },
+                },
+            },
+            {
+                kind  = "note",
+                items = {
+                    {
+                        en = "Thanks to everyone who tested the two betas! Please keep reporting anything odd on Discord, GitHub or CurseForge.",
+                        de = "Danke an alle, die die beiden Betas getestet haben! Bitte melde Auffälligkeiten weiter im Discord, auf GitHub oder CurseForge.",
+                    },
+                },
+            },
+        },
+    },
     {
         version   = "2.0.0",
         date      = "2026-10-24",

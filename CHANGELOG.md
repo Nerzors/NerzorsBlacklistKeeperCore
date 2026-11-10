@@ -1,72 +1,74 @@
 # What's new? (Last 3 Changes/Updates)
 
 
-## 2.0.0 - Eight languages, first stable release
+## 2.1.0 - Ignore-Manager + WoW: Forever
 > Nerzors & Veplo
+
+> [!CAUTION]
+> **WoW: Forever - names saved the wrong way before 2.1.0.**
+> Up to 2.0.0, players added through the target, the context
+> menu or the group were saved with their second name as the realm
+> ("First-Second" instead of "First Second"). The tooltip and the group
+> warning didn't recognize them, and the same player could be on your
+> blacklist twice. 2.1.0 fixes this once: at login a window explains it,
+> lists every affected entry and offers to export your blacklist first,
+> nothing changes until you click "Switch now".
+
 ### New
-- **NBK now speaks eight languages.** On top of English and German it comes
-  in Italian, French, Portuguese (Brazil), Spanish (Latin America and Spain)
-  and Russian. The language follows your game client automatically - nothing
-  to set up.
-- **New "Ignore list" tab.** The game's ignore list right in NBK: tick several
-  players and remove them in one go, optionally from your blacklist too.
-  Players that are also blacklisted show their date, reason and note. the rest
-  can be moved to NBK with one click.
-- **"Ignored since" and deleted characters.** NBK notes when a player first
-  shows up on your ignore list (the game keeps no date), and tells you when the
-  game removes a character from it because it no longer exists.
-- **Chat messages are translated too.** Slash-command replies (`/nbk list`,
-  `/nbk check`, sharing errors and so on) used to be English only.
-- **WoW: Forever support.** The same download now runs there too. Like on
-  Classic, you get everything except Group Finder and Remember Me.
-  
+- **Ignore Manager** (new module, full download only). The "All characters"
+  view in the "Ignore list" tab shows the ignore lists of all your characters
+  side by side - who is ignored where, and how up to date each character's
+  list is. Log in once on each character so the overview is complete.
+- **Change other characters' lists without logging over.** Click a field to
+  ignore or remove a player there. The change waits for that character's
+  next login - NBK asks first, or runs it right away if you switch that on
+  under "Notifications". *(Ignore Manager)*
+- **"Ignore everywhere" and "Remove everywhere".** Tick players and change
+  them on all your characters at once - right away on this one, at the next
+  login on the others. *(Ignore Manager)*
+- **Characters that no longer exist** are greyed out on characters that
+  haven't logged in since. "Clean up" takes them out of the overview - and
+  off your blacklist, if you like. *(Ignore Manager)*
+- **Names on WoW: Forever.** Names read "First Second" everywhere, without
+  the long server ID behind them. The realm column, the "name and realm in
+  one column" setting and the "Top realms" card are gone there, and the
+  search no longer matches the server ID.
+- **Both names in slash commands on Forever:** `/nbk add First Second
+  reason`. Texts that talked about realms are worded for Forever.
+- **Export only what you ticked.** "Export..." in the blacklist's selection
+  bar exports just the selected players.
+- **Quoted names** work in slash commands on every client:
+  `/nbk add "Name" reason`.
+- **Outdated sub-addons.** If old NBK sub-addons (Tooltip, Nameplates) are
+  still enabled, NBK tells you at login and can disable them for you.
+- **Retail-only modules off elsewhere.** Group Finder and Remember Me only
+  work on Retail; on other clients NBK switches them off once, so the AddOn
+  list no longer shows them as enabled.
+
 ### Changed
-- **[Import from ignore list] has moved** to the "Advanced" section of the
-  settings. The setting "Also add muted players to the game's ignore list"
-  stays under "Notifications".
-- **"What's new?" shows you the way.** Framed entries with "Show me »" take
-  you straight to the right place in the settings with one click.
-- **Dates in your language.** 19/10/2026 on French, Spanish, Italian and
-  Portuguese clients; English, German and Russian keep 19.10.2026.
-- **"Forever" theme replaces "Sci-Fi".** Dusk-navy surfaces with gem teal and
-  old gold, in the style of WoW: Forever. If you were using Sci-Fi, you're
-  switched over automatically.
-- **New button look.** Every theme has its own, calmer button colours, main
-  actions stand out, and you can see a button being pressed.
-  
-### Fixed
-- **Consistent labels.** A few buttons were worded differently depending on
-  which modules you had installed (for example "Add to Blacklist"). They now
-  read the same everywhere.
-- **Statistics on Classic Era 1.15.9** was listed as "out of date".
-- **Statistics with an outdated Data folder** printed a cryptic message
-  instead of asking you to update it.
-- **Readable buttons.** On hover, button text was hard to read in some themes,
-  especially Forever - fixed with the new button look. Buttons also grow with
-  longer translations instead of letting the text run over the edge.
-
-## 2.0.0-dev.0.46.0 - Broker bar + multi-select
-> Veplo
-### New
-- **Add Patch 12.1.5**
-- **Data-broker support (LibDataBroker).** NBK now shows up on Titan Panel,
-  ElvUI data texts and similar bars as a button - alongside the minimap icon.
-  Left-click opens the list, right-click the settings.
-- **Multi-select on the blacklist.** A new "Select" button reveals checkboxes:
-  mark several entries and delete them together, or (with Sync installed) mark
-  them shareable/private. Plus "select all/none".
-
-
-## c2.0.0-dev.0.45.2
-> Veplo
-### New
-- add WoW:Forever (patch 1.60.1)
-
-
-## c2.0.0-dev.0.45.0
-> Veplo
-### New
-- NBK now appears in the game's settings. Options > AddOns has an NBK entry with a button that opens the addon's settings - where you'd look first for any addon.
+- **Built-in reasons in your language.** "Toxic", "Quitter" and the other
+  built-in reasons now show translated - for the entries you already have and
+  for lists others share with you, too.
+- **Pinned entries in the remove dialog.** The "Ignore list" tab says how many
+  pinned entries would leave the blacklist too.
+- **All tabs fit.** The main window is a little wider at its smallest, so all
+  tabs fit in every language. The blacklist's selection bar no longer has a
+  "Cancel" button - "Done" does the same - and its buttons don't overlap with
+  longer translations any more.
+- **Clearer hover frames** on buttons in the Nerzors and Midnight themes.
 
 ### Fixed
-- small other thinks
+- **One player, not two (Forever).** A player picked from the target, the
+  group or a tooltip and the same player from the ignore list or chat were
+  stored as two different players. They are one now. Entries saved the old
+  way are switched once: a window explains it first, lists every entry and
+  lets you export your blacklist before.
+- **Ignore list spelling.** Removing a player from the ignore list could
+  silently miss them when the game spelled the name differently (for example
+  in lower case).
+- **"Import to NBK"** in the "Ignore list" tab: the player now shows up in
+  the blacklist right away.
+- **Cut-off tooltips.** Longer tooltips that wrap onto several lines were cut
+  off after the first line.
+- **Statistics month names** now follow your game language.
+- **Chat filter whitelist hint** was always in English.
