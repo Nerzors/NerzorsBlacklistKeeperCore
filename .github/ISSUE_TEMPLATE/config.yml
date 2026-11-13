@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord
+    url: https://discord.nerzors.de/
+    about: Questions, quick help, beta testing. / Fragen, schnelle Hilfe, Betas testen.
+  - name: How it works / So funktioniert's
+    url: https://nbk.nerzors.com/en/docs
+    about: Guides for every module, with the rebuilt addon window. / Anleitungen für jedes Modul.
+  - name: Feedback form / Feedback-Formular
+    url: https://nbk.nerzors.com/en/feedback
+    about: No GitHub account? Send feedback through the website. / Ohne GitHub-Konto über die Webseite.
