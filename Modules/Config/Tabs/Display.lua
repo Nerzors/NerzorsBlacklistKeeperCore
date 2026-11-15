@@ -32,6 +32,30 @@ local function buildDisplayTab(parent)
     })
     themeDD:SetPoint("TOPLEFT", 0, y); y = y - 34
 
+    local function setScale(percent)
+        local scale = NBK:ApplyWindowScale(percent / 100)
+        Config:SetPath({"display", "scale"}, scale)
+    end
+    local scaleSlider, nyScale = Config:AddSliderRow(panel, y, "Window size", {
+        min     = NBK.SCALE_MIN_PERCENT,
+        max     = NBK.SCALE_MAX_PERCENT,
+        step    = 5,
+        value   = math.floor(Config:GetPath({"display", "scale"}, 1) * 100 + 0.5),
+        format  = "%d %%",
+        tooltip = L["Size of all NBK windows. Applied when you let go of the slider."],
+        onRelease = setScale,
+    })
+
+    local scaleReset = NUL:Button(panel, {
+        label = "100 %", height = 20,
+        onClick = function()
+            scaleSlider:SetValue(100)
+            setScale(100)
+        end,
+    })
+    scaleReset:SetPoint("LEFT", scaleSlider, "RIGHT", 4, 0)
+    y = nyScale
+
     local _, ny1 = Config:AddDivider(panel, y); y = ny1
 
     local classLabel = NUL:CreateLabel(panel, {

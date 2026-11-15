@@ -16,7 +16,7 @@
 --   NUL._widgets     table  weak-keyed live widgets  (this file)
 --   NUL:<Widget>(...)       widget constructors      (Widgets/*.lua)
 
-local MAJOR, MINOR = "NerzorsUILib-1.0", 4
+local MAJOR, MINOR = "NerzorsUILib-1.0", 5
 local NUL, oldMinor = LibStub:NewLibrary(MAJOR, MINOR)
 if not NUL then return end -- already loaded at this or higher minor
 
@@ -53,6 +53,41 @@ function NUL:_RepaintAll()
             print("|cffff5555NerzorsUILib repaint error:|r", tostring(err))
         end
     end
+end
+
+-- ─── Scale ─────────────────────────────────────────────────────────────
+-- One factor for everything the lib puts on screen. Windows register
+-- themselves (Widgets/Window.lua) and keep their place when it changes;
+-- helpers that live on UIParent instead of inside a window - the tooltip,
+-- dropdown popups - follow through NUL:_FollowScale. The host persists the
+-- value and calls NUL:SetScale once its settings are loaded.
+
+NUL.MIN_SCALE = 0.5
+NUL.MAX_SCALE = 2
+
+NUL._scale    = NUL._scale    or 1
+NUL._windows  = NUL._windows  or setmetatable({}, { __mode = "k" })
+NUL._floaters = NUL._floaters or setmetatable({}, { __mode = "k" })
+
+function NUL:GetScale() return self._scale end
+
+function NUL:_FollowScale(frame)
+    if not frame then return frame end
+    self._floaters[frame] = true
+    frame:SetScale(self._scale)
+    return frame
+end
+
+function NUL:SetScale(scale)
+    scale = tonumber(scale) or 1
+    if scale < self.MIN_SCALE then scale = self.MIN_SCALE end
+    if scale > self.MAX_SCALE then scale = self.MAX_SCALE end
+    self._scale = scale
+    for w in pairs(self._windows) do
+        local ok, err = pcall(w._applyScale, w, scale)
+        if not ok then print("|cffff5555NerzorsUILib scale error:|r", tostring(err)) end
+    end
+    for f in pairs(self._floaters) do f:SetScale(scale) end
 end
 
 -- Migration hook for future MINOR bumps. Currently a no-op.

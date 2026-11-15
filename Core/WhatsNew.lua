@@ -84,6 +84,83 @@ end
 
 NBK.WHATS_NEW = {
     {
+        version   = "2.2.0-beta.1",
+        date      = "2026-11-13",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "Ignore Manager, \"All characters\" rebuilt: the grid of players and characters is gone. On the left you now have your ignored players, on the right the player you clicked with every one of your characters listed below each other - each with a tick box and its state in plain words (\"Ignored\", \"Planned: remove at next login\", ...). No more paging through columns, however many characters you have.",
+                        de = "Ignore-Manager, \"Alle Charaktere\" neu aufgebaut: Das Raster aus Spielern und Charakteren ist weg. Links stehen jetzt deine ignorierten Spieler, rechts der angeklickte Spieler mit all deinen Charakteren untereinander - jeweils mit Häkchen und dem Zustand in Worten (\"Ignoriert\", \"Geplant: beim nächsten Login entfernen\", ...). Kein Blättern durch Spalten mehr, egal wie viele Charaktere du hast.",
+                        sub = "_IgnoreManager",
+                        go = "list:ignore",
+                    },
+                    {
+                        en = "What matters comes first: the characters a player is ignored on (or where a change is planned) are at the top and in colour, the others are dimmed. If a player is ignored on just one character, the list shows that character's name.",
+                        de = "Das Wichtige steht oben: Charaktere, auf denen ein Spieler ignoriert ist (oder eine Änderung geplant ist), stehen zuerst und in Farbe, die übrigen sind gedämpft. Ist ein Spieler nur auf einem Charakter ignoriert, zeigt die Liste dessen Namen.",
+                        sub = "_IgnoreManager",
+                    },
+                    {
+                        en = "\"Import to NBK\" in \"All characters\": put ignored players on your blacklist from there too - one player in the detail pane, or everyone you ticked.",
+                        de = "\"In NBK übernehmen\" in \"Alle Charaktere\": Ignorierte Spieler kommen jetzt auch von dort auf deine Blacklist - ein Spieler im Detailbereich oder alle angehakten.",
+                        sub = "_IgnoreManager",
+                        go = "list:ignore",
+                    },
+                    {
+                        en = "Window size: a new slider under \"Display\" makes every NBK window smaller or larger, from 80 to 130 %. Windows stay where they are.",
+                        de = "Fenstergröße: Ein neuer Regler unter \"Anzeige\" macht alle NBK-Fenster kleiner oder größer, von 80 bis 130 %. Die Fenster bleiben an ihrem Platz.",
+                        go = "settings:Display",
+                    },
+                    {
+                        en = "The sort order is remembered: Blacklist and Remember Me open with the column and direction you picked last, also after a reload or on another character.",
+                        de = "Die Sortierung bleibt erhalten: Blacklist und Merken öffnen mit der Spalte und Richtung, die du zuletzt gewählt hast - auch nach einem Reload oder auf einem anderen Charakter.",
+                        go = "list:blacklist",
+                    },
+                    {
+                        en = "Empty lists say why: Blacklist, Ignore list and Recents show a hint instead of a blank area when they are empty, and \"No matches\" when a search finds nothing.",
+                        de = "Leere Listen sagen, warum: Blacklist, Ignorieren-Liste und Letzte Gruppen zeigen einen Hinweis statt einer leeren Fläche, wenn sie leer sind, und \"Keine Treffer\", wenn die Suche nichts findet.",
+                    },
+                },
+            },
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "Long lists stay fast: all lists now only draw the rows you can see. Searching, scrolling and \"Select all\" stay smooth with well over a thousand blacklist entries.",
+                        de = "Lange Listen bleiben schnell: Alle Listen zeichnen nur noch die sichtbaren Zeilen. Suchen, Scrollen und \"Alle auswählen\" bleiben auch mit weit über tausend Blacklist-Einträgen flüssig.",
+                    },
+                    {
+                        en = "WoW: Forever: the one-time name correction from 2.1.0 stays in for this version and will be removed with 2.3.0 instead of 2.2.0.",
+                        de = "WoW: Forever: Die einmalige Namenskorrektur aus 2.1.0 bleibt in dieser Version enthalten und fällt erst mit 2.3.0 weg statt mit 2.2.0.",
+                        flavor = "forever",
+                    },
+                },
+            },
+            {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "Message history: messages from muted players were saved 5 to 20 times each. Every message is now saved once, and the copies already stored are cleaned up at your next login.",
+                        de = "Nachrichtenverlauf: Nachrichten stummgeschalteter Spieler wurden jeweils 5- bis 20-mal gespeichert. Jede Nachricht wird jetzt einmal gespeichert, und die schon vorhandenen Kopien werden beim nächsten Login bereinigt.",
+                        sub = "_ChatFilters",
+                        go = "list:history",
+                    },
+                },
+            },
+            {
+                kind  = "note",
+                items = {
+                    {
+                        en = "This is a beta. If something looks or behaves wrong - especially in the new \"All characters\" view or with the window size - please tell us on Discord, GitHub or CurseForge.",
+                        de = "Das ist eine Beta. Wenn etwas falsch aussieht oder sich falsch verhält - vor allem in der neuen Ansicht \"Alle Charaktere\" oder bei der Fenstergröße -, melde es bitte im Discord, auf GitHub oder CurseForge.",
+                    },
+                },
+            },
+        },
+    },
+    {
         version   = "2.1.0",
         date      = "2026-11-10",
         highlight = true,

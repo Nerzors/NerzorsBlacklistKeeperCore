@@ -211,6 +211,22 @@ NBK:RegisterEvent("PLAYER_LOGIN", function()
     end
 end)
 
+NBK.SCALE_MIN_PERCENT, NBK.SCALE_MAX_PERCENT = 80, 130
+
+function NBK:ApplyWindowScale(scale)
+    local percent = math.floor((tonumber(scale) or 1) * 100 + 0.5)
+    if percent < self.SCALE_MIN_PERCENT then percent = self.SCALE_MIN_PERCENT end
+    if percent > self.SCALE_MAX_PERCENT then percent = self.SCALE_MAX_PERCENT end
+    scale = percent / 100
+    NUL:SetScale(scale)
+    return scale
+end
+
+NBK:RegisterEvent("PLAYER_LOGIN", function()
+    local d = NBK.db and NBK.db.settings and NBK.db.settings.display
+    if d and d.scale and d.scale ~= 1 then d.scale = NBK:ApplyWindowScale(d.scale) end
+end)
+
 NUL:RegisterThemeChangedCallback(function(_, name)
     if NBK.db and NBK.db.settings then
         NBK.db.settings.theme = name

@@ -115,6 +115,28 @@ function NBK:DisplayName(name, realm, hex)
     return shown .. self:RealmSuffix(realm)
 end
 
+function NBK:EmptyListText(filter, emptyText)
+    filter = filter and strtrim(filter) or ""
+    if filter ~= "" then return self.L["No matches for \"%s\"."]:format(filter) end
+    return emptyText or ""
+end
+
+function NBK:GetSavedSort(tab, defaultKey, defaultDir)
+    local d = self.db and self.db.settings and self.db.settings.display
+    local s = d and type(d.sort) == "table" and d.sort[tab]
+    if type(s) == "table" and type(s.key) == "string" then
+        return s.key, (s.dir == "desc") and "desc" or "asc"
+    end
+    return defaultKey, defaultDir
+end
+
+function NBK:SaveSort(tab, key, dir)
+    local d = self.db and self.db.settings and self.db.settings.display
+    if not d or type(key) ~= "string" then return end
+    if type(d.sort) ~= "table" then d.sort = {} end
+    d.sort[tab] = { key = key, dir = (dir == "desc") and "desc" or "asc" }
+end
+
 function NBK:AddOnExists(name)
     local C = C_AddOns
     if C and C.DoesAddOnExist then

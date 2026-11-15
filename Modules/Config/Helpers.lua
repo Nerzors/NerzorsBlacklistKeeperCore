@@ -62,6 +62,18 @@ function Config:AddCheckboxRow(parent, y, labelKey, path, defaultVal, onChanged)
     return cb, y - 26
 end
 
+function Config:AddSliderRow(parent, y, labelKey, opts)
+    local L = NBK.L
+    local label = NUL:CreateLabel(parent, {
+        text  = L[labelKey] or labelKey,
+        color = NUL:GetTheme().colors.text.muted,
+    })
+    label:SetPoint("TOPLEFT", 0, y)
+    local slider = NUL:Slider(parent, opts)
+    slider:SetPoint("TOPLEFT", 0, y - 18)
+    return slider, y - 18 - 30
+end
+
 function Config:AddSectionLabel(parent, y, textKey)
     local L = NBK.L
     local theme = NUL:GetTheme()

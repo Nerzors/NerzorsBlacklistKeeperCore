@@ -37,6 +37,7 @@ local function ensureTip()
     f:SetFrameStrata("TOOLTIP")
     f:SetFrameLevel(1000)
     f:SetClampedToScreen(true)
+    NUL:_FollowScale(f)   -- lives on UIParent, sized like the windows
     f:Hide()
 
     f.bg      = NUL:FillBackground(f, theme.colors.bg.base)

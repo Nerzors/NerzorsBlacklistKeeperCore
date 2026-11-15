@@ -290,3 +290,10 @@ L["Switch now"] = "Jetzt umstellen"
 
 L["Christmas decoration in December"] = "Weihnachtsdeko im Dezember"
 L["Snow on the buttons of the main window, automatically from 1 to 31 December."] = "Schnee auf den Knöpfen des Hauptfensters, automatisch vom 1. bis 31. Dezember."
+
+L["Your blacklist is empty. Click \"%s\" above, or right-click a player and choose \"%s\"."] = "Deine Blacklist ist leer. Klicke oben auf \"%s\" oder rechtsklicke einen Spieler und wähle \"%s\"."
+L["No matches for \"%s\"."] = "Keine Treffer für \"%s\"."
+L["Your ignore list is empty. Players you ignore in the game show up here."] = "Deine Ignorieren-Liste ist leer. Spieler, die du im Spiel ignorierst, erscheinen hier."
+
+L["Window size"] = "Fenstergröße"
+L["Size of all NBK windows. Applied when you let go of the slider."] = "Größe aller NBK-Fenster. Wird übernommen, sobald du den Regler loslässt."

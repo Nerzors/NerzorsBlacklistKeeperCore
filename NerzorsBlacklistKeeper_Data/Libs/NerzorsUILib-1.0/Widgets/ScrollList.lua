@@ -1,18 +1,28 @@
 -- NerzorsUILib-1.0 :: Widgets/ScrollList.lua
--- Virtualized-ish vertical list. Reuses row frames across SetData calls.
+-- Virtualized vertical list: only the rows in view have a frame (plus one
+-- spare), however long the data is. Scrolling re-binds those frames to the
+-- entries that come into view.
 --
 -- opts:
---   rowHeight  number    Per-row height in px. Required.
+--   rowHeight  number    Per-row height in px. Default theme.metrics.rowHeight.
 --   rowBuilder function(row) -> function(row, entry, index)
---                        Called once per row to set up the row's child
---                        widgets and returns a populate function that
---                        the list calls on each SetData with the row's
---                        data entry.
---   striped    boolean   Default true - alternates panel/elevated per row.
+--                        Called once per row FRAME to set up its child
+--                        widgets; returns a populate function. A frame
+--                        shows a different entry whenever the list scrolls
+--                        or the data changes, so populate must set
+--                        everything the row displays or does (texts,
+--                        checks, click handlers, tooltips) from `entry` -
+--                        nothing may be left over from the previous one.
+--   striped    boolean   Default true - alternates panel/elevated per row
+--                        (by data index, so stripes scroll with the rows).
+--   emptyText  string    Caption shown while the list has no entries.
 --
--- list:SetData(array)    Renders the array; reuses rows where possible.
--- list:Refresh()         Re-runs populate without changing the dataset.
--- list:GetRow(i)         Returns the row frame at index i, if any.
+-- list:SetData(array)    Shows the array. Keeps the scroll position (clamped
+--                        to the new length) and re-populates the rows in view.
+-- list:Refresh()         Re-populates the rows in view from the same data.
+-- list:SetEmptyText(s)   Sets / clears the empty-state caption.
+-- list:ScrollToTop()
+-- list:GetRow(i)         The frame showing entry i, or nil if out of view.
 
 local NUL = LibStub("NerzorsUILib-1.0")
 
@@ -193,15 +203,24 @@ function NUL:ScrollList(parent, opts)
     -- _AttachThemedScrollBar above.
     local sbar = self:_AttachThemedScrollBar(scroll, container, rowHeight)
 
+    -- Row pool. Slot = ((dataIndex - 1) % pool) + 1, so while an entry stays
+    -- in view it keeps its frame: scrolling by one row re-populates one row,
+    -- and the frame under the cursor changes (OnLeave / OnEnter fire as
+    -- they did when every entry had a frame of its own). Slots are built on
+    -- first use and kept when the pool shrinks, so `rows` can have holes
+    -- and more frames than the pool: walk it with pairs().
     local rows = {}
     local list = {
         container   = container,
         scrollFrame = scroll,
         content     = content,
         rows        = rows,
+        data        = {},
         _rowHeight  = rowHeight,
         _striped    = striped,
         _sbar       = sbar,
+        _pool       = 0,
+        _emptyText  = opts.emptyText or "",
     }
 
     local function stripeFor(i, t)
@@ -209,66 +228,185 @@ function NUL:ScrollList(parent, opts)
         return (i % 2 == 0) and t.colors.bg.elevated or t.colors.bg.panel
     end
 
-    local function acquireRow(i)
-        local row = rows[i]
-        if not row then
-            row = CreateFrame("Button", nil, content)
-            row:SetHeight(rowHeight)
-            row.bg = row:CreateTexture(nil, "BACKGROUND")
-            row.bg:SetAllPoints()
-            row._index = i
-            row._stripe = stripeFor(i, NUL:GetTheme())
-            NUL.SetTextureColor(row.bg, row._stripe)
-            row:SetScript("OnEnter", function(self) NUL.SetTextureColor(self.bg, NUL:GetTheme().colors.bg.hover) end)
-            row:SetScript("OnLeave", function(self) NUL.SetTextureColor(self.bg, self._stripe) end)
-            row.populate = rowBuilder(row)
-            rows[i] = row
-        end
+    -- The hover flag is only ever set by the scripts below; a builder that
+    -- replaces them (for its own tooltip) simply gets no hover tint, as before.
+    local function paintRow(row, t)
+        if row._hover and not row:IsMouseOver() then row._hover = false end
+        NUL.SetTextureColor(row.bg, row._hover and t.colors.bg.hover or row._stripe)
+    end
+
+    local function buildRow(slot)
+        local row = CreateFrame("Button", nil, content)
+        row:SetHeight(rowHeight)
+        row.bg = row:CreateTexture(nil, "BACKGROUND")
+        row.bg:SetAllPoints()
+        row._slot   = slot
+        row._stripe = stripeFor(slot, NUL:GetTheme())
+        NUL.SetTextureColor(row.bg, row._stripe)
+        row:SetScript("OnEnter", function(self)
+            self._hover = true
+            NUL.SetTextureColor(self.bg, NUL:GetTheme().colors.bg.hover)
+        end)
+        row:SetScript("OnLeave", function(self)
+            self._hover = false
+            NUL.SetTextureColor(self.bg, self._stripe)
+        end)
+        row:Hide()
+        row.populate = rowBuilder(row)
+        rows[slot] = row
         return row
     end
 
-    function list:SetData(data)
-        self.data = data
+    local function release(row)
+        row._dataIndex, row._entry, row._hover = nil, nil, false
+        row:Hide()
+    end
+
+    -- Height of the visible area, and whether it is known yet. Before the
+    -- first layout pass an anchored frame can still report 0.
+    local function viewHeight()
+        local h = scroll:GetHeight() or 0
+        if h >= 1 then return h, true end
+        return 600, false
+    end
+
+    local rendering = false
+
+    -- Bind the rows in view to their entries. `force` re-populates every
+    -- visible row (new data, Refresh); without it only rows whose entry
+    -- changed are touched, which is what scrolling and resizing need.
+    local function render(force)
+        if rendering then return end
+        rendering = true
+
+        local data  = list.data
         local count = #data
-        content:SetWidth(scroll:GetWidth())
-        content:SetHeight(math.max(count * rowHeight, 1))
-        for i, entry in ipairs(data) do
-            local row = acquireRow(i)
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT",  content, "TOPLEFT",  0, -(i - 1) * rowHeight)
-            row:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, -(i - 1) * rowHeight)
-            row:Show()
-            row.populate(row, entry, i)
+        local viewH, known = viewHeight()
+
+        -- Pool = rows that fit, plus one for the row cut off at the edge. A
+        -- different size changes which slot an entry maps to, so every
+        -- binding is dropped and the (few) rows in view are bound afresh.
+        local pool = math.ceil(viewH / rowHeight) + 1
+        if pool ~= list._pool then
+            for _, row in pairs(rows) do release(row) end
+            list._pool = pool
+            force = true
         end
-        for i = count + 1, #rows do rows[i]:Hide() end
-        -- Refresh the themed scrollbar's thumb/visibility. The scroll range
-        -- only settles a frame after the content height change, so run it
-        -- now and once more next frame.
-        if self._sbar then
-            self._sbar.update()
-            if C_Timer and C_Timer.After then C_Timer.After(0, self._sbar.update) end
+
+        -- Keep the offset inside the new content (a shorter result list
+        -- while scrolled down). The frame's own range settles a frame late.
+        local offset = scroll:GetVerticalScroll() or 0
+        if known then
+            local maxOffset = math.max(0, count * rowHeight - viewH)
+            if offset > maxOffset then
+                offset = maxOffset
+                scroll:SetVerticalScroll(offset)
+            end
+        end
+        if offset < 0 then offset = 0 end
+
+        local first = math.floor(offset / rowHeight) + 1
+        local last  = math.min(count, first + pool - 1)
+        local t     = NUL:GetTheme()
+
+        for _, row in pairs(rows) do
+            local i = row._dataIndex
+            if i and (i < first or i > last) then release(row) end
+        end
+
+        for i = first, last do
+            local slot  = ((i - 1) % pool) + 1
+            local row   = rows[slot] or buildRow(slot)
+            local entry = data[i]
+            if force or row._dataIndex ~= i or row._entry ~= entry then
+                row._dataIndex, row._entry = i, entry
+                row:ClearAllPoints()
+                row:SetPoint("TOPLEFT",  content, "TOPLEFT",  0, -(i - 1) * rowHeight)
+                row:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, -(i - 1) * rowHeight)
+                row._stripe = stripeFor(i, t)
+                row:Show()
+                paintRow(row, t)
+                row.populate(row, entry, i)
+            end
+        end
+
+        rendering = false
+    end
+
+    -- Empty-state caption, centred near the top of the box. Built on first use.
+    local function updateEmpty()
+        local show = list._emptyText ~= "" and #list.data == 0
+        local fs = list._emptyLabel
+        if not fs then
+            if not show then return end
+            fs = NUL:CreateLabel(container, {
+                text = "", color = NUL:GetTheme().colors.text.muted, justifyH = "CENTER",
+            })
+            fs:SetPoint("TOPLEFT",  container, "TOPLEFT",  24, -24)
+            fs:SetPoint("TOPRIGHT", container, "TOPRIGHT", -24, -24)
+            list._emptyLabel = fs
+        end
+        if show then fs:SetText(list._emptyText) end
+        fs:SetShown(show)
+    end
+
+    function list:SetData(data)
+        self.data = data or {}
+        content:SetWidth(scroll:GetWidth())
+        content:SetHeight(math.max(#self.data * rowHeight, 1))
+        render(true)
+        updateEmpty()
+        -- The scroll range (and, on a first show, the frame's own height)
+        -- only settles a frame after the content height change, so run the
+        -- thumb update now and once more next frame, with a cheap re-bind.
+        sbar.update()
+        if C_Timer and C_Timer.After then
+            C_Timer.After(0, function() render(false); sbar.update() end)
         end
     end
 
     function list:Refresh()
-        if self.data then self:SetData(self.data) end
+        self:SetData(self.data)
     end
 
-    function list:GetRow(i) return rows[i] end
+    -- Caption shown instead of rows while the list has no entries; "" or
+    -- nil turns it off. Set it before SetData, or any time after.
+    function list:SetEmptyText(text)
+        self._emptyText = text or ""
+        updateEmpty()
+    end
+
+    -- The frame currently showing entry `i`; nil while that entry is
+    -- scrolled out of view.
+    function list:GetRow(i)
+        if not i or self._pool == 0 then return nil end
+        local row = rows[((i - 1) % self._pool) + 1]
+        if row and row._dataIndex == i then return row end
+        return nil
+    end
+
+    function list:ScrollToTop()
+        scroll:SetVerticalScroll(0)
+        render(false)
+        sbar.update()
+    end
 
     function list:_repaint(t)
         NUL.SetTextureColor(self.container.bg, t.colors.bg.elevated)
         NUL:RecolorBorder(self.container.borders, t.colors.border.subtle)
-        for i, row in ipairs(rows) do
-            row._stripe = stripeFor(i, t)
-            NUL.SetTextureColor(row.bg, row._stripe)
+        for slot, row in pairs(rows) do
+            row._stripe = stripeFor(row._dataIndex or slot, t)
+            paintRow(row, t)
         end
+        if self._emptyLabel then NUL.SetFontColor(self._emptyLabel, t.colors.text.muted) end
         if self._sbar then self._sbar.paint(t) end
     end
 
+    scroll:HookScript("OnVerticalScroll", function() render(false) end)
     scroll:SetScript("OnSizeChanged", function(_, w)
         content:SetWidth(w)
-        if sbar then sbar.update() end
+        render(false)
+        sbar.update()
     end)
 
     NUL:_Track(list)

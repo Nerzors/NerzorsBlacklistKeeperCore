@@ -284,3 +284,10 @@ L["Switch now"] = true
 
 L["Christmas decoration in December"] = true
 L["Snow on the buttons of the main window, automatically from 1 to 31 December."] = true
+
+L["Your blacklist is empty. Click \"%s\" above, or right-click a player and choose \"%s\"."] = true
+L["No matches for \"%s\"."] = true
+L["Your ignore list is empty. Players you ignore in the game show up here."] = true
+
+L["Window size"] = true
+L["Size of all NBK windows. Applied when you let go of the slider."] = true

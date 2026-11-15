@@ -11,8 +11,9 @@ function BlacklistTab:_Build(parent)
     if self.frame then return self.frame end
     local theme = NUL:GetTheme()
 
-    self.sortKey = self.sortKey or "name"
-    self.sortDir = self.sortDir or "asc"
+    if not self.sortKey then
+        self.sortKey, self.sortDir = NBK:GetSavedSort("blacklist", "name", "asc")
+    end
 
     local root = CreateFrame("Frame", nil, parent)
     root:SetAllPoints()
@@ -75,6 +76,20 @@ function BlacklistTab:_RebuildLayout()
     end
 
     local columns = self:ComputeColumns()
+
+    local function shown(key)
+        for _, col in ipairs(columns) do
+            if col.sortable and col.key == key then return true end
+        end
+        return false
+    end
+    local parked = self._parkedSort
+    if parked and shown(parked.key) then
+        self.sortKey, self.sortDir, self._parkedSort = parked.key, parked.dir, nil
+    elseif not shown(self.sortKey) then
+        self._parkedSort = parked or { key = self.sortKey, dir = self.sortDir }
+        self.sortKey, self.sortDir = "name", "asc"
+    end
 
     local header = CreateFrame("Frame", nil, root)
     header:SetHeight(20)
@@ -201,6 +216,9 @@ function BlacklistTab:_Refresh()
     if not self.frame or not self.list then return end
     local filter = self.searchEB and self.searchEB:GetText() or ""
     local entries = self:SortedEntries(filter, self.sortKey, self.sortDir)
+    self.list:SetEmptyText(NBK:EmptyListText(filter,
+        L["Your blacklist is empty. Click \"%s\" above, or right-click a player and choose \"%s\"."]
+            :format(L["+ Add"], L["Add to blacklist"])))
     self.list:SetData(entries)
     local total = NBK:CountEntries()
     local shown = #entries
@@ -216,6 +234,8 @@ function BlacklistTab:_SetSort(key)
         self.sortKey = key
         self.sortDir = "asc"
     end
+    self._parkedSort = nil
+    NBK:SaveSort("blacklist", self.sortKey, self.sortDir)
     if self.header and self.header._paint then self.header._paint() end
     self:_Refresh()
 end

@@ -42,6 +42,7 @@ function NUL:Dropdown(parent, opts)
     local popup = CreateFrame("Frame", nil, UIParent)
     popup:SetFrameStrata("TOOLTIP")
     popup:SetFrameLevel(400)
+    self:_FollowScale(popup)   -- on UIParent: keep it as wide as its field
     popup:Hide()
     popup.bg      = self:FillBackground(popup)
     popup.borders = self:AddBorder(popup, nil, theme.metrics.borderThickness)

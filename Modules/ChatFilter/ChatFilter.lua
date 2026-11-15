@@ -44,7 +44,9 @@ local function hardFilter(_, event, msg, sender, ...)
     if mh and mh.RecordFromFilter then
 
         local channelBaseName = select(7, ...)
-        mh:RecordFromFilter(name, realm, event, msg, channelBaseName)
+
+        local lineID = select(9, ...)
+        mh:RecordFromFilter(name, realm, event, msg, channelBaseName, lineID)
     end
 
     return true

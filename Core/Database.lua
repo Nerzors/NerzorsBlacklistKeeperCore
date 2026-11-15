@@ -37,6 +37,10 @@ local DEFAULTS = {
 
             defaultTab      = "blacklist",
 
+            sort            = {},
+
+            scale           = 1,
+
         },
 
         tooltip = {

@@ -481,6 +481,8 @@ function IgnoreTab:Refresh()
         if not present[key] then self.selected[key] = nil end
     end
 
+    ui.list:SetEmptyText(NBK:EmptyListText(ui.search and ui.search:GetText(),
+        L["Your ignore list is empty. Players you ignore in the game show up here."]))
     ui.list:SetData(self:_Visible())
 
     local n, cap = IgnoreManager:Count(), IgnoreManager.CAP

@@ -72,6 +72,8 @@ function NUL:Window(opts)
     f:EnableMouse(true)
     f:SetClampedToScreen(true)
     f:SetFrameStrata(opts.strata or "HIGH")
+    f:SetScale(self:GetScale())
+    self._windows[f] = true
     f:Hide()
     if opts.name then tinsert(UISpecialFrames, opts.name) end
 
@@ -112,6 +114,7 @@ function NUL:Window(opts)
             positions[f._positionKey] = positions[f._positionKey] or {}
             local saved = positions[f._positionKey]
             saved.point, saved.x, saved.y = point, x, y
+            saved.scale = f:GetScale()
         end
     end)
 
@@ -268,14 +271,40 @@ function NUL:Window(opts)
         local saved = positions and positions[self._positionKey]
         if not saved then return end
         if saved.point then
+            -- Offsets are in the window's own units, so they belong to the
+            -- scale they were saved at (1 before the lib had a scale).
+            local k = (saved.scale or 1) / self:GetScale()
             self:ClearAllPoints()
-            self:SetPoint(saved.point, UIParent, saved.point, saved.x or 0, saved.y or 0)
+            self:SetPoint(saved.point, UIParent, saved.point, (saved.x or 0) * k, (saved.y or 0) * k)
         end
         if self:IsResizable() and saved.width and saved.height then
             local w, h = saved.width, saved.height
             if self._minW then w = math.max(self._minW, math.min(self._maxW or w, w)) end
             if self._minH then h = math.max(self._minH, math.min(self._maxH or h, h)) end
             self:SetSize(w, h)
+        end
+    end
+
+    -- Called by NUL:SetScale. The window keeps its anchor: the offset is
+    -- converted to the new units, so e.g. a window anchored by its top-left
+    -- corner grows to the right and down instead of jumping. A saved
+    -- position is rewritten to match.
+    function f:_applyScale(new)
+        local old = self:GetScale()
+        if old == new then return end
+        local point, rel, relPoint, x, y = self:GetPoint(1)
+        self:SetScale(new)
+        if not point then return end
+        local k = old / new
+        x, y = (x or 0) * k, (y or 0) * k
+        self:ClearAllPoints()
+        self:SetPoint(point, rel, relPoint, x, y)
+        if self._positionKey and self._positionDB then
+            local positions = readPositions(self._positionDB)
+            local saved = positions and positions[self._positionKey]
+            if saved and saved.point then
+                saved.x, saved.y, saved.scale = x, y, new
+            end
         end
     end
 
@@ -338,6 +367,7 @@ function NUL:Window(opts)
                 saved.height = self:GetHeight()
                 local point, _, _, x, y = self:GetPoint()
                 if point then saved.point, saved.x, saved.y = point, x, y end
+                saved.scale = self:GetScale()
                 positions[self._positionKey] = saved
             end
         end)

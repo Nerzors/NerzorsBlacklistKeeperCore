@@ -18,6 +18,7 @@
   <Script file="Widgets\Button.lua"/>
   <Script file="Widgets\EditBox.lua"/>
   <Script file="Widgets\Checkbox.lua"/>
+  <Script file="Widgets\Slider.lua"/>
   <Script file="Widgets\Dropdown.lua"/>
   <Script file="Widgets\ScrollList.lua"/>
   <Script file="Widgets\Window.lua"/>

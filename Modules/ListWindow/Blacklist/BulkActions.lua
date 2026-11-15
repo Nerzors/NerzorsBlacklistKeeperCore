@@ -152,8 +152,10 @@ function BlacklistTab:_ToggleSelectAll()
     if self:_AllVisibleSelected() then
         wipe(self.selected)
     else
+
         for _, e in ipairs(self:_VisibleEntries()) do
-            self:SetRowSelected(e, true)
+            local key, name, realm = NBK:NormalizeKey(e.name, e.realm)
+            if key then self.selected[key] = { name = name, realm = realm } end
         end
     end
     self:_Refresh()
