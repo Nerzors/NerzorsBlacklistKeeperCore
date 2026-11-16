@@ -96,6 +96,91 @@ local function buildOptionsCell(row, theme)
     return f
 end
 
+local IGNORE_CAP = 50
+
+function BlacklistTab.CopyNameText(name, realm)
+    return (name or "") .. NBK:RealmSuffix(realm)
+end
+
+function BlacklistTab.ShowCopyName(name, realm)
+    NUL:ShowCopyBox({
+        title = L["Copy name"],
+        text  = BlacklistTab.CopyNameText(name, realm),
+        hint  = L["Press Ctrl+C to copy, Esc to close."],
+    })
+end
+
+local function confirmRemove(entry)
+    NUL:Confirm({
+        text = L["Remove %s from blacklist?"]:format(NBK:DisplayName(entry.name, entry.realm)),
+        onAccept = function()
+            NBK:RemovePlayer(entry.name, entry.realm)
+            BlacklistTab:_Refresh()
+        end,
+    })
+end
+
+function BlacklistTab:RowMenuItems(entry)
+    local items = {}
+    local function add(label, fn) items[#items + 1] = { label = label, onClick = fn } end
+    local function set(fields)
+        NBK:UpdateEntry(entry.name, entry.realm, fields)
+        for k, v in pairs(fields) do entry[k] = v end
+        BlacklistTab:_Refresh()
+    end
+
+    add(L["Edit"], function() BlacklistTab:_ShowEditDialog(entry) end)
+    add(entry.pinned and L["Unpin"] or L["Pin"], function() set({ pinned = not entry.pinned }) end)
+    add((entry.mute ~= false) and L["Unmute"] or L["Mute"], function() set({ mute = not (entry.mute ~= false) }) end)
+    if NBK:GetModule("Sync") then
+        add((entry.shareable ~= false) and L["Mark private"] or L["Mark shareable"],
+            function() set({ shareable = not (entry.shareable ~= false) }) end)
+    end
+
+    local IS, IM = NBK:GetModule("IgnoreSync"), NBK:GetModule("IgnoreManager")
+    if IS and IS:IsAvailable() then
+        if IS:IsIgnored(entry.name, entry.realm) then
+            add(L["Stop ignoring"], function()
+                if IM and IM.Remove then
+                    IM:Remove({ { key = NBK:NormalizeKey(entry.name, entry.realm),
+                                  name = entry.name, realm = entry.realm, bl = entry } }, false)
+                end
+                BlacklistTab:_Refresh()
+            end)
+        else
+            add(L["Ignore"], function()
+                if #IS:GetIgnoreList() >= IGNORE_CAP or IS._listFull then
+                    local msg = "Your ignore list is full - those players stay on the blacklist, but the game won't ignore them."
+                    NBK:Print("|cffff5555" .. L[msg] .. "|r")
+                    return
+                end
+
+                if IS:Add(entry.name, entry.realm) then set({ ignoredByNBK = true }) end
+            end)
+        end
+    end
+
+    add(L["Copy name"], function() BlacklistTab.ShowCopyName(entry.name, entry.realm) end)
+    items[#items + 1] = { separator = true }
+    add(L["Remove"], function() confirmRemove(entry) end)
+    return items
+end
+
+local function wireRowClicks(row)
+    row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    row:SetScript("OnClick", function(self, button)
+        if button == "RightButton" and self._entry then
+            NUL:ShowMenu(self, BlacklistTab:RowMenuItems(self._entry), { anchor = "cursor" })
+        end
+    end)
+    row:SetScript("OnDoubleClick", function(self, button)
+        if button == "LeftButton" and self._entry then
+            NUL:HideMenu()
+            BlacklistTab:_ShowEditDialog(self._entry)
+        end
+    end)
+end
+
 function BlacklistTab:MakeRowBuilder(columns)
     return function(row)
         local theme = NUL:GetTheme()
@@ -149,6 +234,7 @@ function BlacklistTab:MakeRowBuilder(columns)
         end
         row._layout = layout
         row._cells  = cells
+        wireRowClicks(row)
 
         return function(r, entry)
             local dispS = BlacklistTab:DisplaySettings()
@@ -249,15 +335,7 @@ function BlacklistTab:MakeRowBuilder(columns)
                         BlacklistTab:_ShowEditDialog(entry)
                     end)
 
-                    c.remove:SetScript("OnClick", function()
-                        NUL:Confirm({
-                            text = L["Remove %s from blacklist?"]:format(NBK:DisplayName(entry.name, entry.realm)),
-                            onAccept = function()
-                                NBK:RemovePlayer(entry.name, entry.realm)
-                                BlacklistTab:_Refresh()
-                            end,
-                        })
-                    end)
+                    c.remove:SetScript("OnClick", function() confirmRemove(entry) end)
                 end
             end
         end

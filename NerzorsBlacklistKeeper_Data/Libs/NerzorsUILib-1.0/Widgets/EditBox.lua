@@ -13,6 +13,12 @@
 --   readonly     boolean         steals focus on focus-gained (visual stays)
 --   onTextChanged function(text, self)
 --   onEnterPressed function(self)  single-line only
+--   clearButton  boolean         single-line only - an "x" at the right end
+--                                while there is text; clicking it empties the
+--                                field. Esc with text empties it too and
+--                                leaves it, so the next Esc closes the window
+--                                (search fields, 2.2.0-beta.2 E4, H29).
+--   clearTooltip string          hover text of that "x" (the host's wording)
 --
 -- Returns: container, eb. The container exposes :SetText / :GetText /
 -- :SetFocus / :ClearFocus / :SetEnabled / :SetCursorPosition passthroughs.
@@ -48,15 +54,25 @@ local function singleLine(parent, opts)
     c.bg      = NUL:FillBackground(c)
     c.borders = NUL:AddBorder(c, nil, theme.metrics.borderThickness)
 
+    local CLEAR_W = 18   -- room for the "x" (clearButton)
     local eb = CreateFrame("EditBox", nil, c)
     eb:SetPoint("TOPLEFT", 6, -1)
-    eb:SetPoint("BOTTOMRIGHT", -6, 1)
+    eb:SetPoint("BOTTOMRIGHT", opts.clearButton and -(CLEAR_W + 4) or -6, 1)
     eb:SetAutoFocus(false)
     eb:SetFont(theme.fonts.regular, theme.fontSizes.md, "")
     NUL.SetFontColor(eb, theme.colors.text.primary)
     eb:SetMaxLetters(resolveMaxLetters(opts.maxLetters, 200))
     if opts.numeric then eb:SetNumeric(true) end
-    eb:SetScript("OnEscapePressed", eb.ClearFocus)
+    if opts.clearButton then
+        -- Esc empties a filled search and leaves the field; the window's own
+        -- Esc handling takes the next press.
+        eb:SetScript("OnEscapePressed", function(self)
+            if (self:GetText() or "") ~= "" then self:SetText("") end
+            self:ClearFocus()
+        end)
+    else
+        eb:SetScript("OnEscapePressed", eb.ClearFocus)
+    end
     eb:SetScript("OnEnterPressed",  function(self)
         if opts.onEnterPressed then opts.onEnterPressed(self) end
         self:ClearFocus()
@@ -79,6 +95,19 @@ local function singleLine(parent, opts)
         c.placeholder = ph
         local function refresh() ph:SetShown((eb:GetText() or "") == "") end
         eb:HookScript("OnTextChanged", refresh); refresh()
+    end
+
+    -- The "x" hooks OnTextChanged after the SetScript above, which would
+    -- otherwise drop the hook again.
+    if opts.clearButton then
+        local x = NUL:IconButton(c, {
+            icon = "app-close.png", size = 12, plain = true, tooltip = opts.clearTooltip,
+            onClick = function() eb:SetText("") end,
+        })
+        x:SetPoint("RIGHT", c, "RIGHT", -6, 0)
+        c.clearButton = x
+        local function refreshX() x:SetShown((eb:GetText() or "") ~= "") end
+        eb:HookScript("OnTextChanged", refreshX); refreshX()
     end
 
     function c:_repaint(t)

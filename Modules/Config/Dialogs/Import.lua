@@ -137,6 +137,16 @@ function Config:_doPreviewImport()
     if not parsed.magic then
         return fail(L["Invalid input - missing !NBK1! header."])
     end
+
+    local own = NBK:GetListType(parsed.list)
+    if own and own.openImport then
+        f:Hide()
+        own.openImport(text)
+        return
+    end
+    if not own and parsed.list == "ignore" then
+        return fail(L["This is an ignore list - it needs the Ignore Manager (full download)."])
+    end
     if not parsed.ok then
 
         return fail(parsed.errors and parsed.errors[1]

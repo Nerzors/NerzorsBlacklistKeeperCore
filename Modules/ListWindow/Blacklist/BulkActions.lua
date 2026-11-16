@@ -174,8 +174,14 @@ end
 function BlacklistTab:_DeleteSelected()
     local n = self:SelectedCount()
     if n == 0 then return end
+
+    local text = L["Delete %d selected entries?"]:format(n)
+    if n == 1 then
+        local _, who = next(self.selected)
+        if who then text = L["Remove %s from blacklist?"]:format(NBK:DisplayName(who.name, who.realm)) end
+    end
     NUL:Confirm({
-        text = (L["Delete %d selected entries?"] or "Delete %d selected entries?"):format(n),
+        text = text,
         onAccept = function()
             for _, who in pairs(self.selected) do
                 NBK:RemovePlayer(who.name, who.realm)

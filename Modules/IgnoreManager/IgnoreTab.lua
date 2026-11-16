@@ -168,6 +168,21 @@ local function makeRowBuilder(cols)
 
         row:EnableMouse(true)
 
+        row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        row:SetScript("OnClick", function(self, button)
+            if button == "RightButton" and self._entry then
+                NUL:ShowMenu(self, IgnoreTab:RowMenuItems(self._entry), { anchor = "cursor" })
+            end
+        end)
+        row:SetScript("OnDoubleClick", function(self, button)
+            local e = self._entry
+            if button == "LeftButton" and e and e.bl then
+                NUL:HideMenu()
+                local bt = NBK:GetModule("BlacklistTab")
+                if bt then bt:_ShowEditDialog(e.bl) end
+            end
+        end)
+
         return function(r, e)
             local t = NUL:GetTheme()
             layout(r:GetWidth())
@@ -204,6 +219,23 @@ local function makeRowBuilder(cols)
             r:SetScript("OnLeave", function() NUL:HideTooltip() end)
         end
     end
+end
+
+function IgnoreTab:RowMenuItems(e)
+    local L = NBK.L
+    local bt = NBK:GetModule("BlacklistTab")
+    local items = {}
+    if e.bl then
+        items[#items + 1] = { label = L["Edit blacklist entry"],
+                              onClick = function() if bt then bt:_ShowEditDialog(e.bl) end end }
+    else
+        items[#items + 1] = { label = L["Import to NBK"], onClick = function() IgnoreManager:Import({ e }) end }
+    end
+    items[#items + 1] = { label = L["Copy name"],
+                          onClick = function() if bt then bt.ShowCopyName(e.name, e.realm) end end }
+    items[#items + 1] = { separator = true }
+    items[#items + 1] = { label = L["Remove from ignore list"], onClick = function() IgnoreTab:ConfirmRemove({ e }) end }
+    return items
 end
 
 function IgnoreTab:_BuildRemoveDialog()
@@ -270,8 +302,13 @@ function IgnoreTab:ConfirmRemove(entries)
 
     local f = self:_BuildRemoveDialog()
     f._entries = entries
-    f.text:SetText(L["Remove %d selected players from the game's ignore list?"]:format(#entries))
-    f.alsoBL:SetLabel(L["Also remove them from the blacklist (%d)"]:format(onBlacklist))
+
+    if #entries == 1 then
+        f.text:SetText(L["Remove %s from the game's ignore list?"]:format(NBK:DisplayName(entries[1].name, entries[1].realm)))
+    else
+        f.text:SetText(L["Remove %d selected players from the game's ignore list?"]:format(#entries))
+    end
+    f.alsoBL:SetLabel(NBK:AlsoFromBlacklistLabel(onBlacklist))
     f.alsoBL:SetChecked(false)
     f.alsoBL:SetShown(onBlacklist > 0)
     f.pinned:SetText(L["Pinned among them: %d"]:format(pinned))
@@ -302,6 +339,7 @@ function IgnoreTab:_Build(parent)
     ui.search = NUL:EditBox(view, {
         width = 260, height = 26,
         placeholder = L["Search name, realm, reason..."],
+        clearButton = true, clearTooltip = L["Clear search"],
         onTextChanged = function() IgnoreTab:Refresh() end,
     })
     ui.search:SetPoint("TOPLEFT")

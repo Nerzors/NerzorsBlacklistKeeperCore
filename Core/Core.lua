@@ -115,6 +115,11 @@ function NBK:DisplayName(name, realm, hex)
     return shown .. self:RealmSuffix(realm)
 end
 
+function NBK:AlsoFromBlacklistLabel(n)
+    if n == 1 then return self.L["Also remove from the blacklist"] end
+    return self.L["Also remove them from the blacklist (%d)"]:format(n or 0)
+end
+
 function NBK:EmptyListText(filter, emptyText)
     filter = filter and strtrim(filter) or ""
     if filter ~= "" then return self.L["No matches for \"%s\"."]:format(filter) end

@@ -84,8 +84,8 @@ end
 
 NBK.WHATS_NEW = {
     {
-        version   = "2.2.0-beta.1",
-        date      = "2026-11-13",
+        version   = "2.2.0",
+        date      = "2026-11-16",
         highlight = true,
         sections  = {
             {
@@ -107,6 +107,37 @@ NBK.WHATS_NEW = {
                         de = "\"In NBK übernehmen\" in \"Alle Charaktere\": Ignorierte Spieler kommen jetzt auch von dort auf deine Blacklist - ein Spieler im Detailbereich oder alle angehakten.",
                         sub = "_IgnoreManager",
                         go = "list:ignore",
+                    },
+                    {
+                        en = "Ignore Manager, \"All characters\": a new \"Tools\" menu top right. \"Copy list...\" puts the players ignored on one character onto others you tick - with a preview per character (\"+25 new, 12 already there, 3 don't fit\"). It only adds, nothing is removed.",
+                        de = "Ignore-Manager, \"Alle Charaktere\": oben rechts ein neues Menü \"Werkzeuge\". \"Liste kopieren...\" setzt die Ignorierten eines Charakters auf andere, die du anhakst - mit Vorschau je Charakter (\"+25 neu, 12 schon da, 3 passen nicht\"). Es wird nur ergänzt, nichts entfernt.",
+                        sub = "_IgnoreManager",
+                        go = "list:ignore",
+                    },
+                    {
+                        en = "\"Clean up...\": players that no longer exist, players ignored for months whom NBK hasn't seen since, and characters whose list is almost full. Nothing happens on its own - you tick who goes.",
+                        de = "\"Aufräumen...\": Spieler, die es nicht mehr gibt, Spieler, die seit Monaten ignoriert sind und die NBK seitdem nicht gesehen hat, und Charaktere mit fast voller Liste. Von selbst passiert nichts - du hakst an, wer geht.",
+                        sub = "_IgnoreManager",
+                        go = "list:ignore",
+                    },
+                    {
+                        en = "Export and import ignore lists as text: from one character or all of them, onto the characters you pick. An ignore list pasted into the blacklist import opens the right window by itself.",
+                        de = "Ignorieren-Listen als Text exportieren und importieren: von einem oder allen Charakteren, auf die Charaktere, die du wählst. Eine Ignorieren-Liste im Blacklist-Import öffnet von selbst das richtige Fenster.",
+                        sub = "_IgnoreManager",
+                        go = "list:ignore",
+                    },
+                    {
+                        en = "Right-click a row for a menu: edit, pin, mute, ignore, copy name, remove - in the blacklist, the ignore list and \"All characters\". Double-click opens the edit dialog.",
+                        de = "Rechtsklick auf eine Zeile öffnet ein Menü: Bearbeiten, Anheften, Stummschalten, Ignorieren, Name kopieren, Entfernen - in der Blacklist, der Ignorieren-Liste und \"Alle Charaktere\". Doppelklick öffnet den Bearbeiten-Dialog.",
+                        go = "list:blacklist",
+                    },
+                    {
+                        en = "Search fields get an \"x\" to clear them; Esc clears the search too.",
+                        de = "Suchfelder haben ein \"x\" zum Leeren; auch Esc leert die Suche.",
+                    },
+                    {
+                        en = "The add / edit dialog works with the keyboard: the cursor starts in the first empty field, Enter saves, Tab jumps to the next field. Class and role sit side by side.",
+                        de = "Der Dialog zum Eintragen und Bearbeiten geht mit der Tastatur: Der Cursor steht im ersten leeren Feld, Enter speichert, Tab springt ins nächste Feld. Klasse und Rolle stehen nebeneinander.",
                     },
                     {
                         en = "Window size: a new slider under \"Display\" makes every NBK window smaller or larger, from 80 to 130 %. Windows stay where they are.",
@@ -132,6 +163,10 @@ NBK.WHATS_NEW = {
                         de = "Lange Listen bleiben schnell: Alle Listen zeichnen nur noch die sichtbaren Zeilen. Suchen, Scrollen und \"Alle auswählen\" bleiben auch mit weit über tausend Blacklist-Einträgen flüssig.",
                     },
                     {
+                        en = "Questions about a single player now name them (\"Ignore Anna-Aldor on all characters?\") instead of \"1 selected players\".",
+                        de = "Fragen zu einem einzelnen Spieler nennen ihn jetzt beim Namen (\"Anna-Aldor auf allen Charakteren ignorieren?\") statt \"1 ausgewählte Spieler\".",
+                    },
+                    {
                         en = "WoW: Forever: the one-time name correction from 2.1.0 stays in for this version and will be removed with 2.3.0 instead of 2.2.0.",
                         de = "WoW: Forever: Die einmalige Namenskorrektur aus 2.1.0 bleibt in dieser Version enthalten und fällt erst mit 2.3.0 weg statt mit 2.2.0.",
                         flavor = "forever",
@@ -153,8 +188,8 @@ NBK.WHATS_NEW = {
                 kind  = "note",
                 items = {
                     {
-                        en = "This is a beta. If something looks or behaves wrong - especially in the new \"All characters\" view or with the window size - please tell us on Discord, GitHub or CurseForge.",
-                        de = "Das ist eine Beta. Wenn etwas falsch aussieht oder sich falsch verhält - vor allem in der neuen Ansicht \"Alle Charaktere\" oder bei der Fenstergröße -, melde es bitte im Discord, auf GitHub oder CurseForge.",
+                        en = "Thanks to everyone who tested the two betas! Please keep reporting anything odd on our website nbk.nerzors.com (report a bug, feedback) - or on Discord, GitHub or CurseForge.",
+                        de = "Danke an alle, die die beiden Betas getestet haben! Bitte melde Auffälligkeiten weiter auf unserer Webseite nbk.nerzors.com (Fehler melden, Feedback) - oder im Discord, auf GitHub oder CurseForge.",
                     },
                 },
             },
@@ -280,8 +315,8 @@ NBK.WHATS_NEW = {
                 kind  = "note",
                 items = {
                     {
-                        en = "Thanks to everyone who tested the two betas! Please keep reporting anything odd on Discord, GitHub or CurseForge.",
-                        de = "Danke an alle, die die beiden Betas getestet haben! Bitte melde Auffälligkeiten weiter im Discord, auf GitHub oder CurseForge.",
+                        en = "Thanks to everyone who tested the two betas! Please keep reporting anything odd on our website nbk.nerzors.com (report a bug, feedback) - or on Discord, GitHub or CurseForge.",
+                        de = "Danke an alle, die die beiden Betas getestet haben! Bitte melde Auffälligkeiten weiter auf unserer Webseite nbk.nerzors.com (Fehler melden, Feedback) - oder im Discord, auf GitHub oder CurseForge.",
                     },
                 },
             },

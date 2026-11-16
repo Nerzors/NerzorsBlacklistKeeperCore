@@ -53,7 +53,9 @@ function NBK:GetListTypes()
     local out = {}
     for _, id in ipairs(self._listTypeOrder) do
         local spec = self._listTypes[id]
-        out[#out + 1] = { id = id, label = spec.label or id }
+        if not spec.hidden then
+            out[#out + 1] = { id = id, label = spec.label or id }
+        end
     end
     return out
 end

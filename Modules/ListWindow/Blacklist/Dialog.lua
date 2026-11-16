@@ -12,7 +12,7 @@ local function buildRichDialog(globalName, titleKey)
     local f = NUL:Window({
         name   = globalName,
         title  = L[titleKey],
-        width  = W, height = 554,
+        width  = W, height = 502,
         strata = "DIALOG",
     })
     f:SetFrameLevel(200)
@@ -72,7 +72,7 @@ local function buildRichDialog(globalName, titleKey)
         text  = L["Class"] or "Class",
         color = theme.colors.text.muted,
     })
-    classLabel:SetPoint("TOPLEFT", 0, y); y = y - 18
+    classLabel:SetPoint("TOPLEFT", 0, y)
 
     local classOpts = { { key = "", label = L["(no class)"] or "(no class)" } }
     if CLASS_SORT_ORDER then
@@ -84,13 +84,14 @@ local function buildRichDialog(globalName, titleKey)
     local classDD = NUL:Dropdown(content, {
         width = 180, height = 24, options = classOpts, value = "",
     })
-    classDD:SetPoint("TOPLEFT", 0, y); y = y - 34
+    classDD:SetPoint("TOPLEFT", 0, y - 18)
 
+    local ROLE_X = 200
     local roleLabel = NUL:CreateLabel(content, {
         text  = L["Role"] or "Role",
         color = theme.colors.text.muted,
     })
-    roleLabel:SetPoint("TOPLEFT", 0, y); y = y - 18
+    roleLabel:SetPoint("TOPLEFT", ROLE_X, y); y = y - 18
 
     local roleDD = NUL:Dropdown(content, {
         width = 180, height = 24,
@@ -102,7 +103,7 @@ local function buildRichDialog(globalName, titleKey)
         },
         value = "",
     })
-    roleDD:SetPoint("TOPLEFT", 0, y); y = y - 34
+    roleDD:SetPoint("TOPLEFT", ROLE_X, y); y = y - 34
 
     local muteCB = NUL:Checkbox(content, { label = L["Mute chat from this player"] })
     muteCB:SetPoint("TOPLEFT", 0, y); y = y - 24
@@ -231,6 +232,7 @@ local function buildRichDialog(globalName, titleKey)
     end
 
     function f:SetNameEditable(editable)
+        self._nameEditable = editable and true or false
         local theme = NUL:GetTheme()
         local eb = self._nameEB.editBox
         if editable then
@@ -240,6 +242,43 @@ local function buildRichDialog(globalName, titleKey)
         else
             NUL.SetFontColor(eb, theme.colors.text.muted)
             eb:SetScript("OnEditFocusGained", function(self) self:ClearFocus() end)
+        end
+    end
+
+    function f:_Accept()
+        local onClick = accept:GetScript("OnClick")
+        if onClick then onClick(accept) end
+    end
+
+    local fields = { nameBox, reasonBox, notesBox }
+    local function usable(box) return box ~= nameBox or f._nameEditable ~= false end
+    local function step(from, dir)
+        local i = 1
+        for k, box in ipairs(fields) do if box == from then i = k end end
+        for _ = 1, #fields do
+            i = ((i - 1 + dir) % #fields) + 1
+            if usable(fields[i]) then return fields[i] end
+        end
+    end
+    for _, box in ipairs(fields) do
+        box.editBox:SetScript("OnTabPressed", function()
+            local nextBox = step(box, IsShiftKeyDown and IsShiftKeyDown() and -1 or 1)
+            if nextBox then nextBox:SetFocus() end
+        end)
+    end
+
+    for _, box in ipairs({ nameBox, reasonBox }) do
+        box.editBox:SetScript("OnEnterPressed", function(self)
+            self:ClearFocus()
+            f:_Accept()
+        end)
+    end
+
+    function f:FocusFirst()
+        if self._nameEditable ~= false and (self._nameEB:GetText() or "") == "" then
+            self._nameEB:SetFocus()
+        else
+            self._reasonEB:SetFocus()
         end
     end
 
@@ -291,6 +330,7 @@ function BlacklistTab:_ShowAddDialog(prefill)
     end)
     dialog:SetValues(prefill or {})
     dialog:Show()
+    dialog:FocusFirst()
 end
 
 function BlacklistTab:_ShowEditDialog(entry)
@@ -333,6 +373,7 @@ function BlacklistTab:_ShowEditDialog(entry)
         return true
     end)
     dialog:Show()
+    dialog:FocusFirst()
 end
 
 function BlacklistTab:_RefreshAddDialogPills()

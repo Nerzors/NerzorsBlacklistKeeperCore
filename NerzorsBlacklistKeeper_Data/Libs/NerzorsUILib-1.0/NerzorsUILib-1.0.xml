@@ -20,9 +20,13 @@
   <Script file="Widgets\Checkbox.lua"/>
   <Script file="Widgets\Slider.lua"/>
   <Script file="Widgets\Dropdown.lua"/>
+  <!-- Menu reuses Button (MenuButton) and the tooltip. -->
+  <Script file="Widgets\Menu.lua"/>
   <Script file="Widgets\ScrollList.lua"/>
   <Script file="Widgets\Window.lua"/>
   <Script file="Widgets\Dialog.lua"/>
+  <!-- CopyBox builds on Window + EditBox. -->
+  <Script file="Widgets\CopyBox.lua"/>
   <Script file="Widgets\Tabs.lua"/>
   <Script file="Widgets\Confirm.lua"/>
   <!-- DetailDialog builds on Window + Button + CreateLabel. -->

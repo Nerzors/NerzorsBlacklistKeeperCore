@@ -69,9 +69,9 @@ NBK.SOCIAL_LINKS = {
     {
         id      = "web",
         enabled = true,
-        url     = "https://www.nerzors.de/en/",
+        url     = "https://nbk.nerzors.com/en/",
         icon    = "social-web.png",
-        tooltip = "www.nerzors.de",
+        tooltip = "nbk.nerzors.com",
     },
     {
         id      = "discord",
@@ -93,6 +93,13 @@ NBK.SOCIAL_LINKS = {
         url     = "https://ko-fi.com/Nerzors",
         icon    = "social-kofi.png",
         tooltip = "Ko-fi",
+    },
+    {
+        id      = "feedback",
+        enabled = true,
+        url     = "https://nbk.nerzors.com/en/feedback",
+        icon    = "social-feedback.png",
+        tooltip = "Feedback & Bug Report",
     },
 }
 
