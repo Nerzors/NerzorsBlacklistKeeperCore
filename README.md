@@ -223,6 +223,9 @@ Libraries retain their original licenses.
 
 | Platform | Link |
 |----------|------|
+| 🧭 Addon Website | [nbk.nerzors.com](https://nbk.nerzors.com/en/) |
+| 💬 Feedback | [nbk.nerzors.com/en/feedback](https://nbk.nerzors.com/en/feedback) |
+| 🐞 Bug Tracker | [Known bugs](https://nbk.nerzors.com/en/bugs) · [Report a bug](https://nbk.nerzors.com/en/bugs/report) |
 | 🌐 Website | [www.nerzors.de](https://www.nerzors.de/en/) |
 | 🐛 Issues | [GitHub Issues](https://github.com/Nerzors/NerzorsBlacklistKeeper/issues) |
 | 📬 Addon Mail | [nbk.addon@nerzors.de](mailto:nbk.addon@nerzors.de) |
