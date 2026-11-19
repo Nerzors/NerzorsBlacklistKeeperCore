@@ -223,7 +223,14 @@ function NUL:ScrollList(parent, opts)
         _emptyText  = opts.emptyText or "",
     }
 
+    -- A theme skin may give lists their own colours (skin.list, Core/Skin.lua)
+    -- - ModernBlizz lets the window picture show through the rows.
     local function stripeFor(i, t)
+        local sl = t.skin and t.skin.list
+        if sl then
+            if not striped then return sl.row end
+            return (i % 2 == 0) and (sl.rowAlt or sl.row) or sl.row
+        end
         if not striped then return t.colors.bg.elevated end
         return (i % 2 == 0) and t.colors.bg.elevated or t.colors.bg.panel
     end
@@ -392,7 +399,8 @@ function NUL:ScrollList(parent, opts)
     end
 
     function list:_repaint(t)
-        NUL.SetTextureColor(self.container.bg, t.colors.bg.elevated)
+        local sl = t.skin and t.skin.list
+        NUL.SetTextureColor(self.container.bg, (sl and sl.bg) or t.colors.bg.elevated)
         NUL:RecolorBorder(self.container.borders, t.colors.border.subtle)
         for slot, row in pairs(rows) do
             row._stripe = stripeFor(row._dataIndex or slot, t)

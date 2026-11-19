@@ -9,6 +9,8 @@
   <Script file="Core\Util.lua"/>
   <Script file="Core\Theme.lua"/>
   <Script file="Core\Gradient.lua"/>
+  <!-- Texture frames for themes with a `skin` (Minor 7). -->
+  <Script file="Core\Skin.lua"/>
   <Script file="Core\Layout.lua"/>
 
   <!-- Widgets. Order matters where one widget reuses another:

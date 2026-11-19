@@ -21,6 +21,10 @@ local function usage()
         NBK:Print("|cffffd100/nbk share guild|r |cff888c99" .. (L["broadcast to guild"] or "broadcast to guild") .. "|r")
     end
 
+    if NBK:GetModule("RememberMe") then
+        NBK:Print("|cffffd100/nbk rate|r |cff888c99" .. L["rate your current party"] .. "|r")
+    end
+
     NBK:Print("|cffffd100/nbk theme|r |cff888c99[Name] | list|r")
     NBK:Print("|cffffd100/nbk news|r |cff888c99" .. (L["show 'What's new?'"] or "show 'What's new?'") .. "|r")
 
@@ -154,6 +158,13 @@ function handlers.news()
     end
 end
 handlers.whatsnew = handlers.news
+
+function handlers.rate()
+    local rm = NBK:GetModule("RememberMe")
+    if rm and rm.RateGroup then return rm:RateGroup() end
+    NBK:Print(NBK.L["unknown command:"], "rate")
+    return usage()
+end
 
 function handlers.help() usage() end
 

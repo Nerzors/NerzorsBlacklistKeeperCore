@@ -146,7 +146,8 @@ function NUL:RecolorBorder(edges, color)
 end
 
 -- ─── FontString ────────────────────────────────────────────────────────
--- opts: { text, size, color, font (path), justifyH, justifyV, wrap }
+-- opts: { text, size, color, font (path), justifyH, justifyV, wrap,
+--         role ("column" | "field", see NUL:SkinLabel) }
 -- `size` accepts:
 --   nil               -> fontSizes.md (default body text)
 --   a number          -> literal pixel size
@@ -188,6 +189,9 @@ function NUL:CreateLabel(parent, opts)
     if opts.justifyH then fs:SetJustifyH(opts.justifyH) end
     if opts.justifyV then fs:SetJustifyV(opts.justifyV) end
     if opts.wrap == false then fs:SetWordWrap(false) end
+    -- "column" (list header) / "field" (title above an input): follows the
+    -- theme skin's capitals and label colour (Core/Skin.lua).
+    if opts.role then NUL:SkinLabel(fs, opts.role) end
     return fs
 end
 

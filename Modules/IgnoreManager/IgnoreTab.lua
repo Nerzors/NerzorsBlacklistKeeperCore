@@ -51,13 +51,14 @@ local function buildHeader(parent, cols)
     local theme  = NUL:GetTheme()
     local header = CreateFrame("Frame", nil, parent)
     header:SetHeight(20)
-    NUL:FillBackground(header, theme.colors.bg.panel)
+    NUL:Surface(header, "header")
 
     local cells = {}
     for i, col in ipairs(cols) do
         local cell = CreateFrame("Frame", nil, header)
         cell:SetHeight(20)
         local fs = NUL:CreateLabel(cell, {
+            role     = "column",
             text     = col.compact and "" or col.label,
             size     = "sm",
             color    = theme.colors.text.muted,

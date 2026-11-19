@@ -28,6 +28,7 @@ local NUL = LibStub("NerzorsUILib-1.0")
 
 local ROW_H    = 22
 local PAD      = 2
+local SKIN_PAD = 6     -- with a theme skin (Core/Skin.lua)
 local SEP_H    = 7
 local TEXT_PAD = 10    -- left and right of an entry's text
 local CHEVRON  = 14    -- room for the MenuButton arrow
@@ -112,6 +113,8 @@ end
 -- can measure as 0 before its first draw - so this runs again a frame later.
 local function layout(f, minWidth)
     local t = NUL:GetTheme()
+    -- Under a theme skin the rows keep clear of the gold edges and corners.
+    local PAD = NUL:FrameSkin(t) and SKIN_PAD or PAD
     local w, y = minWidth or 140, -PAD
     for i, item in ipairs(f.items) do
         local r = rowFor(f, i)
@@ -148,6 +151,11 @@ function NUL:ShowMenu(owner, items, opts)
     local t = self:GetTheme()
     NUL.SetTextureColor(f.bg, t.colors.bg.base)
     NUL:RecolorBorder(f.borders, t.colors.border.subtle)
+    -- A theme skin (Core/Skin.lua): corners and edges around a flat fill.
+    -- Painted on every open, like the colours above.
+    local skinned = self:SkinFrame(f, t, { fill = t.colors.bg.base })
+    f.bg:SetShown(not skinned)
+    for _, e in pairs(f.borders) do e:SetShown(not skinned) end
 
     f.items = items or {}
     f.owner = owner

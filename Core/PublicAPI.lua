@@ -12,6 +12,7 @@
 --   -- Preferred: via LibStub (works even without the _G.NBK global)
 --   local NBKApi = LibStub and LibStub("LibNBKApi-1.0", true)
 --   if NBKApi then
+--       if NBKApi:IsUnitBlacklisted("mouseover") then ... end    -- MINOR 2
 --       if NBKApi:IsBlacklisted("Jaina", "Stormrage") then ... end
 --   end
 --
@@ -27,11 +28,24 @@
 --                                existing breaks. A breaking change would
 --                                ship as LibNBKApi-2.0.
 --
+--     MINOR 1  name queries, iterators, events
+--     MINOR 2  unit queries (Is/GetUnit...), FromUnitName, WoW: Forever
+--              names from a unit work in the name queries too (NBK 2.3.0)
+--
+--   Check before using a newer function:
+--     if NBKApi.VERSION >= 2 then ... NBKApi:IsUnitBlacklisted(unit) ... end
+--
 -- ─── Read surface ──────────────────────────────────────────────────────
 --
 --   All name lookups normalize case + trim realm whitespace, so
 --   "Jaina-Stormrage", "jaina-stormrage " resolve the same. `realm` is
 --   optional everywhere; omitted = the player's current realm.
+--
+--   Have a unit token ("target", "mouseover", "party1", ...)? Use the
+--   unit queries: they read the name the way NBK's own tooltip does, on
+--   every client. A unit that doesn't exist, isn't a player, or whose name
+--   the game keeps secret (Retail instances) gives false / nil, never an
+--   error.
 --
 --   Every entry returned is a SHALLOW COPY - mutating it does NOT touch
 --   NBK's database. Treat them as read-only snapshots.
@@ -40,13 +54,22 @@
 --     NBKApi:IsBlacklisted(name, realm)      -> boolean
 --     NBKApi:IsMuted(name, realm)            -> boolean   (blacklisted + mute flag)
 --     NBKApi:GetBlacklistEntry(name, realm)  -> entry | nil
+--     NBKApi:IsUnitBlacklisted(unit)         -> boolean        (MINOR 2)
+--     NBKApi:IsUnitMuted(unit)               -> boolean        (MINOR 2)
+--     NBKApi:GetUnitBlacklistEntry(unit)     -> entry | nil    (MINOR 2)
 --     NBKApi:CountBlacklist()                -> number
 --     NBKApi:IterateBlacklist()              -> iterator → (key, entry)
 --
 --   Remember Me (sub-addon; calls degrade to nil/false/empty if absent):
 --     NBKApi:IsRemembered(name, realm)       -> boolean
 --     NBKApi:GetRememberEntry(name, realm)   -> entry | nil
+--     NBKApi:IsUnitRemembered(unit)          -> boolean        (MINOR 2)
+--     NBKApi:GetUnitRememberEntry(unit)      -> entry | nil    (MINOR 2)
 --     NBKApi:IterateRemembered()             -> iterator → (key, entry)
+--
+--   Names:
+--     NBKApi:FromUnitName(name, realm)       -> name, realm    (MINOR 2)
+--         See "Names on WoW: Forever" below.
 --
 --   Recents (sub-addon; same graceful degradation):
 --     NBKApi:IsRecent(name, realm)           -> boolean
@@ -55,6 +78,32 @@
 --   Blacklist entry shape:
 --     { name, realm, class, classColor, addedAt, zone, reason, notes,
 --       mute, shareable, addedBy, lastSeen, encounterCount, pinned }
+--
+-- ─── Names on WoW: Forever ─────────────────────────────────────────────
+--
+--   Every character on WoW: Forever has a first and a second name. NBK
+--   stores such a player as name = "Freyja Runa" (with the space) and
+--   realm = the server ID ("CAMWOWEU5Realm3PvE"); NBK hides that ID in
+--   its own lists.
+--
+--   UnitName / UnitFullName return the two names separately there -
+--   ("Freyja", "Runa"), the second one where other clients put the realm -
+--   and IDs built from them read "Freyja-Runa". Since MINOR 2 you don't
+--   have to care:
+--     * the unit queries read the unit the right way themselves;
+--     * the name queries accept that form too: ("Freyja", "Runa"),
+--       "Freyja-Runa", ("Freyja Runa", "CAMWOWEU5Realm3PvE") and
+--       "Freyja Runa" all find the same player.
+--   The rule: on WoW: Forever, a "realm" without digits is a second name
+--   (a server ID always has digits). On every other client nothing
+--   changes.
+--
+--   NBKApi:FromUnitName(name, realm) applies that rule and hands the result
+--   back, for your own display or comparisons:
+--     NBKApi:FromUnitName("Freyja", "Runa")  -> "Freyja Runa", nil
+--     NBKApi:FromUnitName("Freyja-Runa")     -> "Freyja Runa", nil
+--     NBKApi:FromUnitName("Jaina", "Stormrage") -> "Jaina", "Stormrage"
+--   A nil realm means "this server".
 --
 -- ─── Events (CallbackHandler-1.0) ──────────────────────────────────────
 --
@@ -91,7 +140,7 @@ if not LibStub then
     return
 end
 
-local MAJOR, MINOR = "LibNBKApi-1.0", 1
+local MAJOR, MINOR = "LibNBKApi-1.0", 2
 local Api = LibStub:NewLibrary(MAJOR, MINOR)
 if not Api then return end  -- a same-or-newer copy is already registered
 
@@ -127,18 +176,56 @@ local function copyingIterator(src)
     end
 end
 
+-- ─── Names (MINOR 2) ───────────────────────────────────────────────────
+-- Every name query below goes through NBK:FromUnitName first (Core/Core.lua):
+-- on WoW: Forever a name taken from a unit ("Freyja", "Runa" or
+-- "Freyja-Runa") becomes the stored form "Freyja Runa"; anything else, and
+-- every other client, is passed on unchanged (2.3.0 A1, I25).
+
+function Api:FromUnitName(name, realm)
+    return NBK:FromUnitName(name, realm)
+end
+
+-- Runs fn(name, realm) for a player unit, the way NBK's own tooltip reads
+-- it (NBK:UnitPlayer). nil for a missing unit, a non-player, or a value the
+-- game keeps secret (Retail instances): those raise inside the lookup,
+-- which the pcall turns into "not found".
+local function withUnit(unit, fn)
+    if type(unit) ~= "string" then return nil end
+    local ok, result = pcall(function()
+        if not UnitExists(unit) or not UnitIsPlayer(unit) then return nil end
+        local name, realm = NBK:UnitPlayer(unit)
+        if not name then return nil end
+        return fn(name, realm)
+    end)
+    if ok then return result end
+    return nil
+end
+
 -- ─── Blacklist (core - always available) ───────────────────────────────
 
 function Api:IsBlacklisted(name, realm)
-    return NBK:IsBlacklisted(name, realm) and true or false
+    return NBK:IsBlacklisted(NBK:FromUnitName(name, realm)) and true or false
 end
 
 function Api:IsMuted(name, realm)
-    return NBK:IsMuted(name, realm) and true or false
+    return NBK:IsMuted(NBK:FromUnitName(name, realm)) and true or false
 end
 
 function Api:GetBlacklistEntry(name, realm)
-    return copyEntry(NBK:GetPlayer(name, realm))
+    return copyEntry(NBK:GetPlayer(NBK:FromUnitName(name, realm)))
+end
+
+function Api:IsUnitBlacklisted(unit)
+    return withUnit(unit, function(n, r) return NBK:IsBlacklisted(n, r) end) and true or false
+end
+
+function Api:IsUnitMuted(unit)
+    return withUnit(unit, function(n, r) return NBK:IsMuted(n, r) end) and true or false
+end
+
+function Api:GetUnitBlacklistEntry(unit)
+    return copyEntry(withUnit(unit, function(n, r) return NBK:GetPlayer(n, r) end))
 end
 
 function Api:CountBlacklist()
@@ -158,13 +245,25 @@ end
 
 function Api:IsRemembered(name, realm)
     local rm = rememberMeModule()
-    return (rm and rm.HasEntry and rm:HasEntry(name, realm)) and true or false
+    return (rm and rm.HasEntry and rm:HasEntry(NBK:FromUnitName(name, realm))) and true or false
 end
 
 function Api:GetRememberEntry(name, realm)
     local rm = rememberMeModule()
     if not rm or not rm.GetEntry then return nil end
-    return copyEntry(rm:GetEntry(name, realm))
+    return copyEntry(rm:GetEntry(NBK:FromUnitName(name, realm)))
+end
+
+function Api:IsUnitRemembered(unit)
+    local rm = rememberMeModule()
+    if not rm or not rm.HasEntry then return false end
+    return withUnit(unit, function(n, r) return rm:HasEntry(n, r) end) and true or false
+end
+
+function Api:GetUnitRememberEntry(unit)
+    local rm = rememberMeModule()
+    if not rm or not rm.GetEntry then return nil end
+    return copyEntry(withUnit(unit, function(n, r) return rm:GetEntry(n, r) end))
 end
 
 function Api:IterateRemembered()

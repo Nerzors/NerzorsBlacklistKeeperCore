@@ -170,7 +170,11 @@ local function migrateV2toV3(db)
 end
 
 function Database:OnInitialize()
-    if type(NBKDB) ~= "table" then NBKDB = deepCopy(DEFAULTS) end
+
+    if type(NBKDB) ~= "table" then
+        NBKDB = deepCopy(DEFAULTS)
+        NBK._freshInstall = true
+    end
 
     if type(NBKDB.settings) ~= "table" then NBKDB.settings = {} end
     if type(NBKDB.settings.presetReasons) ~= "table" then

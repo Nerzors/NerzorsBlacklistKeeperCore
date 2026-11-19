@@ -125,6 +125,19 @@ function NUL:Window(opts)
     f.titleText:SetPoint("LEFT", 10, 0)
     function f:SetTitle(text) self.titleText:SetText(text or "") end
 
+    -- Title position: left after the logo (_titleInset, set by SetLogo),
+    -- or centred when the theme's skin asks for it (Core/Skin.lua).
+    f._titleInset = 10
+    function f:_placeTitle(theme)
+        local sk = NUL:FrameSkin(theme)
+        self.titleText:ClearAllPoints()
+        if sk and sk.titleAlign == "CENTER" then
+            self.titleText:SetPoint("CENTER", self.titleBar, "CENTER", 0, 0)
+        else
+            self.titleText:SetPoint("LEFT", self.titleBar, "LEFT", self._titleInset or 10, 0)
+        end
+    end
+
     f.closeButton = self:IconButton(tb, {
         icon  = "app-close.png",
         size  = 22,
@@ -136,6 +149,9 @@ function NUL:Window(opts)
         end,
     })
     f.closeButton:SetPoint("RIGHT", -6, 0)
+    -- Framed red square under a theme skin with `close` (Core/Skin.lua).
+    f.closeButton._closeRole = true
+    f.closeButton:_repaint(theme)
 
     f.content = CreateFrame("Frame", nil, f)
     f.content:SetPoint("TOPLEFT", tb, "BOTTOMLEFT",
@@ -169,8 +185,8 @@ function NUL:Window(opts)
         -- Allow `nil` to clear the logo, mirror the SetIcon(nil) pattern.
         if not cfg then
             if self.logo then self.logo:Hide() end
-            self.titleText:ClearAllPoints()
-            self.titleText:SetPoint("LEFT", self.titleBar, "LEFT", 10, 0)
+            self._titleInset = 10
+            self:_placeTitle()
             return
         end
 
@@ -240,8 +256,8 @@ function NUL:Window(opts)
         if not inset then
             inset = (mode == "embed") and (w + (ox > 0 and ox or 4) + 8) or 10
         end
-        self.titleText:ClearAllPoints()
-        self.titleText:SetPoint("LEFT", self.titleBar, "LEFT", inset, 0)
+        self._titleInset = inset
+        self:_placeTitle()
     end
 
     -- Legacy: `f:SetIcon(path, size)` and `opts.icon = …` keep working
@@ -256,6 +272,17 @@ function NUL:Window(opts)
         f:SetLogo(opts.logo)
     elseif opts.icon then
         f:SetIcon(opts.icon, opts.iconSize)
+    end
+
+    -- Resize grip: in the very corner; under a theme skin a few pixels in,
+    -- so its dots sit inside the corner texture instead of on the bevel and
+    -- the gold edge (Core/Skin.lua).
+    function f:_placeGrip(theme)
+        local grip = self.resizeGrip
+        if not grip then return end
+        local inset = NUL:FrameSkin(theme) and 6 or 1
+        grip:ClearAllPoints()
+        grip:SetPoint("BOTTOMRIGHT", -inset, inset)
     end
 
     -- ─── Position persistence + resize ─────────────────────────────────
@@ -324,7 +351,8 @@ function NUL:Window(opts)
 
         local grip = CreateFrame("Button", nil, self)
         grip:SetSize(16, 16)
-        grip:SetPoint("BOTTOMRIGHT", -1, 1)
+        self.resizeGrip = grip
+        self:_placeGrip()
         grip:EnableMouse(true)
         grip:RegisterForDrag("LeftButton")
         grip:SetFrameLevel((self:GetFrameLevel() or 0) + 5)
@@ -375,8 +403,11 @@ function NUL:Window(opts)
     end
 
     -- Repaint: re-color every visible surface. Gradient backgrounds know
-    -- how to re-read the theme via their own Refresh().
+    -- how to re-read the theme via their own Refresh(). A theme with a
+    -- frame skin (Core/Skin.lua) draws picture, corners and edges instead
+    -- of the flat fill, the 1-px border and the title bar's fill and line.
     function f:_repaint(t)
+        local skinned = NUL:SkinFrame(self, t)
         if self.bg and self.bg.Refresh then
             self.bg:Refresh()
         elseif self.bg then
@@ -385,7 +416,16 @@ function NUL:Window(opts)
         NUL:RecolorBorder(self.borders, t.colors.border.subtle)
         NUL.SetTextureColor(self.titleBar.bg, t.colors.bg.panel)
         NUL.SetTextureColor(self.titleBar.accent, t.colors.accent.primary)
-        NUL.SetFontColor(self.titleText, t.colors.text.primary)
+        local sk = skinned and NUL:FrameSkin(t)
+        NUL.SetFontColor(self.titleText, (sk and sk.titleColor) or t.colors.text.primary)
+        -- The flat fill goes too: it would show as a square in the
+        -- corners' transparent outer triangle (the bevel).
+        if self.bg then self.bg:SetShown(not skinned) end
+        for _, e in pairs(self.borders or {}) do e:SetShown(not skinned) end
+        self.titleBar.bg:SetShown(not skinned)
+        self.titleBar.accent:SetShown(not skinned)
+        self:_placeTitle(t)
+        self:_placeGrip(t)
     end
 
     self:_Track(f)

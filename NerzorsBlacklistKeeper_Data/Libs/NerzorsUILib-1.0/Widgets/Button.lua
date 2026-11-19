@@ -278,12 +278,39 @@ function NUL:IconButton(parent, opts)
         -- Plain toggles own their hue (mute/share in blacklist rows).
         -- Only an explicit icon token, e.g. danger, takes ownership of hue.
         local tint = colors.icon or (not self._plain and colors.text)
+        -- A theme skin may tint plain icons that have no colour of their
+        -- own (skin.iconTint, Core/Skin.lua). Buttons whose caller owns the
+        -- hue (toggles: _ownHue) are left alone.
+        if not tint and self._plain and not self._ownHue then
+            local sk = t.skin
+            tint = sk and sk.iconTint or nil
+            if not tint and self._skinTinted then
+                tint = { r = 1, g = 1, b = 1, a = 1 }   -- back to untinted
+            end
+            self._skinTinted = sk and sk.iconTint and true or nil
+        end
         if tint then
             self.icon:SetVertexColor(tint.r, tint.g, tint.b, tint.a or 1)
         end
         local alpha = self:_iconRestAlpha()
         if self._enabled and self._plain then
             alpha = state == "pressed" and 0.65 or (state == "hover" and 1 or alpha)
+        end
+        -- A window's close button (Widgets/Window.lua sets _closeRole):
+        -- under a theme skin with `close` a framed square - fill, gold
+        -- edges, coloured X (Core/Skin.lua, NBK I37).
+        if self._closeRole then
+            local sk = NUL:FrameSkin(t)
+            local close = sk and sk.close
+            if close then
+                local hot = state == "hover" or state == "pressed"
+                NUL:SkinFrame(self, t, { fill = hot and close.hover or close.fill, corners = false })
+                local ic = close.icon
+                if ic then self.icon:SetVertexColor(ic.r, ic.g, ic.b, ic.a or 1) end
+                alpha = 1
+            else
+                NUL:UnskinFrame(self)
+            end
         end
         self.icon:SetAlpha(alpha)
     end

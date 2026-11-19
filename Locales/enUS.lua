@@ -102,6 +102,7 @@ L["What's new?"]       = true
 L["Got it"]            = true
 L["Show me"] = true
 L["show 'What's new?'"] = true
+L["rate your current party"] = true
 
 L["New"]     = true
 L["Fixed"]   = true
@@ -167,6 +168,9 @@ L["Left-click: open list"] = true
 L["Right-click: settings"] = true
 L["Drag: move around minimap"] = true
 L["Modules"] = true
+L["External modules"] = true
+L["%s is an external module. It was not made by the NBK team, so we can't give support for it."] = true
+L["External module: %s"] = true
 L["Core"] = true
 L["Tooltip"] = true
 
@@ -278,6 +282,13 @@ L["You can delete or disable them; we recommend deleting them."] = true
 L["To delete them: in the Battle.net app, click the cog next to 'Play' and choose 'Show in Explorer' (Mac: 'Show in Finder'). In the folder of your game version (%s) open %s and delete the folders listed above."] = true
 L["Disable and reload"] = true
 L["Only available on Retail, so turned off on this client: %s"] = true
+
+L["%s is now available here too"] = true
+L["Remember the players you enjoyed playing with: rate your party, add a note and see it in the tooltip."] = true
+L["An earlier NBK version turned it off on this client because it only ran on Retail. Turn it on now?"] = true
+L["Enable and reload"] = true
+L["No thanks"] = true
+L["You can turn on %s any time in the AddOns list."] = true
 
 L["Switched %d blacklist entries to WoW: Forever names (first and second name)."] = true
 L["Removed %d entries in the old form that were already on the blacklist with first and second name."] = true

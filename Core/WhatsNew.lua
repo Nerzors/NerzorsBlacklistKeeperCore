@@ -84,6 +84,140 @@ end
 
 NBK.WHATS_NEW = {
     {
+        version   = "2.3.0",
+        date      = "2026-11-19",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "Remember Me now also runs on Classic Era, Classic MoP and WoW: Forever: remember the players you enjoyed playing with - star rating, a note, and a hint in the tooltip when you meet them again. If an earlier version turned it off on this client, NBK asks you once at login whether to turn it back on.",
+                        de = "Merken gibt es jetzt auch auf Classic Era, Classic MoP und WoW: Forever: Merke dir die Spieler, mit denen du gern gespielt hast - mit Sternen, Notiz und einem Hinweis im Tooltip, wenn du sie wiedertriffst. Hat eine frühere Version Merken auf diesem Client ausgeschaltet, fragt NBK einmal beim Login, ob es wieder an soll.",
+                        sub = "_RememberMe",
+                        flavor = "classic",
+                        go = "list:remember_me",
+                    },
+                    {
+                        en = "\"Rate group\": a new button in the Remember Me tab rates the players of your current party at any time - no Mythic+ run needed. Also with /nbk rate. Works in a party, not alone or in a raid.",
+                        de = "\"Gruppe bewerten\": Ein neuer Knopf im Reiter \"Merken\" bewertet die Spieler deiner aktuellen Gruppe jederzeit - ganz ohne Mythic+-Lauf. Auch mit /nbk rate. Geht in einer Gruppe, nicht allein und nicht im Schlachtzug.",
+                        sub = "_RememberMe",
+                        go = "list:remember_me",
+                    },
+                    {
+                        en = "Remember Me can ask by itself: three new settings under \"Remember Me\" - \"Ask when I leave a group\", \"Ask when someone leaves the group\" and \"Also in raids\". All off until you turn them on. NBK only asks about players you were with for at least 5 minutes and who aren't in Remember Me or on your blacklist yet, and it waits until combat is over.",
+                        de = "Merken kann von selbst fragen: Drei neue Einstellungen unter \"Merken\" - \"Nachfragen, wenn ich eine Gruppe verlasse\", \"Nachfragen, wenn jemand die Gruppe verlässt\" und \"Auch im Schlachtzug\". Alle sind aus, bis du sie einschaltest. NBK fragt nur nach Spielern, mit denen du mindestens 5 Minuten zusammen warst und die noch nicht in Merken oder auf deiner Blacklist stehen, und wartet bis nach dem Kampf.",
+                        sub = "_RememberMe",
+                        go = "settings:RememberMe",
+                    },
+                    {
+                        en = "New theme \"ModernBlizz\", On a wish from the community: styled like the Classic and modern UI - a gold frame with bevelled corners, gold buttons, column headers and field titles in gold capitals, and lists that let the picture show through. Pick it under \"Display\" > \"Theme\".",
+                        de = "Neues Theme \"ModernBlizz\", auf Wunsch aus der Community: im Stil des Classic und modernen UI - Goldrahmen mit abgeschrägten Ecken, goldenen Knöpfen, Spaltenköpfen und Feldtiteln in Gold-Großbuchstaben und Listen, durch die das Bild scheint. Auswählbar unter \"Darstellung\" > \"Design\".",
+                        go = "settings:Display",
+                    },
+                    {
+                        en = "Mythic+: put someone on the blacklist during a key or from the window after the run, and the zone says which run it was - for example \"Halls of Atonement +13\". Outside a key the zone stays as before.",
+                        de = "Mythic+: Wen du während eines Schlüssels oder aus dem Fenster nach dem Lauf auf die Blacklist setzt, bei dem steht als Zone der Lauf - zum Beispiel \"Das Blendende Tal +13\". Außerhalb eines Schlüssels bleibt die Zone wie bisher.",
+                        flavor = "retail",
+                    },
+                    {
+                        en = "Mythic+: Remember Me now keeps the run as well - in its own \"Run\" column and in the tooltip. \"Remember Me\" in the window after the run leaves the note free for your own words. Older entries simply have no run.",
+                        de = "Mythic+: Merken hält jetzt auch den Lauf fest - in einer eigenen Spalte \"Lauf\" und im Tooltip. \"Merken\" im Fenster nach dem Lauf lässt die Notiz frei für deine eigenen Worte. Ältere Einträge haben einfach keinen Lauf.",
+                        sub = "_RememberMe",
+                        flavor = "retail",
+                    },
+                    {
+                        en = "Mythic+: the window after the run also shows the time, for example \"Halls of Atonement +13 - timed (21:09)\".",
+                        de = "Mythic+: Das Fenster nach dem Lauf zeigt auch die Zeit, zum Beispiel \"Das Blendende Tal +13 - im Limit (21:09)\".",
+                        sub = "_RememberMe",
+                        flavor = "retail",
+                    },
+                    {
+                        en = "Group Finder: works with EllesmereUI Group Finder too - a group whose leader is on your blacklist gets a red stripe and a red name in its list as well.",
+                        de = "Gruppensuche: klappt jetzt auch mit EllesmereUI Group Finder - eine Gruppe, deren Leiter auf deiner Blacklist steht, bekommt auch in dessen Liste eine rote Leiste und einen roten Namen.",
+                        sub = "_GroupFinder",
+                        flavor = "retail",
+                    },
+                    {
+                        en = "Group Finder: the tooltip of a group says so when its leader is on your blacklist, with the reason.",
+                        de = "Gruppensuche: Der Tooltip einer Gruppe sagt dir, wenn ihr Leiter auf deiner Blacklist steht - mit Grund.",
+                        sub = "_GroupFinder",
+                        flavor = "retail",
+                    },
+                },
+            },
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "WoW: Forever: Remember Me shows names as \"First Second\" without the server ID, just like the blacklist, and recognizes the same player everywhere - in the tooltip, the context menu and your group.",
+                        de = "WoW: Forever: Merken zeigt Namen als \"Hauptname Zweitname\" ohne Server-Kennung, wie die Blacklist, und erkennt denselben Spieler überall - im Tooltip, im Kontextmenü und in deiner Gruppe.",
+                        sub = "_RememberMe",
+                        flavor = "forever",
+                    },
+                    {
+                        en = "Switching the theme now also recolours list headers, tabs and the settings sidebar right away - before, they kept the old colours until a reload.",
+                        de = "Beim Wechsel des Themes färben sich jetzt auch Listen-Kopfzeilen, Reiter und die Seitenleiste der Einstellungen sofort um - bisher behielten sie bis zu einem Reload die alten Farben.",
+                    },
+                    {
+                        en = "Settings: modules from other authors now have their own group \"External modules\" in the sidebar, with a note on top that they weren't made by the NBK team - so you can tell at a glance what belongs to NBK and where to turn with questions.",
+                        de = "Einstellungen: Module anderer Autoren stehen jetzt in einer eigenen Gruppe \"Externe Module\" in der Seitenleiste, oben mit einem Hinweis, dass sie nicht vom NBK-Team sind - so siehst du sofort, was zu NBK gehört und an wen du dich mit Fragen wendest.",
+                    },
+                    {
+                        en = "Settings: the window grows with its sidebar, so every entry fits without scrolling.",
+                        de = "Einstellungen: Das Fenster wächst mit seiner Seitenleiste, damit jeder Eintrag ohne Scrollen Platz hat.",
+                    },
+                    {
+                        en = "Blacklist: the \"Zone\" column is as wide as its longest zone, so long zone names fit in every language. The window can't be made quite as narrow as before.",
+                        de = "Blacklist: Die Spalte \"Zone\" ist so breit wie ihre längste Zone, damit lange Zonennamen in jeder Sprache passen. Ganz so schmal wie bisher lässt sich das Fenster dafür nicht mehr ziehen.",
+                    },
+                    {
+                        en = "Statistics: \"Top zones\" counts a Mythic+ run for its dungeon - every key level together.",
+                        de = "Statistik: \"Top-Zonen\" zählt einen Mythic+-Lauf zu seinem Dungeon - alle Stufen zusammen.",
+                        sub = "_Statistics",
+                        flavor = "retail",
+                    },
+                },
+            },
+            {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "Mythic+: the window after a run sometimes opened right at the start of a key. It now only comes when a run is finished - in time or over time. After an abandoned run, use \"Rate group\".",
+                        de = "Mythic+: Das Fenster nach dem Lauf ging manchmal schon beim Start eines Schlüssels auf. Es kommt jetzt nur noch, wenn ein Lauf beendet ist - in der Zeit oder drüber. Nach einem abgebrochenen Lauf nimmst du \"Gruppe bewerten\".",
+                        sub = "_RememberMe",
+                        flavor = "retail",
+                    },
+                    {
+                        en = "After putting a player on the blacklist as \"Name-Realm\" (slash command or dialog), NBK didn't offer to take them off Remember Me. It does now.",
+                        de = "Wer einen Spieler als \"Name-Realm\" auf die Blacklist gesetzt hat (Slash-Befehl oder Dialog), bekam nicht die Frage, ihn aus Merken zu entfernen. Die kommt jetzt.",
+                        sub = "_RememberMe",
+                    },
+                    {
+                        en = "Classic: the chat line \"Only available on Retail, so turned off on this client\" could come back at every login.",
+                        de = "Classic: Die Chatzeile \"Gibt es nur auf Retail, auf diesem Client deshalb ausgeschaltet\" konnte bei jedem Login wiederkommen.",
+                        flavor = "classic",
+                    },
+                    {
+                        en = "Group Finder: the warning before you sign up started with an empty gap - the warning sign is shown properly now.",
+                        de = "Gruppensuche: Die Warnung vor dem Anmelden begann mit einer leeren Stelle - das Warnzeichen wird jetzt richtig angezeigt.",
+                        sub = "_GroupFinder",
+                        flavor = "retail",
+                    },
+                },
+            },
+            {
+                kind  = "note",
+                items = {
+                    {
+                        en = "Thanks to everyone who tested the four betas and sent in bugs and wishes - on our website nbk.nerzors.com, on Discord, GitHub and CurseForge!",
+                        de = "Danke an alle, die die vier Betas getestet und Fehler und Wünsche gemeldet haben - auf unserer Webseite nbk.nerzors.com, im Discord, auf GitHub und CurseForge!",
+                    },
+                },
+            },
+        },
+    },
+    {
         version   = "2.2.0",
         date      = "2026-11-16",
         highlight = true,
@@ -167,8 +301,8 @@ NBK.WHATS_NEW = {
                         de = "Fragen zu einem einzelnen Spieler nennen ihn jetzt beim Namen (\"Anna-Aldor auf allen Charakteren ignorieren?\") statt \"1 ausgewählte Spieler\".",
                     },
                     {
-                        en = "WoW: Forever: the one-time name correction from 2.1.0 stays in for this version and will be removed with 2.3.0 instead of 2.2.0.",
-                        de = "WoW: Forever: Die einmalige Namenskorrektur aus 2.1.0 bleibt in dieser Version enthalten und fällt erst mit 2.3.0 weg statt mit 2.2.0.",
+                        en = "WoW: Forever: the one-time name correction from 2.1.0 stays for good - on the community's wish, so it also helps if you skip a version.",
+                        de = "WoW: Forever: Die einmalige Namenskorrektur aus 2.1.0 bleibt dauerhaft enthalten - auf Wunsch der Community, damit sie auch hilft, wenn du eine Version überspringst.",
                         flavor = "forever",
                     },
                 },

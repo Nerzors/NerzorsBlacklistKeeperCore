@@ -1,5 +1,6 @@
 local _, NBK = ...
 local L = NBK.L
+local NUL = LibStub("NerzorsUILib-1.0")
 
 local BlacklistTab = NBK:GetModule("BlacklistTab")
 if not BlacklistTab then return end
@@ -99,7 +100,11 @@ function BlacklistTab:ComputeColumns()
     })
 
     if s.showZoneColumn then
-        table.insert(cols, { key = "zone", label = L["Zone"], width = 120, sortable = true })
+
+        table.insert(cols, {
+            key = "zone", label = L["Zone"], sortable = true,
+            width = self._zoneWidth or self.ZONE_MIN_WIDTH,
+        })
     end
     if s.showAddedColumn then
         table.insert(cols, { key = "added", label = L["Date"], width = 80, sortable = true })
@@ -114,4 +119,67 @@ function BlacklistTab:ComputeColumns()
     })
 
     return cols
+end
+
+BlacklistTab.ZONE_MIN_WIDTH   = 110
+BlacklistTab.ZONE_MAX_WIDTH   = 240
+BlacklistTab.REASON_MIN_WIDTH = 140
+local ZONE_PAD = 12
+local SORT_ARROW = 16
+
+function BlacklistTab:ZoneWidthFor(columns, zones, measure, headerWidth, label)
+    local want = (label and measure(label) or 0) + SORT_ARROW
+    for _, z in ipairs(zones) do
+        local w = measure(z) + ZONE_PAD
+        if w > want then want = w end
+    end
+    want = math.ceil(want)
+    if want < self.ZONE_MIN_WIDTH then want = self.ZONE_MIN_WIDTH end
+    if want > self.ZONE_MAX_WIDTH then want = self.ZONE_MAX_WIDTH end
+
+    if headerWidth and headerWidth > 0 then
+        local others = 0
+        for _, col in ipairs(columns) do
+            if not col.flex and col.key ~= "zone" then others = others + col.width end
+        end
+        local room = headerWidth - others - (#columns * 4) - 8 - self.REASON_MIN_WIDTH
+        if want > room then want = math.max(self.ZONE_MIN_WIDTH, math.floor(room)) end
+    end
+    return want
+end
+
+function BlacklistTab:FitZoneColumn()
+    local header = self.header
+    if not header or not header._columns then return false end
+    local zoneCol
+    for _, col in ipairs(header._columns) do
+        if col.key == "zone" then zoneCol = col end
+    end
+    if not zoneCol then return false end
+
+    if not self._zoneMeasure then
+        local fs = NUL:CreateLabel(self.frame, { text = "", wrap = false })
+        fs:Hide()
+        self._zoneMeasure = fs
+    end
+    local fs = self._zoneMeasure
+    local function measure(text)
+        fs:SetText(text)
+        return tonumber(fs:GetStringWidth()) or 0
+    end
+
+    local seen, zones = {}, {}
+    for _, e in pairs(NBK:GetEntries()) do
+        local z = e.zone
+        if type(z) == "string" and z ~= "" and not seen[z] then
+            seen[z] = true
+            zones[#zones + 1] = z
+        end
+    end
+
+    local w = self:ZoneWidthFor(header._columns, zones, measure, tonumber(header:GetWidth()) or 0, zoneCol.label)
+    self._zoneWidth = w
+    if zoneCol.width == w then return false end
+    zoneCol.width = w
+    return true
 end

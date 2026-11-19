@@ -25,6 +25,7 @@ local function buildRichDialog(globalName, titleKey)
     local nameLabel = NUL:CreateLabel(content, {
         text  = L["Name"] .. " (Name-Realm)",
         color = theme.colors.text.muted,
+        role  = "field",
     })
     nameLabel:SetPoint("TOPLEFT", 0, y); y = y - 16
 
@@ -34,6 +35,7 @@ local function buildRichDialog(globalName, titleKey)
     local presetLabel = NUL:CreateLabel(content, {
         text  = L["Presets:"],
         color = theme.colors.text.muted,
+        role  = "field",
     })
     presetLabel:SetPoint("TOPLEFT", 0, y); y = y - 16
 
@@ -48,6 +50,7 @@ local function buildRichDialog(globalName, titleKey)
     local reasonLabel = NUL:CreateLabel(content, {
         text  = L["Custom reason..."],
         color = theme.colors.text.muted,
+        role  = "field",
     })
     reasonLabel:SetPoint("TOPLEFT", 0, y); y = y - 16
 
@@ -57,6 +60,7 @@ local function buildRichDialog(globalName, titleKey)
     local notesLabel = NUL:CreateLabel(content, {
         text  = L["Notes"],
         color = theme.colors.text.muted,
+        role  = "field",
     })
     notesLabel:SetPoint("TOPLEFT", 0, y); y = y - 16
 
@@ -71,6 +75,7 @@ local function buildRichDialog(globalName, titleKey)
     local classLabel = NUL:CreateLabel(content, {
         text  = L["Class"] or "Class",
         color = theme.colors.text.muted,
+        role  = "field",
     })
     classLabel:SetPoint("TOPLEFT", 0, y)
 
@@ -90,6 +95,7 @@ local function buildRichDialog(globalName, titleKey)
     local roleLabel = NUL:CreateLabel(content, {
         text  = L["Role"] or "Role",
         color = theme.colors.text.muted,
+        role  = "field",
     })
     roleLabel:SetPoint("TOPLEFT", ROLE_X, y); y = y - 18
 
@@ -320,6 +326,10 @@ function BlacklistTab:_ShowAddDialog(prefill)
         local saved = NBK:GetPlayer(entry.name, entry.realm)
         if saved then
             saved.role = values.role
+
+            if prefill and type(prefill.zone) == "string" and prefill.zone ~= "" then
+                saved.zone = prefill.zone
+            end
             if values.class then
                 saved.class      = values.class
                 saved.classColor = NBK:GetClassHex(values.class)

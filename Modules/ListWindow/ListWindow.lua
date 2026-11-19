@@ -63,7 +63,8 @@ function ListWindow:Build()
     })
     self.frame = f
     f:SetPositionKey("ListWindow", NBK.db)
-    f:MakeResizable({ minW = 760, minH = 420, maxW = 1600, maxH = 1100 })
+
+    f:MakeResizable({ minW = 790, minH = 420, maxW = 1600, maxH = 1100 })
     f:RestorePosition()
 
     self._resizeDirty = false
@@ -335,7 +336,7 @@ function ListWindow:_BuildTabButton(spec)
     local w = math.max(80, lbl:GetStringWidth() + TAB_PAD * 2)
     btn:SetWidth(w)
 
-    btn.bg = NUL:FillBackground(btn, theme.colors.bg.panel)
+    btn.bg = NUL:Surface(btn, "tab")
 
     local stripe = btn:CreateTexture(nil, "OVERLAY")
     stripe:SetPoint("BOTTOMLEFT",  0, 0)

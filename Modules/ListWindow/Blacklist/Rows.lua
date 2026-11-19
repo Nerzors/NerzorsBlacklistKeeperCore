@@ -44,6 +44,7 @@ local function buildOptionsCell(row, theme)
 
     local function makeToggle(texture, tooltipFn)
         local b = NUL:IconButton(f, { icon = texture, size = 24, plain = true })
+        b._ownHue = true
         b._tooltipFn = tooltipFn
 
         NUL:AttachTooltip(b, function(self) return self._tooltipFn and self._tooltipFn(self) end)

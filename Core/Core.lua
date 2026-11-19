@@ -12,16 +12,16 @@ NBK.callbacks = {}
 NBK._subAddons = {}
 
 NBK.OPTIONAL_MODULES = {
-    { tag = "_ChatFilters", key = "ChatFilters", labelKey = "Chat filters" },
-    { tag = "_GroupFinder", key = "GroupFinder", labelKey = "Group Finder" },
-    { tag = "_Sync",        key = "Sync",        labelKey = "Sharing"      },
-    { tag = "_Recents",     key = "Recents",     labelKey = "Recents"      },
-    { tag = "_RememberMe",  key = "RememberMe",  labelKey = "Remember Me"  },
+    { tag = "_ChatFilters", key = "ChatFilters", labelKey = "Chat filters", configTab = "ChatFilters" },
+    { tag = "_GroupFinder", key = "GroupFinder", labelKey = "Group Finder", configTab = "GroupFinder" },
+    { tag = "_Sync",        key = "Sync",        labelKey = "Sharing",      configTab = "Sharing"     },
+    { tag = "_Recents",     key = "Recents",     labelKey = "Recents",      configTab = "Recents"     },
+    { tag = "_RememberMe",  key = "RememberMe",  labelKey = "Remember Me",  configTab = "RememberMe"  },
     { tag = "_Statistics",  key = "Statistics",  labelKey = "Statistics"   },
     { tag = "_IgnoreManager", key = "IgnoreAllChars", labelKey = "Ignore Manager" },
 }
 
-NBK.RETAIL_ONLY_MODULES = { "_GroupFinder", "_RememberMe" }
+NBK.RETAIL_ONLY_MODULES = { "_GroupFinder" }
 
 NBK.REMOVED_MODULES = {
     { tag = "_Tooltip",    reason = "merged" },
@@ -64,6 +64,30 @@ function NBK:IsForever() return self.FLAVOR == "forever" end
 
 function NBK:IsClassic() return self.FLAVOR ~= "retail" end
 
+function NBK:FormatRun(mapName, level)
+    if type(mapName) ~= "string" or mapName == "" then return nil end
+    if type(level) ~= "number" or level <= 0 then return nil end
+    return ("%s +%d"):format(mapName, level)
+end
+
+function NBK:CurrentRun()
+    if not self:IsRetail() then return nil end
+    local CM = C_ChallengeMode
+    if type(CM) ~= "table" or type(CM.GetActiveChallengeMapID) ~= "function"
+        or type(CM.GetActiveKeystoneInfo) ~= "function"
+        or type(CM.GetMapUIInfo) ~= "function" then
+        return nil
+    end
+    local secret = issecretvalue or function() return false end
+    local ok, mapID = pcall(CM.GetActiveChallengeMapID)
+    if not ok or secret(mapID) or type(mapID) ~= "number" or mapID == 0 then return nil end
+    local okL, level = pcall(CM.GetActiveKeystoneInfo)
+    if not okL or secret(level) or type(level) ~= "number" then return nil end
+    local okN, mapName = pcall(CM.GetMapUIInfo, mapID)
+    if not okN or secret(mapName) then return nil end
+    return self:FormatRun(mapName, level)
+end
+
 function NBK:UnitPlayer(unit)
     local name, second = UnitName(unit)
     if not self:IsForever() or not name then return name, second end
@@ -74,6 +98,22 @@ function NBK:UnitPlayer(unit)
         return name .. " " .. second, nil
     end
     return name, nil
+end
+
+function NBK:FromUnitName(name, realm)
+    if not self:IsForever() or type(name) ~= "string" then return name, realm end
+    if issecretvalue and (issecretvalue(name) or (realm ~= nil and issecretvalue(realm))) then
+        return name, realm
+    end
+    if realm == nil then
+        local n, r = name:match("^(.-)%-(.+)$")
+        if not n or n == "" then return name, realm end
+        name, realm = n, r
+    end
+    if type(realm) ~= "string" or realm == "" or realm:find("%d") then
+        return name, realm
+    end
+    return name .. " " .. realm, nil
 end
 
 function NBK:PlayerName()
@@ -170,6 +210,12 @@ function NBK:IsAddOnLoadable(name)
 end
 
 function NBK:IsAddOnEnabled(name)
+    if self:IsAddOnLoaded(name) then return true end
+    local getInfo = (C_AddOns and C_AddOns.GetAddOnInfo) or GetAddOnInfo
+    if getInfo then
+        local okInfo, _, _, _, loadable, reason = pcall(getInfo, name)
+        if okInfo and not loadable and reason == "DISABLED" then return false end
+    end
     local C, me = C_AddOns, UnitName("player")
     local ok, state
     if C and C.GetAddOnEnableState then

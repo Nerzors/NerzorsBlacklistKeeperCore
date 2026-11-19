@@ -104,6 +104,11 @@ function NUL:Dropdown(parent, opts)
         NUL:RecolorBorder(self.borders, t.colors.border.subtle)
         NUL.SetTextureColor(self.popup.bg, t.colors.bg.base)
         NUL:RecolorBorder(self.popup.borders, t.colors.border.subtle)
+        -- The option list as a small framed popup under a theme skin
+        -- (Core/Skin.lua); the field itself keeps its shape.
+        local skinned = NUL:SkinFrame(self.popup, t, { fill = t.colors.bg.base, corners = false })
+        self.popup.bg:SetShown(not skinned)
+        for _, e in pairs(self.popup.borders) do e:SetShown(not skinned) end
         local lc = self._enabled and t.colors.text.primary or t.colors.text.muted
         NUL.SetFontColor(self.label, lc)
         self.arrow:SetVertexColor(lc.r, lc.g, lc.b, self._enabled and 1 or 0.6)

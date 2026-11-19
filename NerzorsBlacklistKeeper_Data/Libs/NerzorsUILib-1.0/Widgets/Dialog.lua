@@ -50,6 +50,7 @@ function NUL:Dialog(opts)
         local lab = NUL:CreateLabel(f.content, {
             text  = field.label or field.key,
             color = theme.colors.text.muted,
+            role  = "field",   -- theme skin: capitals (Core/Skin.lua)
         })
         lab:SetPoint("TOPLEFT", 0, y)
 

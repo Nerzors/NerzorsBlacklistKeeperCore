@@ -35,6 +35,7 @@ function Config:ShowExportDialog(opts)
     if #listTypes > 1 then
         local pickLabel = NUL:CreateLabel(content, {
             text = L["List"] or "List", color = theme.colors.text.muted,
+            role = "field",
         })
         pickLabel:SetPoint("TOPLEFT", 4, -6)
 

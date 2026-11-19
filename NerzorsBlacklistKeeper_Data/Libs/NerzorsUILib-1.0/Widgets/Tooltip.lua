@@ -56,6 +56,12 @@ local function ensureTip()
         NUL.SetTextureColor(self.bg, t.colors.bg.base)
         NUL:RecolorBorder(self.borders, t.colors.border.accent)
         NUL.SetTextureColor(self.stripe, t.colors.accent.primary)
+        -- A theme skin (Core/Skin.lua): corners and edges around a flat
+        -- fill instead of the 1-px border and the top stripe.
+        local skinned = NUL:SkinFrame(self, t, { fill = t.colors.bg.base })
+        self.bg:SetShown(not skinned)
+        self.stripe:SetShown(not skinned)
+        for _, e in pairs(self.borders) do e:SetShown(not skinned) end
         NUL.SetFontColor(self.title, t.colors.accent.primary)
         NUL.SetFontColor(self.body,  t.colors.text.primary)
     end

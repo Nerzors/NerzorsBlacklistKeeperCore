@@ -25,6 +25,8 @@
 --     gradient = { start = color, ["end"] = color },
 --     glow     = color,
 --   }
+--   skin       = { frame = {...} }                    -- optional texture
+--                                                       frames, Core/Skin.lua
 --
 -- Each color is a table { r, g, b, a } in 0..1. The `hex("#RRGGBB[AA]")`
 -- helper builds those for you so theme definitions read like a design tool.

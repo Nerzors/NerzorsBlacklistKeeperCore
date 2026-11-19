@@ -42,7 +42,8 @@ function BlacklistTab:_Build(parent)
     self.selectBtn = selectBtn
 
     local countLabel = NUL:CreateLabel(root, { text = "", color = theme.colors.text.muted })
-    countLabel:SetPoint("RIGHT")
+
+    countLabel:SetPoint("RIGHT", root, "TOPRIGHT", 0, -13)
     self.countLabel = countLabel
 
     self:_BuildActionBar(root)
@@ -96,7 +97,7 @@ function BlacklistTab:_RebuildLayout()
     header:SetHeight(20)
     header:SetPoint("TOPLEFT", self.layoutAnchor, "BOTTOMLEFT", 0, -8)
     header:SetPoint("RIGHT")
-    NUL:FillBackground(header, theme.colors.bg.panel)
+    NUL:Surface(header, "header")
 
     header._columns = columns
     header._cells   = {}
@@ -108,6 +109,7 @@ function BlacklistTab:_RebuildLayout()
         cell._col = col
 
         local fs = NUL:CreateLabel(cell, {
+            role     = "column",
             text     = "",
             size     = "sm",
             color    = theme.colors.text.muted,
@@ -196,6 +198,7 @@ function BlacklistTab:_RebuildLayout()
         end
     end
     header:SetScript("OnSizeChanged", layoutHeader)
+    header._layout = layoutHeader
     header._paint = function()
         for _, cell in ipairs(header._cells) do paintCell(cell) end
     end
@@ -217,6 +220,10 @@ function BlacklistTab:_Refresh()
     if not self.frame or not self.list then return end
     local filter = self.searchEB and self.searchEB:GetText() or ""
     local entries = self:SortedEntries(filter, self.sortKey, self.sortDir)
+
+    if self:FitZoneColumn() and self.header and self.header._layout then
+        self.header._layout()
+    end
     self.list:SetEmptyText(NBK:EmptyListText(filter,
         L["Your blacklist is empty. Click \"%s\" above, or right-click a player and choose \"%s\"."]
             :format(L["+ Add"], L["Add to blacklist"])))

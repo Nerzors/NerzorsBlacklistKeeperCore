@@ -202,10 +202,116 @@ NUL:RegisterTheme("Forever∞", withShape({
     media = { logo = LOGO_FOREVER, edge = EDGE, bg = BG },
 }))
 
+local MODERN = DATA .. "Textures\\modern\\"
+local CLIENT_LOGO = ({
+    retail  = LOGO_MIDNIGHT,
+    forever = LOGO_FOREVER,
+})[NBK.GetFlavor and NBK:GetFlavor() or "retail"] or (DATA .. "Textures\\NerzorsBlacklistKeeper_classic_Logo")
+
+NUL:RegisterTheme("ModernBlizz", withShape({
+    colors = {
+        btn = buttonPalette({
+            text = "#f6dc95", muted = "#b3a589",
+
+            primary = {normal = "#4a3214", hover = "#5e4019", pressed = "#3a270f", border = "#c9a14a", hoverBorder = "#f0c869"},
+
+            secondary = {normal = "#16120d", hover = "#2a2117", pressed = "#100d09", border = "#8a6d3b", hoverBorder = "#d4a64a"},
+            disabled = {bg = "#16120d", text = "#6b604c", border = "#3a3022"},
+        }),
+        bg = {
+            base     = hex("#120f0b"),
+            panel    = hex("#1a1610"),
+            elevated = hex("#0f0c09"),
+            hover    = hex("#d4a64a26"),
+            active   = hex("#d4a64a40"),
+        },
+        border = {
+            subtle = hex("#5a4628"),
+            accent = hex("#d4a64a"),
+        },
+        text = {
+            primary  = hex("#f2e8d5"),
+            muted    = hex("#b3a589"),
+            disabled = hex("#6b604c"),
+            inverse  = hex("#120f0b"),
+        },
+        accent = {
+            primary   = hex("#d4a64a"),
+            secondary = hex("#5a4628"),
+        },
+        state = {
+            success = hex("#5cb85c"),
+            warning = hex("#f0ad4e"),
+            danger  = hex("#d9534f"),
+            info    = hex("#d4a64a"),
+        },
+    },
+    skin = {
+        frame = {
+            bg         = MODERN .. "NBKModernMainBG",
+            corners    = {
+                tl = MODERN .. "NBKModernCornerTopLeft",
+                tr = MODERN .. "NBKModernCornerTopRight",
+                bl = MODERN .. "NBKModernCornerBottomLeft",
+                br = MODERN .. "NBKModernCornerBottomRight",
+            },
+            cornerSize    = 16,
+            fill          = hex("#1f1a14"),
+            edge          = hex("#674f2c"),
+            edgeThickness = 2,
+            titleAlign    = "CENTER",
+            titleColor    = hex("#e8d9b5"),
+
+            close = {
+                fill  = hex("#5a1612"),
+                hover = hex("#7a1f19"),
+                icon  = hex("#e8c46a"),
+            },
+        },
+
+        list = {
+            bg     = hex("#00000033"),
+            row    = hex("#00000000"),
+            rowAlt = hex("#0000001f"),
+        },
+
+        surface = {
+            header  = hex("#00000033"),
+            tab     = hex("#0000004d"),
+            sidebar = hex("#00000040"),
+            navItem = hex("#00000000"),
+        },
+
+        iconTint = hex("#d4a64a"),
+
+        text = {
+            labelCase  = "upper",
+            labelColor = hex("#d4a64a"),
+        },
+    },
+    media = { logo = CLIENT_LOGO, edge = EDGE, bg = BG },
+}))
+
+NBK.DEFAULT_THEMES = {
+    retail  = "Midnight",
+    forever = "ModernBlizz",
+}
+local LEGACY_DEFAULT_THEME = "Nerzors"
+
+function NBK:DefaultTheme()
+    local name = self.DEFAULT_THEMES[self:GetFlavor()] or LEGACY_DEFAULT_THEME
+    if not NUL:HasTheme(name) then name = LEGACY_DEFAULT_THEME end
+    return name
+end
+
 NBK:RegisterEvent("PLAYER_LOGIN", function()
     local s = NBK.db and NBK.db.settings
 
     if s and (s.theme == "Sci-Fi" or s.theme == "Forever") then s.theme = "Forever∞" end
+
+    if s and s.theme == nil then
+        s.theme = NBK._freshInstall and NBK:DefaultTheme() or LEGACY_DEFAULT_THEME
+    end
     if s and s.theme and NUL:HasTheme(s.theme) then
         NUL:SetTheme(s.theme)
     end

@@ -43,7 +43,7 @@ function Config:_makeNavButton(parent, text, iconPath)
     local b = CreateFrame("Button", nil, parent)
     b:SetSize(self.NAV_WIDTH - 16, self.NAV_BTN_HEIGHT)
 
-    b.bg = NUL:FillBackground(b, theme.colors.bg.base)
+    b.bg = NUL:FillBackground(b, NUL:SurfaceColor("navItem", theme))
 
     local icon, labelLeftX
     if iconPath and iconPath ~= "" then
@@ -82,7 +82,7 @@ function Config:_makeNavButton(parent, text, iconPath)
             NUL.SetFontColor(b.label, t.colors.text.primary)
             if icon then icon:SetVertexColor(1, 1, 1, 1) end
         else
-            NUL.SetTextureColor(b.bg, t.colors.bg.base)
+            NUL.SetTextureColor(b.bg, NUL:SurfaceColor("navItem", t))
             accent:Hide()
             NUL.SetFontColor(b.label, t.colors.text.muted)
 
@@ -90,6 +90,8 @@ function Config:_makeNavButton(parent, text, iconPath)
         end
     end
     function b:SetSelected(v) self._selected = v and true or false; refresh() end
+
+    NUL:RegisterCustomPainter(b, function() refresh() end)
     refresh()
 
     b:SetScript("OnEnter", function(self)
@@ -103,11 +105,75 @@ function Config:_makeNavButton(parent, text, iconPath)
     return b
 end
 
+local ALERT_ICON = "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew"
+
+local function accentName(name)
+    return "|cff" .. NUL.ToHex(NUL:GetTheme().colors.accent.primary) .. name .. "|r"
+end
+
+function Config:_makeExternalNotice(parent, tab)
+    local L = NBK.L
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetHeight(44)
+    f.bg = f:CreateTexture(nil, "BACKGROUND")
+    f.bg:SetAllPoints()
+    f.borders = NUL:AddBorder(f, nil, 1)
+
+    local icon = f:CreateTexture(nil, "ARTWORK")
+    icon:SetSize(24, 24)
+    icon:SetPoint("LEFT", 10, 0)
+    icon:SetTexture(ALERT_ICON)
+
+    local name = self:ExternalName(tab)
+    local text = NUL:CreateLabel(f, {
+        text     = "",
+        justifyH = "LEFT",
+        wrap     = true,
+    })
+    text:SetPoint("LEFT", icon, "RIGHT", 10, 0)
+    text:SetPoint("RIGHT", f, "RIGHT", -10, 0)
+    f.text = text
+
+    local function paint()
+        local t = NUL:GetTheme()
+        local warn = (t.colors.state and t.colors.state.warning) or t.colors.accent.primary
+        NUL.SetTextureColor(f.bg, NUL.WithAlpha(warn, 0.14))
+        NUL:RecolorBorder(f.borders, NUL.WithAlpha(warn, 0.7))
+        NUL.SetFontColor(text, t.colors.text.primary)
+        text:SetText((L["%s is an external module. It was not made by the NBK team, so we can't give support for it."])
+            :format(accentName(name)))
+    end
+    local function fit()
+        local h = (text:GetStringHeight() or 0) + 18
+        f:SetHeight(math.max(44, math.ceil(h)))
+    end
+    f:SetScript("OnSizeChanged", fit)
+    NUL:RegisterCustomPainter(f, function() paint(); fit() end)
+    paint(); fit()
+    return f
+end
+
+function Config:_markExternalSection(panel, y, section)
+    local L = NBK.L
+    local t = NUL:GetTheme()
+    local warn = (t.colors.state and t.colors.state.warning) or t.colors.accent.primary
+    local line = NUL:CreateLabel(panel, {
+        text  = "|T" .. ALERT_ICON .. ":14:14|t " .. (L["External module: %s"]):format(accentName(self:ExternalName(section))),
+        size  = "sm",
+        color = warn,
+    })
+    line:SetPoint("TOPLEFT", 0, y - 6)
+    return y - 26
+end
+
 function Config:_runSections(tabKey, panel)
     local list = self._sections[tabKey]
     if not list or #list == 0 then return end
     table.sort(list, function(a, b) return (a.order or 100) < (b.order or 100) end)
     for _, section in ipairs(list) do
+        if self.IsExternalSection and self:IsExternalSection(section) then
+            panel.lastY = self:_markExternalSection(panel, panel.lastY or 0, section)
+        end
         local startY = panel.lastY or 0
         local ok, newY = pcall(section.build, panel, startY)
         if ok and type(newY) == "number" then

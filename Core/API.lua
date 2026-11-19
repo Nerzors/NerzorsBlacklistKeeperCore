@@ -99,7 +99,8 @@ function NBK:AddPlayer(name, realm, reason, unit)
     if self.db.entries[key] then return nil, "already blacklisted" end
 
     local class, classColor = self:ResolveClass(cleanName, cleanRealm, unit)
-    local zone = GetRealZoneText() or GetZoneText() or ""
+
+    local zone = self:CurrentRun() or GetRealZoneText() or GetZoneText() or ""
     local player = self:PlayerName()
     local playerRealm = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName()
 

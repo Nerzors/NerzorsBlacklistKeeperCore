@@ -47,6 +47,10 @@ function NUL:Card(parent, opts)
         NUL.SetTextureColor(self.bg, t.colors.bg.panel)
         NUL:RecolorBorder(self.borders, t.colors.border.subtle)
         NUL.SetFontColor(self.title, t.colors.accent.primary)
+        -- Theme skin (Core/Skin.lua): corners and edges around the fill.
+        local skinned = NUL:SkinFrame(self, t, { fill = t.colors.bg.panel })
+        self.bg:SetShown(not skinned)
+        for _, e in pairs(self.borders) do e:SetShown(not skinned) end
     end
 
     self:_Track(card)
@@ -85,6 +89,9 @@ function NUL:StatTile(parent, opts)
     function tile:_repaint(t)
         NUL.SetTextureColor(self.bg, t.colors.bg.elevated)
         NUL:RecolorBorder(self.borders, t.colors.border.subtle)
+        local skinned = NUL:SkinFrame(self, t, { fill = t.colors.bg.elevated })
+        self.bg:SetShown(not skinned)
+        for _, e in pairs(self.borders) do e:SetShown(not skinned) end
         NUL.SetFontColor(self.value, t.colors.accent.primary)
         NUL.SetFontColor(self.label, t.colors.text.primary)
         NUL.SetFontColor(self.sub,   t.colors.text.muted)
