@@ -193,6 +193,7 @@ function Config:BuildManagedList(parent, opts)
     addBox = NUL:EditBox(parent, {
         height         = 26,
         placeholder    = opts.addPlaceholder or (L["Add..."] or "Add..."),
+        maxLetters     = opts.maxLetters,
         onEnterPressed = doAdd,
     })
     addBox:ClearAllPoints()

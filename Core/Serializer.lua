@@ -49,12 +49,19 @@ function NBK:GetListType(id)
     return self._listTypes[id or "blacklist"]
 end
 
+function NBK:ListTypeLabel(id)
+    local spec = self._listTypes[id or "blacklist"]
+    local key = spec and spec.label
+    if type(key) ~= "string" or key == "" then return id end
+    return self.L[key]
+end
+
 function NBK:GetListTypes()
     local out = {}
     for _, id in ipairs(self._listTypeOrder) do
         local spec = self._listTypes[id]
         if not spec.hidden then
-            out[#out + 1] = { id = id, label = spec.label or id }
+            out[#out + 1] = { id = id, label = self:ListTypeLabel(id) }
         end
     end
     return out

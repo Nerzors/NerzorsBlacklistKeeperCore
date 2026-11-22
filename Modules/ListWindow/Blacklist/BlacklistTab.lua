@@ -62,6 +62,17 @@ function BlacklistTab:_Build(parent)
         end)
     end
 
+    local IS = NBK:GetModule("IgnoreSync")
+    if IS and IS.OnListChanged and not self._ignoreHooked then
+        self._ignoreHooked = true
+        IS:OnListChanged(function()
+            local lw = NBK:GetModule("ListWindow")
+            if lw and lw.frame and lw.frame:IsShown() and lw:GetActiveTab() == "blacklist" then
+                self:_Refresh()
+            end
+        end)
+    end
+
     return root
 end
 
@@ -224,6 +235,10 @@ function BlacklistTab:_Refresh()
     if self:FitZoneColumn() and self.header and self.header._layout then
         self.header._layout()
     end
+
+    local IS = NBK:GetModule("IgnoreSync")
+    self._ignoredSet = (IS and IS.IsAvailable and IS:IsAvailable() and IS.IgnoredKeySet)
+                       and IS:IgnoredKeySet() or nil
     self.list:SetEmptyText(NBK:EmptyListText(filter,
         L["Your blacklist is empty. Click \"%s\" above, or right-click a player and choose \"%s\"."]
             :format(L["+ Add"], L["Add to blacklist"])))

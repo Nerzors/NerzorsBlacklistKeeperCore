@@ -8,16 +8,38 @@ local function cutoff(months)
     return time() - (months or 6) * SECONDS_PER_MONTH
 end
 
+local function refTime(e)
+    return tonumber(e.lastSeen or e.addedAt) or 0
+end
+AutoCleanup.RefTime = refTime
+
+local function isStale(e, t)
+    if e.pinned then return false end
+    local ref = refTime(e)
+    return ref > 0 and ref < t
+end
+
 function AutoCleanup:CountStale(months)
     local c = 0
     local t = cutoff(months)
-    for _, e in pairs(NBK:GetEntries()) do
-        if not e.pinned then
-            local ref = e.lastSeen or e.addedAt or 0
-            if ref > 0 and ref < t then c = c + 1 end
-        end
+    for _, e in pairs(NBK:GetEntries() or {}) do
+        if isStale(e, t) then c = c + 1 end
     end
     return c
+end
+
+function AutoCleanup:ListStale(months)
+    local out = {}
+    local t = cutoff(months)
+    for _, e in pairs(NBK:GetEntries() or {}) do
+        if isStale(e, t) then out[#out + 1] = e end
+    end
+    table.sort(out, function(a, b)
+        local ra, rb = refTime(a), refTime(b)
+        if ra ~= rb then return ra < rb end
+        return tostring(a.name or ""):lower() < tostring(b.name or ""):lower()
+    end)
+    return out
 end
 
 function AutoCleanup:Prune(months)
@@ -27,10 +49,7 @@ function AutoCleanup:Prune(months)
     local t = cutoff(months)
     local victims = {}
     for key, e in pairs(entries) do
-        if not e.pinned then
-            local ref = e.lastSeen or e.addedAt or 0
-            if ref > 0 and ref < t then victims[#victims + 1] = key end
-        end
+        if isStale(e, t) then victims[#victims + 1] = key end
     end
 
     for _, key in ipairs(victims) do entries[key] = nil end

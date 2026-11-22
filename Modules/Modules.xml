@@ -9,7 +9,11 @@
   <Script file="ContextMenu\ContextMenu.lua"/>
   <Script file="GroupScanner\GroupScanner.lua"/>
   <Script file="AutoCleanup\AutoCleanup.lua"/>
+  <Script file="AutoCleanup\Preview.lua"/>
   <Script file="ChatFilter\ChatFilter.lua"/>
+  <!-- RequestBlock: decline trade / invites / duels from muted blacklisted
+       players (2.4.0 B1). -->
+  <Script file="RequestBlock\RequestBlock.lua"/>
   <!-- Tooltip: blacklist info on mouseover unit tooltips.
        Folded back into Core in v0.38.x (was the _Tooltip sub-addon). -->
   <Script file="Tooltip\Tooltip.lua"/>

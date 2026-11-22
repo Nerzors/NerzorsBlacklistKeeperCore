@@ -33,10 +33,11 @@ end
 local function extractPlayer(contextData)
     if not contextData then return nil end
 
+    local secret = issecretvalue or function() return false end
     local unit = contextData.unit
     if unit and UnitExists(unit) and UnitIsPlayer(unit) then
         local name, realm = NBK:UnitPlayer(unit)
-        if name then
+        if name and not secret(name) and not secret(realm) then
             if not realm or realm == "" then
                 realm = GetNormalizedRealmName()
             end
@@ -45,7 +46,8 @@ local function extractPlayer(contextData)
     end
 
     local rawName = contextData.name or contextData.chatTarget
-    if type(rawName) == "string" and rawName ~= "" then
+    if type(rawName) == "string" and not secret(rawName) and rawName ~= ""
+        and not secret(contextData.server) then
         local n, r = strsplit("-", rawName, 2)
         if n and n ~= "" then
             local server = (r and r ~= "" and r)

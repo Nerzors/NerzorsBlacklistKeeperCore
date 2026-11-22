@@ -5,6 +5,10 @@ local L   = NBK.L
 local BlacklistTab = NBK:GetModule("BlacklistTab")
 if not BlacklistTab then return end
 
+local PILL_LINE, PILL_GAP = 22, 2
+local PILLS_MIN_H = 48
+local BASE_H = 502
+
 local function buildRichDialog(globalName, titleKey)
     local theme = NUL:GetTheme()
     local W = 440
@@ -12,7 +16,7 @@ local function buildRichDialog(globalName, titleKey)
     local f = NUL:Window({
         name   = globalName,
         title  = L[titleKey],
-        width  = W, height = 502,
+        width  = W, height = BASE_H,
         strata = "DIALOG",
     })
     f:SetFrameLevel(200)
@@ -40,29 +44,37 @@ local function buildRichDialog(globalName, titleKey)
     presetLabel:SetPoint("TOPLEFT", 0, y); y = y - 16
 
     local presetContainer = CreateFrame("Frame", nil, content)
+
     presetContainer:SetPoint("TOPLEFT", 0, y)
-    presetContainer:SetPoint("RIGHT", 0, 0)
-    presetContainer:SetHeight(48)
+    presetContainer:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, y)
+    presetContainer:SetHeight(PILLS_MIN_H)
     f._presetContainer = presetContainer
-    f._pills = {}
-    y = y - 54
+    f._pills, f._pillPool = {}, {}
+
+    y = y - (PILLS_MIN_H + 6)
+    local placed = {}
+    local function place(widget, x, py)
+        placed[#placed + 1] = { widget = widget, x = x, y = py }
+        widget:SetPoint("TOPLEFT", content, "TOPLEFT", x, py)
+    end
+    f._placed = placed
 
     local reasonLabel = NUL:CreateLabel(content, {
         text  = L["Custom reason..."],
         color = theme.colors.text.muted,
         role  = "field",
     })
-    reasonLabel:SetPoint("TOPLEFT", 0, y); y = y - 16
+    place(reasonLabel, 0, y); y = y - 16
 
     local reasonBox = NUL:EditBox(content, { width = W - 24, height = 26 })
-    reasonBox:SetPoint("TOPLEFT", 0, y); y = y - 34
+    place(reasonBox, 0, y); y = y - 34
 
     local notesLabel = NUL:CreateLabel(content, {
         text  = L["Notes"],
         color = theme.colors.text.muted,
         role  = "field",
     })
-    notesLabel:SetPoint("TOPLEFT", 0, y); y = y - 16
+    place(notesLabel, 0, y); y = y - 16
 
     local notesBox = NUL:EditBox(content, {
         width      = W - 24,
@@ -70,14 +82,14 @@ local function buildRichDialog(globalName, titleKey)
         multiline  = true,
         maxLetters = 1000,
     })
-    notesBox:SetPoint("TOPLEFT", 0, y); y = y - 78
+    place(notesBox, 0, y); y = y - 78
 
     local classLabel = NUL:CreateLabel(content, {
         text  = L["Class"] or "Class",
         color = theme.colors.text.muted,
         role  = "field",
     })
-    classLabel:SetPoint("TOPLEFT", 0, y)
+    place(classLabel, 0, y)
 
     local classOpts = { { key = "", label = L["(no class)"] or "(no class)" } }
     if CLASS_SORT_ORDER then
@@ -89,7 +101,7 @@ local function buildRichDialog(globalName, titleKey)
     local classDD = NUL:Dropdown(content, {
         width = 180, height = 24, options = classOpts, value = "",
     })
-    classDD:SetPoint("TOPLEFT", 0, y - 18)
+    place(classDD, 0, y - 18)
 
     local ROLE_X = 200
     local roleLabel = NUL:CreateLabel(content, {
@@ -97,7 +109,7 @@ local function buildRichDialog(globalName, titleKey)
         color = theme.colors.text.muted,
         role  = "field",
     })
-    roleLabel:SetPoint("TOPLEFT", ROLE_X, y); y = y - 18
+    place(roleLabel, ROLE_X, y); y = y - 18
 
     local roleDD = NUL:Dropdown(content, {
         width = 180, height = 24,
@@ -109,28 +121,28 @@ local function buildRichDialog(globalName, titleKey)
         },
         value = "",
     })
-    roleDD:SetPoint("TOPLEFT", ROLE_X, y); y = y - 34
+    place(roleDD, ROLE_X, y); y = y - 34
 
     local muteCB = NUL:Checkbox(content, { label = L["Mute chat from this player"] })
-    muteCB:SetPoint("TOPLEFT", 0, y); y = y - 24
+    place(muteCB, 0, y); y = y - 24
 
     local pinCB = NUL:Checkbox(content, { label = L["Pin entry (protect from auto-cleanup)"] })
-    pinCB:SetPoint("TOPLEFT", 0, y); y = y - 24
+    place(pinCB, 0, y); y = y - 24
 
     local shareCB
     if NBK:GetModule("Sync") then
         shareCB = NUL:Checkbox(content, { label = L["Share this entry"] })
-        shareCB:SetPoint("TOPLEFT", 0, y)
+        place(shareCB, 0, y)
     end
 
     local cancel = NUL:Button(content, {
-        label = CANCEL or L["Cancel"], width = 80, height = 24,
+        label = L["Cancel"], width = 80, height = 24,
         onClick = function() f:Hide() end,
     })
     cancel:SetPoint("BOTTOMRIGHT", 0, 0)
 
     local accept = NUL:Button(content, {
-        label = OKAY or "OK", width = 80, height = 24, style = "accent",
+        label = L["OK"], width = 80, height = 24, style = "accent",
     })
     accept:SetPoint("BOTTOMRIGHT", cancel, "BOTTOMLEFT", -6, 0)
 
@@ -139,8 +151,34 @@ local function buildRichDialog(globalName, titleKey)
     f._roleDD, f._classDD              = roleDD, classDD
     f.acceptButton = accept
 
+    local function acquirePill(i)
+        local pill = f._pillPool[i]
+        if not pill then
+            pill = NUL:Pill(presetContainer, {
+                onClick = function(self)
+                    f._reasonEB:SetText(self._text or "")
+                    for _, other in ipairs(f._pills) do
+                        other:SetSelected(other == self)
+                    end
+                end,
+            })
+            pill.label:SetWordWrap(false)
+            pill:HookScript("OnEnter", function(self)
+                if not self._cut then return end
+                GameTooltip:SetOwner(self, "ANCHOR_TOP")
+                GameTooltip:SetText(self._text or "", 1, 1, 1, 1, true)
+                GameTooltip:Show()
+            end)
+            pill:HookScript("OnLeave", function(self)
+                if self._cut and GameTooltip:IsOwned(self) then GameTooltip:Hide() end
+            end)
+            f._pillPool[i] = pill
+        end
+        return pill
+    end
+
     function f:RefreshPills()
-        for _, p in ipairs(self._pills) do p:Hide() end
+        for _, p in ipairs(self._pillPool) do p:Hide() end
         wipe(self._pills)
 
         local presets = (NBK.db and NBK.db.settings and NBK.db.settings.presetReasons)
@@ -148,29 +186,38 @@ local function buildRichDialog(globalName, titleKey)
         local rowW = presetContainer:GetWidth()
         if rowW <= 0 then rowW = W - 24 end
 
-        local x, rowY, lineH = 0, 0, 22
-        for _, preset in ipairs(presets) do
+        local x, rowY = 0, 0
+        for i, preset in ipairs(presets) do
 
             local label = NBK:ReasonText(preset)
-            local pill = NUL:Pill(presetContainer, {
-                label = label,
-                onClick = function(self)
-                    f._reasonEB:SetText(label)
-                    for _, other in ipairs(f._pills) do
-                        other:SetSelected(other == self)
-                    end
-                end,
-            })
+            local pill = acquirePill(i)
+            pill._text = label
+            pill:SetLabel(label)
+            pill:SetSelected(label == (f._reasonEB:GetText() or ""))
             local pw = pill:GetWidth()
-            if x + pw > rowW then
+            pill._cut = pw > rowW
+            if pill._cut then
+                pw = rowW
+                pill:SetWidth(pw)
+            end
+            if x > 0 and x + pw > rowW then
                 x = 0
-                rowY = rowY - lineH - 2
+                rowY = rowY - PILL_LINE - PILL_GAP
             end
             pill:ClearAllPoints()
             pill:SetPoint("TOPLEFT", presetContainer, "TOPLEFT", x, rowY)
+            pill:Show()
             x = x + pw + 4
             table.insert(self._pills, pill)
         end
+
+        local h = math.max(PILLS_MIN_H, -rowY + PILL_LINE)
+        presetContainer:SetHeight(h)
+        local extra = h - PILLS_MIN_H
+        for _, p in ipairs(placed) do
+            p.widget:SetPoint("TOPLEFT", content, "TOPLEFT", p.x, p.y - extra)
+        end
+        self:SetHeight(BASE_H + extra)
     end
 
     function f:SetValues(values)
@@ -288,7 +335,10 @@ local function buildRichDialog(globalName, titleKey)
         end
     end
 
-    presetContainer:SetScript("OnSizeChanged", function() f:RefreshPills() end)
+    local lastW
+    presetContainer:SetScript("OnSizeChanged", function(_, w)
+        if w ~= lastW then lastW = w; f:RefreshPills() end
+    end)
     f:HookScript("OnShow", function(self) self:RefreshPills() end)
 
     return f

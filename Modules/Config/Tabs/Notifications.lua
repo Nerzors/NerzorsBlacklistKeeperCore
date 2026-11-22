@@ -63,6 +63,41 @@ local function buildNotificationsTab(parent)
     local _, ny7 = Config:AddCheckboxRow(panel, y, "Mute new players by default",
         {"autoMute"}, true); y = ny7
 
+    local rb = NBK:GetModule("RequestBlock")
+    if rb and rb.KINDS then
+        local has = {}
+        for _, kind in ipairs(rb.KINDS) do
+            if rb._registered[kind.key] then has[kind.setting] = true end
+        end
+        local rows = {
+            { setting = "trade", label = "Trade requests" },
+            { setting = "party", label = "Group invites" },
+            { setting = "duel",  label = "Duel requests (pet battles too)" },
+            { setting = "guild", label = "Guild invites" },
+        }
+        if next(has) then
+            y = y - 6
+            local head = NUL:CreateLabel(panel, {
+                text = L["Decline requests from muted blacklisted players:"], justifyH = "LEFT",
+            })
+            head:SetPoint("TOPLEFT", 0, y)
+            head:SetPoint("RIGHT", 0, 0)
+
+            local help = L["Only for muted entries. Players on the game's ignore list are already blocked by the game. NBK says so in chat once per player until the next reload."]
+            y = y - 20
+            for _, r in ipairs(rows) do
+                if has[r.setting] then
+                    local cb, nyr = Config:AddCheckboxRow(panel, y, r.label,
+                        {"requestBlock", r.setting}, true)
+                    cb:ClearAllPoints()
+                    cb:SetPoint("TOPLEFT", 12, y)
+                    NUL:AttachTooltip(cb, help)
+                    y = nyr
+                end
+            end
+        end
+    end
+
     local ignoreSync = NBK:GetModule("IgnoreSync")
     if ignoreSync and ignoreSync:IsAvailable() then
         local _, ny8 = Config:AddDivider(panel, y); y = ny8

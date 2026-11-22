@@ -333,6 +333,14 @@ NBK:RegisterEvent("PLAYER_LOGIN", function()
     if d and d.scale and d.scale ~= 1 then d.scale = NBK:ApplyWindowScale(d.scale) end
 end)
 
+if NUL.SetConfirmDefaults then
+    NUL:SetConfirmDefaults({
+        title  = function() return NBK.L["Nerzors Blacklist Keeper"] end,
+        accept = function() return NBK.L["Yes"] end,
+        cancel = function() return NBK.L["No"] end,
+    })
+end
+
 NUL:RegisterThemeChangedCallback(function(_, name)
     if NBK.db and NBK.db.settings then
         NBK.db.settings.theme = name

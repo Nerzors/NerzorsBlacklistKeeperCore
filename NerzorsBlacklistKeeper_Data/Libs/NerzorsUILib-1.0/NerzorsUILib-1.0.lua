@@ -17,7 +17,11 @@
 --   NUL:<Widget>(...)       widget constructors      (Widgets/*.lua)
 
 -- Minor 7 (NBK 2.3.0): optional theme `skin` - texture frames (Core/Skin.lua).
-local MAJOR, MINOR = "NerzorsUILib-1.0", 7
+-- Minor 8 (NBK 2.4.0): NUL:Confirm takes an optional third button
+-- (extraLabel / onExtra).
+-- Minor 9 (NBK 2.4.0 D1): NUL:Confirm is the library's own window (theme,
+-- scale) instead of a StaticPopup; NUL:SetConfirmDefaults.
+local MAJOR, MINOR = "NerzorsUILib-1.0", 9
 local NUL, oldMinor = LibStub:NewLibrary(MAJOR, MINOR)
 if not NUL then return end -- already loaded at this or higher minor
 

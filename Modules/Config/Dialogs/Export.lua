@@ -124,8 +124,7 @@ function Config:_refreshExportDialog()
 
     f._eb:SetText(NBK:EscapeForDisplay(text or ""))
 
-    local spec      = NBK:GetListType(listId)
-    local listLabel = (spec and spec.label) or listId
+    local listLabel = NBK:ListTypeLabel(listId) or listId
     local summary
     if keys then
         local selected = 0

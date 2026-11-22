@@ -12,6 +12,9 @@
   <!-- ForeverNames.lua: kept for good (2.3.0) - switches names saved the
        old WoW: Forever way (docs/game-flavors.md §8). -->
   <Script file="ForeverNames.lua"/>
+  <!-- ForeverRealm.lua (2.4.0 J17): on WoW: Forever the keys leave out the
+       server; switches what was saved with one. -->
+  <Script file="ForeverRealm.lua"/>
   <!-- PublicAPI.lua: the stable LibNBKApi-1.0 surface for other addons.
        Loads after API.lua/Serializer.lua so NBK:_FireApiEvent exists by
        the time any mutation runs. -->

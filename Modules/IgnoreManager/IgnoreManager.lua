@@ -77,7 +77,12 @@ function IgnoreManager:Snapshot()
     return vanished
 end
 
-function IgnoreManager:_OnListUpdate()
+function IgnoreManager:_OnListUpdate(how)
+    if not self._ready then
+
+        self._readyHow = how or "?"
+        self._readyAt  = GetTime and GetTime() or nil
+    end
     self._ready = true
     local vanished = self:Snapshot()
     if #vanished > 0 then
@@ -175,7 +180,33 @@ end
 
 function IgnoreManager:RequestList()
     if not self._ready and C_FriendList and C_FriendList.ShowFriends then
+        self._requests = (self._requests or 0) + 1
         C_FriendList.ShowFriends()
+    end
+end
+
+local RETRY_AFTER = { 2, 5, 15, 30 }
+
+function IgnoreManager:_EnsureChar()
+    local c = self:_CharData(true)
+    if c then c.class = c.class or select(2, UnitClass("player")) end
+end
+
+function IgnoreManager:_RequestUntilReady()
+    if self._ready then return end
+    self:_EnsureChar()
+    if (C_FriendList.GetNumIgnores() or 0) > 0 then
+        self:_OnListUpdate("list there")
+        return
+    end
+    self:RequestList()
+end
+
+function IgnoreManager:_StartRetries()
+    if self._retrying or not (C_Timer and C_Timer.After) then return end
+    self._retrying = true
+    for _, s in ipairs(RETRY_AFTER) do
+        C_Timer.After(s, function() self:_RequestUntilReady() end)
     end
 end
 
@@ -224,20 +255,31 @@ function IgnoreManager:OnEnable()
     if not self:IsAvailable() then return end
 
     pcall(function()
-        NBK:RegisterEvent("IGNORELIST_UPDATE", function() self:_OnListUpdate() end)
+        NBK:RegisterEvent("IGNORELIST_UPDATE", function()
+            self._seenIgnoreEvents = (self._seenIgnoreEvents or 0) + 1
+            self:_OnListUpdate("IGNORELIST_UPDATE")
+        end)
     end)
 
     pcall(function()
         NBK:RegisterEvent("FRIENDLIST_UPDATE", function()
-            if not self._ready then self:_OnListUpdate() end
+            self._seenFriendEvents = (self._seenFriendEvents or 0) + 1
+            if not self._ready then self:_OnListUpdate("FRIENDLIST_UPDATE") end
         end)
     end)
     pcall(function()
         NBK:RegisterEvent("CHAT_MSG_SYSTEM", function(_, msg) self:_OnSystemMessage(msg) end)
     end)
+    pcall(function()
+        NBK:RegisterEvent("PLAYER_ENTERING_WORLD", function()
+            self:_RequestUntilReady()
+            self:_StartRetries()
+        end)
+    end)
     if (C_FriendList.GetNumIgnores() or 0) > 0 then
-        self:_OnListUpdate()
+        self:_OnListUpdate("list there")
     else
         self:RequestList()
+        self:_StartRetries()
     end
 end

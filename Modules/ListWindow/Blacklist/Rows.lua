@@ -38,6 +38,61 @@ local function buildNoteCell(row, theme)
     return f
 end
 
+local STATUS_SIZE, STATUS_GAP = 14, 2
+
+local function buildStatusIcons(row)
+    local function icon(file, tip)
+        local f = CreateFrame("Frame", nil, row)
+        f:SetSize(STATUS_SIZE, STATUS_SIZE)
+        f:EnableMouse(true)
+        if f.SetMouseClickEnabled then f:SetMouseClickEnabled(false) end
+        f.tex = f:CreateTexture(nil, "ARTWORK")
+        f.tex:SetAllPoints()
+        f.tex:SetTexture(NBK:IconPath(file))
+        f:SetScript("OnEnter", function(self)
+            local enter = row:GetScript("OnEnter")
+            if enter then enter(row) end
+            NUL:ShowTooltip(self, L[tip], { anchor = "TOP" })
+        end)
+        f:SetScript("OnLeave", function()
+            NUL:HideTooltip()
+            local leave = row:GetScript("OnLeave")
+            if leave and not row:IsMouseOver() then leave(row) end
+        end)
+        f:Hide()
+        return f
+    end
+    return {
+        pinned  = icon("pinned.png",  "Pinned - auto-cleanup never removes this entry"),
+        ignored = icon("ignored.png", "Ignored on this character"),
+    }
+end
+
+function BlacklistTab.PlaceStatusIcons(status, c, entry, ignoredSet, theme)
+    local show = {}
+    if entry.pinned then show[#show + 1] = status.pinned else status.pinned:Hide() end
+    local key = ignoredSet and NBK:NormalizeKey(entry.name, entry.realm)
+    if key and ignoredSet[key] then show[#show + 1] = status.ignored else status.ignored:Hide() end
+    if #show == 0 then return 0 end
+
+    local need = #show * (STATUS_SIZE + STATUS_GAP) + 2
+    local cellW = tonumber(c:GetWidth()) or 0
+    local textW = math.max(0, cellW - need)
+    c:SetWidth(textW)
+    local x = math.min(tonumber(c:GetStringWidth()) or 0, textW) + 4
+
+    local tint = { pinned = theme.colors.accent.primary, ignored = theme.colors.text.muted }
+    for _, f in ipairs(show) do
+        local col = (f == status.pinned) and tint.pinned or tint.ignored
+        f.tex:SetVertexColor(col.r, col.g, col.b, 1)
+        f:ClearAllPoints()
+        f:SetPoint("LEFT", c, "LEFT", x, 0)
+        f:Show()
+        x = x + STATUS_SIZE + STATUS_GAP
+    end
+    return need
+end
+
 local function buildOptionsCell(row, theme)
     local f = CreateFrame("Frame", nil, row)
     f:SetSize(BlacklistTab.OPTIONS_WIDTH, 26)
@@ -274,6 +329,9 @@ function BlacklistTab:MakeRowBuilder(columns)
                         text = BlacklistTab:ColoredName(entry, dispS.colorNameByClass)
                     end
                     c:SetText(text)
+                    r._status = r._status or buildStatusIcons(r)
+                    BlacklistTab.PlaceStatusIcons(r._status, c, entry,
+                        BlacklistTab._ignoredSet, NUL:GetTheme())
 
                 elseif col.key == "realm" then
                     c:SetText(entry.realm or "")

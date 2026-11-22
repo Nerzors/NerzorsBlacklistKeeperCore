@@ -3,4 +3,4 @@
 	https://nbk.nerzors.com/en/changelog
 	
 ## for 2.3.0
-	https://nbk.nerzors.com/en/patch-notes/v2-3-0
+	https://nbk.nerzors.com/en/patch-notes/v2-4-0

@@ -26,8 +26,36 @@ local function buildAdvancedTab(parent)
 
     local _, nyAcSec = Config:AddSectionLabel(panel, y, "Auto-cleanup"); y = nyAcSec
 
-    local _, nyAc = Config:AddCheckboxRow(panel, y, "Auto-remove stale entries on login",
-        {"autoCleanup", "enabled"}, false); y = nyAc - 2
+    local function months()
+        return tonumber(Config:GetPath({"autoCleanup", "months"}, 6)) or 6
+    end
+    local function cleanup() return NBK:GetModule("AutoCleanup") end
+    local updatePreview
+
+    local acCb
+    acCb, y = Config:AddCheckboxRow(panel, y, "Auto-remove stale entries on login",
+        {"autoCleanup", "enabled"}, false, function(on)
+            local ac = cleanup()
+            if not on or not ac then return end
+            local count = ac:CountStale(months())
+            if count == 0 then return end
+            Config:SetPath({"autoCleanup", "enabled"}, false)
+            acCb:SetChecked(false)
+            NUL:Confirm({
+                id   = "NBK_AUTOCLEANUP_ON",
+                text = L["At your next login %d entries will be removed (older than %d months). Pinned entries are kept. Turn the auto-cleanup on?"]
+                        :format(count, months()),
+                acceptLabel = L["Turn on"],
+                cancelLabel = L["Cancel"],
+                extraLabel  = L["Show entries"],
+                onAccept = function()
+                    Config:SetPath({"autoCleanup", "enabled"}, true)
+                    acCb:SetChecked(true)
+                end,
+                onExtra = function() ac:ShowPreview(months(), updatePreview) end,
+            })
+        end)
+    y = y - 2
 
     local monthsLabel = NUL:CreateLabel(panel, {
         text  = L["Older than:"],
@@ -48,16 +76,24 @@ local function buildAdvancedTab(parent)
         value = Config:GetPath({"autoCleanup", "months"}, 6),
         onSelect = function(key)
             Config:SetPath({"autoCleanup", "months"}, tonumber(key) or 6)
+            if updatePreview then updatePreview() end
         end,
     })
     monthsDD:SetPoint("LEFT", monthsLabel, "RIGHT", 8, 0)
     y = y - 32
 
+    local previewLbl = NUL:CreateLabel(panel, {
+        text = "", size = "sm", color = theme.colors.text.muted, justifyH = "LEFT",
+    })
+    previewLbl:SetPoint("TOPLEFT", 0, y)
+    previewLbl:SetPoint("RIGHT", 0, 0)
+    y = y - 22
+
     local runBtn = NUL:Button(panel, {
         label = L["Run cleanup now"], width = 150, height = 24, style = "accent",
         onClick = function()
-            local months = tonumber(Config:GetPath({"autoCleanup", "months"}, 6)) or 6
-            local ac = NBK:GetModule("AutoCleanup")
+            local months = months()
+            local ac = cleanup()
             if not ac then return end
             local count = ac:CountStale(months)
             if count == 0 then
@@ -71,11 +107,35 @@ local function buildAdvancedTab(parent)
                     local removed = ac:Prune(months)
                     NBK:Print((L["Auto-cleanup: removed %d stale entries (older than %d months)."])
                         :format(removed, months))
+                    updatePreview()
                 end,
             })
         end,
     })
-    runBtn:SetPoint("TOPLEFT", 0, y); y = y - 36
+    runBtn:SetPoint("TOPLEFT", 0, y)
+
+    local showBtn = NUL:Button(panel, {
+        label = L["Show entries"], width = 150, height = 24,
+        onClick = function()
+            local ac = cleanup()
+            if ac then ac:ShowPreview(months(), updatePreview) end
+        end,
+    })
+    showBtn:SetPoint("LEFT", runBtn, "RIGHT", 8, 0)
+    y = y - 36
+
+    updatePreview = function()
+        local ac = cleanup()
+        local count = ac and ac:CountStale(months()) or 0
+        if count > 0 then
+            previewLbl:SetText(L["Would remove %d entries right now. Pinned entries stay."]:format(count))
+        else
+            previewLbl:SetText(L["Nothing to remove right now."])
+        end
+        showBtn:SetEnabled(count > 0)
+    end
+    updatePreview()
+    panel:HookScript("OnShow", updatePreview)
 
     local _, ny2 = Config:AddDivider(panel, y); y = ny2
 

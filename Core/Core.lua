@@ -122,6 +122,8 @@ end
 
 function NBK:PlayerFullName()
     local name  = self:PlayerName()
+
+    if self:IsForever() then return name and (name .. "-") or nil end
     local realm = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName()
     if not name or not realm then return nil end
     return name .. "-" .. realm
@@ -322,11 +324,21 @@ function NBK:Print(...)
 end
 
 function NBK:OnLoad()
+
+    local s = type(NBKDB) == "table" and type(NBKDB.settings) == "table" and NBKDB.settings
+    local d = s and type(s.display) == "table" and s.display
+    self:SetLocale(d and d.language)
+
     self._initDone = true
     self:_CatchUpAllModules()
 end
 
 function NBK:OnLogin()
+
+    if self.ForeverRealm then
+        local ok, err = pcall(self.ForeverRealm.Run, self.ForeverRealm)
+        if not ok then self:Print("ForeverRealm failed:", err) end
+    end
 
     if self.ForeverNames then
         local ok, err = pcall(self.ForeverNames.Run, self.ForeverNames)

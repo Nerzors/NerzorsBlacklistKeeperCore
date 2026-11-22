@@ -27,9 +27,39 @@ function NBK:RegisterFlavorStrings(flavor, locale, strings)
     end
 end
 
-local currentLocaleName = GetLocale() or "enUS"
+local clientLocale = GetLocale() or "enUS"
+if clientLocale == "enGB" then clientLocale = "enUS" end
 
-if currentLocaleName == "enGB" then currentLocaleName = "enUS" end
+local DEV_FORCE_LOCALE = nil
+
+local currentLocaleName = DEV_FORCE_LOCALE or clientLocale
+
+NBK.LANGUAGES = {
+    { code = "enUS", label = "English" },
+    { code = "deDE", label = "Deutsch" },
+    { code = "esES", label = "Español (España)" },
+    { code = "esMX", label = "Español (México)" },
+    { code = "frFR", label = "Français" },
+    { code = "itIT", label = "Italiano" },
+    { code = "ptBR", label = "Português (Brasil)" },
+    { code = "ruRU", label = "Русский" },
+}
+
+function NBK:ClientLocale() return clientLocale end
+
+local function isLanguage(code)
+    for _, l in ipairs(NBK.LANGUAGES) do
+        if l.code == code then return true end
+    end
+    return false
+end
+
+function NBK:SetLocale(code)
+    local want = (type(code) == "string" and code ~= "auto" and isLanguage(code)) and code or clientLocale
+    currentLocaleName = DEV_FORCE_LOCALE or want
+    self.currentLocale = currentLocaleName
+    return currentLocaleName
+end
 
 local LOCALE_FALLBACK = {
     esES = "esMX",

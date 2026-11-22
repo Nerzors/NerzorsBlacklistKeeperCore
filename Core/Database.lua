@@ -41,6 +41,8 @@ local DEFAULTS = {
 
             scale           = 1,
 
+            language        = "auto",
+
         },
 
         tooltip = {
@@ -112,6 +114,10 @@ function NBK:NormalizeKey(name, realm)
     if not realm then
         local n, r = strsplit("-", name, 2)
         name, realm = n, r
+    end
+
+    if self.FLAVOR == "forever" then
+        return name:lower() .. "-", name, ""
     end
     if not realm then
         realm = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName()

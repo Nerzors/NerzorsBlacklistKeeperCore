@@ -131,31 +131,12 @@ function ListWindow:Build()
     return f
 end
 
-local SOCIAL_POPUP_ID = "NBK_OPEN_URL"
-StaticPopupDialogs[SOCIAL_POPUP_ID] = {
-    text         = "%s",
-    button1      = OKAY or "OK",
-    hasEditBox   = true,
-    editBoxWidth = 320,
-    timeout      = 0,
-    whileDead    = true,
-    hideOnEscape = true,
-    preferredIndex = 3,
-    OnShow = function(self, data)
-
-        local eb = self.editBox or self.EditBox
-        if eb then
-            eb:SetText(data and data.url or "")
-            eb:HighlightText()
-            eb:SetFocus()
-        end
-    end,
-    EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
-    EditBoxOnEnterPressed  = function(self) self:GetParent():Hide() end,
-}
-
 local function showUrlPopup(label, url)
-    StaticPopup_Show(SOCIAL_POPUP_ID, label, nil, { url = url })
+    NUL:ShowCopyBox({
+        title = label,
+        text  = url or "",
+        hint  = NBK.L["Press Ctrl+C to copy, Esc to close."],
+    })
 end
 
 function ListWindow:_RebuildFooter()

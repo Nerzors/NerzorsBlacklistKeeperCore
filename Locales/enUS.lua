@@ -36,6 +36,9 @@ L["Pinned"] = true
 L["Pin entry (protect from auto-cleanup)"] = true
 L["Mute"] = true
 L["Pin"] = true
+
+L["Pinned - auto-cleanup never removes this entry"] = true
+L["Ignored on this character"] = true
 L["Unpin"] = true
 L["Unmute"] = true
 L["Ignore"] = true
@@ -78,6 +81,12 @@ L["Notifications"] = true
 L["Presets"] = true
 L["Advanced"] = true
 L["Theme"] = true
+
+L["Language"] = true
+L["Automatic (game language: %s)"] = true
+L["NBK's language changes when the interface is reloaded. Reload now?"] = true
+L["Reload now"] = true
+L["Language of NBK's windows and messages. The game's own texts (class and zone names) stay in the game's language."] = true
 L["Show class as"] = true
 L["Class name"] = true
 L["Class icon"] = true
@@ -115,6 +124,13 @@ L["Play sound on warning"] = true
 L["Warning sound"] = true
 L["Hide chat messages from blacklisted players"] = true
 L["Mute new players by default"] = true
+
+L["Decline requests from muted blacklisted players:"] = true
+L["Trade requests"] = true
+L["Group invites"] = true
+L["Duel requests (pet battles too)"] = true
+L["Guild invites"] = true
+L["Only for muted entries. Players on the game's ignore list are already blocked by the game. NBK says so in chat once per player until the next reload."] = true
 L["Show minimap icon"] = true
 L["Changes save automatically."] = true
 
@@ -128,6 +144,14 @@ L["12 months"] = true
 L["24 months"] = true
 L["Run cleanup now"] = true
 L["No stale entries (older than %d months)."] = true
+
+L["At your next login %d entries will be removed (older than %d months). Pinned entries are kept. Turn the auto-cleanup on?"] = true
+L["Turn on"] = true
+L["Show entries"] = true
+L["Would remove %d entries right now. Pinned entries stay."] = true
+L["Nothing to remove right now."] = true
+L["Auto-cleanup preview"] = true
+L["Entries older than %d months. Pin one to keep it."] = true
 L["Remove %d stale entries (older than %d months)? Pinned entries are kept."] = true
 L["Auto-cleanup: removed %d stale entries (older than %d months)."] = true
 
@@ -162,6 +186,12 @@ L["no reason logged"] = true
 L["Added in"] = true
 L["Chat muted"] = true
 L["whisper from blacklisted %s (%s)"] = true
+
+L["Trade with %s declined (blacklist, muted)."] = true
+L["Group invite from %s declined (blacklist, muted)."] = true
+L["Duel request from %s declined (blacklist, muted)."] = true
+L["Pet battle duel from %s declined (blacklist, muted)."] = true
+L["Guild invite from %s declined (blacklist, muted)."] = true
 L["Group warning: %s is on your blacklist - %s"] = true
 L["Open list"] = true
 L["Left-click: open list"] = true
@@ -218,6 +248,7 @@ L["Import from ignore list"] = true
 L["Import your WoW ignore list to NBK"] = true
 L["Pick the ignored players you want on your blacklist."] = true
 L["Your ignore list is full - those players stay on the blacklist, but the game won't ignore them."] = true
+L["Could not ignore %s - the game didn't accept the name."] = true
 L["Imported from ignore list"] = true
 L["Imported %d player(s) from the ignore list."] = true
 L["The ignore list isn't available on this client."] = true
@@ -289,6 +320,8 @@ L["An earlier NBK version turned it off on this client because it only ran on Re
 L["Enable and reload"] = true
 L["No thanks"] = true
 L["You can turn on %s any time in the AddOns list."] = true
+
+L["WoW: Forever: saved players and characters switched to names without server: %d (merged: %d)."] = true
 
 L["Switched %d blacklist entries to WoW: Forever names (first and second name)."] = true
 L["Removed %d entries in the old form that were already on the blacklist with first and second name."] = true

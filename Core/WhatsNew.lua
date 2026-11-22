@@ -84,6 +84,119 @@ end
 
 NBK.WHATS_NEW = {
     {
+        version   = "2.4.0",
+        date      = "2026-11-22",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "Muted players on your blacklist can no longer trade with you, invite you to a group or guild, or challenge you to a duel (pet battle duels too) - NBK declines right away and says so once in chat. One switch per kind under \"Notifications\", all on.",
+                        de = "Stummgeschaltete Spieler deiner Blacklist können nicht mehr mit dir handeln, dich in Gruppe oder Gilde einladen oder zum Duell fordern (auch zum Haustierkampf) - NBK lehnt sofort ab und sagt es einmal im Chat. Ein Schalter je Art unter \"Benachrichtigungen\", alle an.",
+                        go = "settings:Notifications",
+                    },
+                    {
+                        en = "Group Finder: groups whose leader is on Remember Me get a green stripe, a green name and your star rating - in Blizzard's list and in EllesmereUI's. The group's tooltip shows the rating, your note and the run. The blacklist always wins.",
+                        de = "Gruppensuche: Gruppen, deren Leiter in Merken steht, bekommen eine grüne Leiste, einen grünen Namen und deine Sterne - in Blizzards Liste und in der von EllesmereUI. Der Tooltip der Gruppe zeigt Bewertung, Notiz und Lauf. Die Blacklist hat immer Vorrang.",
+                        sub = "_GroupFinder",
+                        flavor = "retail",
+                        go = "settings:GroupFinder",
+                    },
+                    {
+                        en = "Group Finder: as group leader you see remembered applicants the same way in the applicant list - every member of an application on its own.",
+                        de = "Gruppensuche: Als Gruppenleiter siehst du gemerkte Bewerber genauso in der Bewerberliste - jedes Mitglied einer Bewerbung für sich.",
+                        sub = "_GroupFinder",
+                        flavor = "retail",
+                    },
+                    {
+                        en = "Language: NBK can now speak another language than your game - pick it under \"Display\" > \"Language\" (English, Deutsch, Español, Français, Italiano, Português, Русский). The game's own texts such as class and zone names stay in the game's language.",
+                        de = "Sprache: NBK kann jetzt eine andere Sprache sprechen als dein Spiel - auswählbar unter \"Darstellung\" > \"Sprache\" (English, Deutsch, Español, Français, Italiano, Português, Русский). Texte des Spiels wie Klassen- und Zonennamen bleiben in der Spielsprache.",
+                        go = "settings:Display",
+                    },
+                    {
+                        en = "Blacklist: small icons behind the name show at a glance who is pinned (the auto-cleanup keeps them) and who is ignored on this character. Hover them for a short explanation.",
+                        de = "Blacklist: Kleine Symbole hinter dem Namen zeigen auf einen Blick, wer angeheftet ist (bleibt beim Auto-Aufräumen) und wer auf diesem Charakter ignoriert wird. Mit der Maus darüber gibt es eine kurze Erklärung.",
+                        go = "list:blacklist",
+                    },
+                    {
+                        en = "Auto-cleanup preview: under \"Advanced\" NBK shows how many entries the cleanup would remove right now, and \"Show entries\" lists them - pin the ones you want to keep. Switching the cleanup on while entries are due asks first.",
+                        de = "Vorschau fürs Auto-Aufräumen: Unter \"Erweitert\" zeigt NBK, wie viele Einträge das Aufräumen gerade entfernen würde, und \"Einträge anzeigen\" listet sie auf - heft an, was du behalten willst. Wer das Aufräumen einschaltet, während schon etwas ansteht, wird vorher gefragt.",
+                        go = "settings:Advanced",
+                    },
+                    {
+                        en = "Ignore list, \"All characters\": Shift-right-click another character to remove it from the overview (after asking) - handy for characters you deleted. The character you're logged in on shows up there right away.",
+                        de = "Ignorieren-Liste, \"Alle Charaktere\": Shift-Rechtsklick auf einen anderen Charakter entfernt ihn aus der Übersicht (nach Rückfrage) - praktisch für gelöschte Charaktere. Der eingeloggte Charakter steht dort sofort.",
+                        sub = "_IgnoreManager",
+                        go = "list:ignore",
+                    },
+                },
+            },
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "Questions, the group warning and the link windows are NBK windows now: in your theme, at your window size, with Enter for Yes and Esc for No.",
+                        de = "Fragen, die Gruppenwarnung und die Link-Fenster sind jetzt NBK-Fenster: in deinem Design, in deiner Fenstergröße, mit Enter für Ja und Esc für Nein.",
+                    },
+                    {
+                        en = "Presets: a new preset can be up to 32 characters long, so it fits on one button in the add dialog. Longer presets you already have stay as they are.",
+                        de = "Vorgaben: Eine neue Vorgabe darf bis zu 32 Zeichen lang sein, damit sie im Dialog auf einen Knopf passt. Längere Vorgaben, die du schon hast, bleiben wie sie sind.",
+                        go = "settings:Presets",
+                    },
+                    {
+                        en = "WoW: Forever no longer tells addons the server name since its latest patch. NBK now goes by the name alone there and switches saved players and characters once at login: older blacklist entries are recognized again, and no character shows up twice in the ignore list overview.",
+                        de = "WoW: Forever verrät Addons seit dem letzten Patch den Servernamen nicht mehr. NBK geht dort jetzt nur nach dem Namen und stellt gespeicherte Spieler und Charaktere beim Login einmalig um: Ältere Blacklist-Einträge werden wieder erkannt, und kein Charakter steht doppelt in der Übersicht der Ignorieren-Liste.",
+                        flavor = "forever",
+                    },
+                },
+            },
+            {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "Export, import and sharing showed the names of the lists (Blacklist, Remember Me, Ignore list) in English only - they are translated now.",
+                        de = "Export, Import und Teilen zeigten die Namen der Listen (Blacklist, Merken, Ignorieren-Liste) nur auf Englisch - jetzt sind sie übersetzt.",
+                    },
+                    {
+                        en = "Putting someone on the blacklist during a boss fight in a raid could end in a Lua error, and the player wasn't added.",
+                        de = "Wer im Raid während eines Bosskampfs jemanden auf die Blacklist setzte, konnte einen Lua-Fehler bekommen, und der Spieler wurde nicht eingetragen.",
+                        flavor = "retail",
+                    },
+                    {
+                        en = "Add and edit dialog: with many or long presets the buttons ran over the reason field. Now they wrap inside their area, the dialog grows with them, and a preset too long for one line is cut short - hover it for the full text.",
+                        de = "Dialog zum Hinzufügen und Bearbeiten: Bei vielen oder langen Vorgaben liefen die Knöpfe über das Feld für den Grund. Jetzt brechen sie in ihrem Bereich um, der Dialog wächst mit, und eine Vorgabe, die für eine Zeile zu lang ist, wird gekürzt - mit der Maus darüber steht der ganze Text.",
+                    },
+                    {
+                        en = "Ignoring: when the game refused one name, every further ignore in that session failed with \"the ignore list is full\" - even with one name on the list. Now only a really full list counts as full, and a refused name is named in chat.",
+                        de = "Ignorieren: Lehnte das Spiel einen Namen ab, scheiterte danach jedes weitere Ignorieren in der Sitzung mit \"die Ignorieren-Liste ist voll\" - auch mit nur einem Namen auf der Liste. Jetzt gilt nur eine wirklich volle Liste als voll, und ein abgelehnter Name wird im Chat genannt.",
+                    },
+                    {
+                        en = "WoW: Forever: \"Ignore everywhere\" and planned ignores sent the name with a server the game doesn't know, so it refused them. NBK sends the name only now.",
+                        de = "WoW: Forever: \"Überall ignorieren\" und geplante Ignores schickten den Namen mit einem Server, den das Spiel nicht kennt, deshalb lehnte es sie ab. NBK schickt jetzt nur den Namen.",
+                        flavor = "forever",
+                        sub = "_IgnoreManager",
+                    },
+                },
+            },
+            {
+                kind  = "note",
+                items = {
+                    {
+                        en = "WoW: Forever currently forgets the ignore list when you log out - that's a bug in the game itself, not in NBK. Until Blizzard fixes it, put the players on your blacklist (\"Import to NBK\" in the ignore list) or export the list (\"All characters\" > \"Tools\" > \"Export...\"), so you don't lose them.",
+                        de = "WoW: Forever vergisst die Ignorieren-Liste zurzeit beim Ausloggen - ein Fehler im Spiel selbst, nicht in NBK. Bis Blizzard ihn behebt: Übernimm die Spieler in deine Blacklist (\"In NBK übernehmen\" in der Ignorieren-Liste) oder exportiere die Liste (\"Alle Charaktere\" > \"Werkzeuge\" > \"Exportieren...\"), damit sie nicht verloren gehen.",
+                        flavor = "forever",
+                        go = "list:ignore",
+                    },
+                    {
+                        en = "Thanks to everyone who tested the two betas and sent in bugs - on our website nbk.nerzors.com, on Discord, GitHub and CurseForge!",
+                        de = "Danke an alle, die die beiden Betas getestet und Fehler gemeldet haben - auf unserer Webseite nbk.nerzors.com, im Discord, auf GitHub und CurseForge!",
+                    },
+                },
+            },
+        },
+    },
+    {
         version   = "2.3.0",
         date      = "2026-11-19",
         highlight = true,

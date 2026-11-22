@@ -32,6 +32,48 @@ local function buildDisplayTab(parent)
     })
     themeDD:SetPoint("TOPLEFT", 0, y); y = y - 34
 
+    local langLabel = NUL:CreateLabel(panel, {
+        text  = L["Language"],
+        color = theme.colors.text.muted,
+    })
+    langLabel:SetPoint("TOPLEFT", 0, y); y = y - 18
+
+    local function languageName(code)
+        for _, l in ipairs(NBK.LANGUAGES or {}) do
+            if l.code == code then return l.label end
+        end
+        return code
+    end
+    local langOptions = {
+        { key = "auto", label = L["Automatic (game language: %s)"]:format(languageName(NBK:ClientLocale())) },
+    }
+    for _, l in ipairs(NBK.LANGUAGES or {}) do
+        langOptions[#langOptions + 1] = { key = l.code, label = l.label }
+    end
+    local langDD = NUL:Dropdown(panel, {
+        width = 260, height = 24,
+        options  = langOptions,
+        value    = Config:GetPath({"display", "language"}, "auto"),
+        onSelect = function(v)
+            Config:SetPath({"display", "language"}, v)
+            local want = (v == "auto") and NBK:ClientLocale() or v
+            if want == NBK.currentLocale then return end
+            NUL:Confirm({
+                id   = "NBK_LANGUAGE_RELOAD",
+                text = L["NBK's language changes when the interface is reloaded. Reload now?"],
+                acceptLabel = L["Reload now"],
+                cancelLabel = L["Later"],
+                onAccept = function()
+                    local reload = (C_UI and C_UI.Reload) or ReloadUI
+                    if reload then reload() end
+                end,
+            })
+        end,
+    })
+    langDD:SetPoint("TOPLEFT", 0, y)
+    NUL:AttachTooltip(langDD, L["Language of NBK's windows and messages. The game's own texts (class and zone names) stay in the game's language."])
+    y = y - 34
+
     local function setScale(percent)
         local scale = NBK:ApplyWindowScale(percent / 100)
         Config:SetPath({"display", "scale"}, scale)

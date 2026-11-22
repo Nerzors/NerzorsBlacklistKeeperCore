@@ -155,7 +155,7 @@ function Config:_doPreviewImport()
 
     local classify  = NBK:ClassifyImport(parsed)
     local spec      = NBK:GetListType(parsed.list)
-    local listLabel = (spec and spec.label) or parsed.list
+    local listLabel = NBK:ListTypeLabel(parsed.list) or parsed.list
 
     f._preview:SetTextColor(1, 1, 1)
 

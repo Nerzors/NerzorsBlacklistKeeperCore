@@ -6,9 +6,12 @@ local function classInfoFromFile(classFile)
     return classFile, classFile and NBK:GetClassHex(classFile) or nil
 end
 
+local function isSecret(v) return issecretvalue ~= nil and issecretvalue(v) and true or false end
+
 local function classInfoFromUnit(unit)
     if not unit or not UnitExists(unit) then return nil, nil end
     local _, classFile = UnitClass(unit)
+    if isSecret(classFile) or type(classFile) ~= "string" then return nil, nil end
     return classInfoFromFile(classFile)
 end
 
@@ -21,6 +24,7 @@ local function findUnitForPlayer(name, realm)
     local function matches(unit)
         if not UnitExists(unit) or not UnitIsPlayer(unit) then return false end
         local n, r = NBK:UnitPlayer(unit)
+        if isSecret(n) or isSecret(r) then return false end
         if n ~= name then return false end
         r = (r and r ~= "") and r or myRealm
         return r == realm
@@ -78,11 +82,14 @@ local function classFromOurOwnData(name, realm)
 end
 
 function NBK:ResolveClass(name, realm, unit)
-    local classFile, hex = classInfoFromUnit(unit)
-    if classFile then return classFile, hex end
+    local ok, classFile, hex = pcall(classInfoFromUnit, unit)
+    if ok and classFile then return classFile, hex end
 
-    local found = findUnitForPlayer(name, realm)
-    if found then return classInfoFromUnit(found) end
+    local okF, found = pcall(findUnitForPlayer, name, realm)
+    if okF and found then
+        local okC, c, h = pcall(classInfoFromUnit, found)
+        if okC and c then return c, h end
+    end
 
     classFile = classFromGuild(name, realm)
     if classFile then return classInfoFromFile(classFile) end

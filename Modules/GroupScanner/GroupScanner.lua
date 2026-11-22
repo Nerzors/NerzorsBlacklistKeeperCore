@@ -1,6 +1,9 @@
 local _, NBK = ...
+local NUL = LibStub("NerzorsUILib-1.0")
 
 local GroupScanner = NBK:RegisterModule("GroupScanner")
+
+local ALERT = "|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:18:18|t"
 
 local warned = {}
 
@@ -40,9 +43,17 @@ local function warn(entry)
     end
 
     if gw.popup ~= false then
-        StaticPopup_Show("NBK_GROUP_WARNING",
-            NBK:DisplayName(entry.name, entry.realm),
-            reason)
+        NUL:Confirm({
+            id   = "NBK_GROUP_WARNING",
+            text = ("%s |cffff6666%s|r\n\n%s\n\n%s: %s"):format(ALERT, L["Blacklisted"],
+                       NBK:DisplayName(entry.name, entry.realm, color), L["Reason"], reason),
+            acceptLabel = L["Open list"],
+            cancelLabel = L["Close"],
+            onAccept = function()
+                local lw = NBK:GetModule("ListWindow")
+                if lw then lw:Show() end
+            end,
+        })
     end
 
     if gw.sound then
@@ -64,8 +75,12 @@ local function notifyListeners()
     end
 end
 
+local function isSecret(v) return issecretvalue ~= nil and issecretvalue(v) and true or false end
+local sawSecret = false
+
 local function scan()
     wipe(currentKeys)
+    sawSecret = false
 
     if not IsInGroup() then
         wipe(warned)
@@ -76,7 +91,9 @@ local function scan()
     for _, unit in ipairs(collectUnits()) do
         if UnitExists(unit) and UnitIsPlayer(unit) then
             local name, realm = NBK:UnitPlayer(unit)
-            if name then
+            if isSecret(name) or isSecret(realm) then
+                sawSecret = true
+            elseif name then
                 if not realm or realm == "" then
                     realm = GetNormalizedRealmName()
                 end
@@ -103,6 +120,7 @@ local function scan()
 end
 
 GroupScanner.scan = scan
+GroupScanner._Warn = warn
 
 function GroupScanner:IsInGroup(name, realm)
     local key = NBK:NormalizeKey(name, realm)
@@ -114,22 +132,9 @@ function GroupScanner:OnRosterChanged(callback)
 end
 
 function GroupScanner:OnEnable()
-    local L = NBK.L
-    StaticPopupDialogs["NBK_GROUP_WARNING"] = {
-        text = "|cffff6666NBK - " .. L["Blacklisted"] .. "|r\n\n|cffffffff%s|r\n\n" .. L["Reason"] .. ": %s",
-        button1 = L["Open list"],
-        button2 = CLOSE or L["Close"],
-        OnAccept = function()
-            local lw = NBK:GetModule("ListWindow")
-            if lw then lw:Show() end
-        end,
-        timeout = 0,
-        whileDead = true,
-        hideOnEscape = true,
-        preferredIndex = 3,
-        showAlert = true,
-    }
-
     NBK:RegisterEvent("GROUP_ROSTER_UPDATE", scan)
     NBK:RegisterEvent("PLAYER_ENTERING_WORLD", scan)
+    NBK:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+        if sawSecret then scan() end
+    end)
 end

@@ -10,10 +10,19 @@ local function api()
     end
 end
 
+local CAP = 50
+
+local function sameRealm(a, b)
+    return type(a) == "string" and type(b) == "string"
+       and a:gsub("%s+", ""):lower() == b:gsub("%s+", ""):lower()
+end
+
 local function ignoreName(name, realm)
     if type(name) ~= "string" or #name == 0 then return nil end
+
+    if NBK:IsForever() then return name end
     local own = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName()
-    if type(realm) ~= "string" or #realm == 0 or realm == own then return name end
+    if type(realm) ~= "string" or #realm == 0 or sameRealm(realm, own) then return name end
     return name .. "-" .. realm
 end
 
@@ -51,6 +60,21 @@ function IgnoreSync:IsIgnored(name, realm)
     return self:ListEntry(name, realm) ~= nil
 end
 
+function IgnoreSync:IgnoredKeySet()
+    local set = {}
+    for _, full in ipairs(self:GetIgnoreList()) do
+        local key = NBK:NormalizeKey(full)
+        if key then set[key] = true end
+    end
+    return set
+end
+
+IgnoreSync._listeners = {}
+
+function IgnoreSync:OnListChanged(fn)
+    if type(fn) == "function" then self._listeners[#self._listeners + 1] = fn end
+end
+
 function IgnoreSync:GetUntracked()
     local out = {}
     for _, full in ipairs(self:GetIgnoreList()) do
@@ -66,25 +90,34 @@ IgnoreSync._pending = {}
 
 function IgnoreSync:_VerifyPending()
     if not next(self._pending) then return end
+    local list = self:GetIgnoreList()
     local present = {}
-    for _, n in ipairs(self:GetIgnoreList()) do present[n] = true end
-
-    local missed = 0
-    for full in pairs(self._pending) do
-        if present[full] then
-            self._pending[full] = nil
-        else
-            missed = missed + 1
-        end
+    for _, n in ipairs(list) do
+        local key = NBK:NormalizeKey(n)
+        if key then present[key] = true end
     end
-    if missed == 0 or self._warnedFull then return end
 
-    self._warnedFull = true
-    self._listFull   = true
-    wipe(self._pending)
-    local msg = "Your ignore list is full - those players stay on the blacklist, " ..
-                "but the game won't ignore them."
-    NBK:Print("|cffff5555" .. (NBK.L[msg] or msg) .. "|r")
+    local missed = {}
+    for full, p in pairs(self._pending) do
+        if not present[p.key] then missed[#missed + 1] = p end
+        self._pending[full] = nil
+    end
+    if #missed == 0 then return end
+
+    local L = NBK.L
+    if #list >= CAP then
+        self._listFull = true
+        if self._warnedFull then return end
+        self._warnedFull = true
+        local msg = "Your ignore list is full - those players stay on the blacklist, " ..
+                    "but the game won't ignore them."
+        NBK:Print("|cffff5555" .. (L[msg] or msg) .. "|r")
+        return
+    end
+    for _, p in ipairs(missed) do
+        NBK:Print("|cffff5555" .. L["Could not ignore %s - the game didn't accept the name."]
+            :format(NBK:DisplayName(p.name, p.realm)) .. "|r")
+    end
 end
 
 function IgnoreSync:Add(name, realm)
@@ -93,7 +126,7 @@ function IgnoreSync:Add(name, realm)
     if not C or not full or self._listFull then return false end
     if self:IsIgnored(name, realm) then return true end
 
-    self._pending[full] = true
+    self._pending[full] = { key = NBK:NormalizeKey(name, realm), name = name, realm = realm }
     C.AddIgnore(full)
 
     if C_Timer and C_Timer.After then
@@ -240,6 +273,7 @@ function IgnoreSync:OnEnable()
             if self._importFrame and self._importFrame:IsShown() then
                 self:ShowImport()
             end
+            for _, fn in ipairs(self._listeners) do pcall(fn) end
         end)
     end)
     if not ok then

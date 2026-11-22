@@ -28,6 +28,8 @@ local function buildPresetsTab(parent)
         reorderable    = true,
         addPlaceholder = L["Custom reason..."],
 
+        maxLetters     = 32,
+
         display        = function(v) return NBK:ReasonText(v) end,
         normalize      = function(t) return NBK:ReasonKey(t) end,
         get = function()
