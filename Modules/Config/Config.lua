@@ -2,8 +2,9 @@ local _, NBK = ...
 
 local Config = NBK:RegisterModule("Config")
 
-Config.NAV_WIDTH           = 175
-Config.WINDOW_W            = 680
+Config.NAV_WIDTH           = 200
+
+Config.WINDOW_W            = 755
 Config.WINDOW_H            = 460
 Config.NAV_BTN_HEIGHT      = 26
 Config.NAV_BTN_GAP         = 2

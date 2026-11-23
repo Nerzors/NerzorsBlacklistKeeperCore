@@ -176,6 +176,12 @@ local function confirmRemove(entry)
     })
 end
 
+BlacklistTab._menuProviders = BlacklistTab._menuProviders or {}
+
+function BlacklistTab:AddRowMenuProvider(fn)
+    if type(fn) == "function" then self._menuProviders[#self._menuProviders + 1] = fn end
+end
+
 function BlacklistTab:RowMenuItems(entry)
     local items = {}
     local function add(label, fn) items[#items + 1] = { label = label, onClick = fn } end
@@ -215,6 +221,8 @@ function BlacklistTab:RowMenuItems(entry)
             end)
         end
     end
+
+    for _, fn in ipairs(BlacklistTab._menuProviders) do pcall(fn, entry, add) end
 
     add(L["Copy name"], function() BlacklistTab.ShowCopyName(entry.name, entry.realm) end)
     items[#items + 1] = { separator = true }

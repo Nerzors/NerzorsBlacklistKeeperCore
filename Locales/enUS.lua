@@ -251,6 +251,15 @@ L["Your ignore list is full - those players stay on the blacklist, but the game 
 L["Could not ignore %s - the game didn't accept the name."] = true
 L["Imported from ignore list"] = true
 L["Imported %d player(s) from the ignore list."] = true
+
+L["Ask whether players you ignore should go on the blacklist too"] = true
+L["When you ignore someone (/ignore, right-click, friends list), NBK asks whether to put them on your blacklist too. Not while \"Put ignored players on the blacklist automatically\" is on - then it happens without asking."] = true
+L["Put ignored players on the blacklist automatically"] = true
+L["Everyone on this character's ignore list goes on your blacklist as well - at login and whenever the list changes. WoW: Forever currently forgets the ignore list at logout; there, the question when you ignore someone is what keeps them."] = true
+L["You ignored %s. Put them on your blacklist too?"] = true
+L["Don't ask again"] = true
+L["NBK won't ask any more. You can turn the question back on under Settings > Notifications > Ignore list."] = true
+L["Put on the blacklist automatically from your ignore list: %d"] = true
 L["The ignore list isn't available on this client."] = true
 L["Nothing to import - every ignored player is already on your blacklist."] = true
 

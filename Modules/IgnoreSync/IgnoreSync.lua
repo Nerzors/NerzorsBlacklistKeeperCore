@@ -127,7 +127,11 @@ function IgnoreSync:Add(name, realm)
     if self:IsIgnored(name, realm) then return true end
 
     self._pending[full] = { key = NBK:NormalizeKey(name, realm), name = name, realm = realm }
-    C.AddIgnore(full)
+
+    self._ownAdd = true
+    local ok, err = pcall(C.AddIgnore, full)
+    self._ownAdd = false
+    if not ok then error(err, 0) end
 
     if C_Timer and C_Timer.After then
         C_Timer.After(2, function() self:_VerifyPending() end)

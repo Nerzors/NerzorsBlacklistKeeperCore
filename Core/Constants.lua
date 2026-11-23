@@ -41,11 +41,13 @@ NBK.MEDIA = {
     classBase   = "Interface\\AddOns\\NerzorsBlacklistKeeper_Data\\Textures\\class\\",
     soundBase   = "Interface\\AddOns\\NerzorsBlacklistKeeper_Data\\Sounds\\",
     sounds = {
+        "WaterDrop",
         "AirHorn",
         "BananaPeelSlip",
         "BikeHorn",
         "BoxingArenaSound",
-        "WaterDrop",
+        "boepboep",
+        "metalgearPing",
     },
 }
 

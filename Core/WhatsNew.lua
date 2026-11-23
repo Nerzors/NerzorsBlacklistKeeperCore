@@ -84,6 +84,70 @@ end
 
 NBK.WHATS_NEW = {
     {
+        version   = "2.5.0-beta.1",
+        date      = "2026-11-23",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "new",
+                items = {
+                    {
+                        en = "Ignore someone (/ignore, right-click, friends list) and NBK asks whether they should go on your blacklist too - Yes puts them there right away. \"Don't ask again\" turns the question off; it's under \"Notifications\" > \"Ignore list\".",
+                        de = "Ignorierst du jemanden (/ignore, Rechtsklick, Freundesliste), fragt NBK, ob er auch auf deine Blacklist soll - Ja trägt ihn sofort ein. \"Nicht mehr fragen\" schaltet die Frage ab; sie steht unter \"Benachrichtigungen\" > \"Ignorieren-Liste\".",
+                        go = "settings:Notifications",
+                    },
+                    {
+                        en = "Player request: NBK can put everyone on your ignore list on the blacklist by itself - at login and whenever the list changes. Off by default; switch it on under \"Notifications\" > \"Ignore list\". Players you take off the blacklist stay off.",
+                        de = "Spielerwunsch: NBK kann alle von deiner Ignorieren-Liste selbst auf die Blacklist setzen - beim Login und bei jeder Änderung der Liste. Von Haus aus aus; einschalten unter \"Benachrichtigungen\" > \"Ignorieren-Liste\". Wen du von der Blacklist nimmst, der bleibt draußen.",
+                        go = "settings:Notifications",
+                    },
+                    {
+                        en = "Blacklist: right-click a player and pick \"Ignore everywhere\" to ignore them on all your characters - also players who aren't on any ignore list yet.",
+                        de = "Blacklist: Rechtsklick auf einen Spieler > \"Überall ignorieren\" ignoriert ihn auf all deinen Charakteren - auch Spieler, die noch auf keiner Ignorieren-Liste stehen.",
+                        sub = "_IgnoreManager",
+                        go = "list:blacklist",
+                    },
+                    {
+                        en = "Group Finder: as group leader you spot blacklisted applicants at a glance - a red stripe and a red name in Blizzard's list and in EllesmereUI's, the reason in the member's tooltip. The chat warning stays.",
+                        de = "Gruppensuche: Als Gruppenleiter erkennst du gelistete Bewerber sofort - rote Leiste und roter Name in Blizzards Liste und in der von EllesmereUI, der Grund im Tooltip. Die Warnung im Chat bleibt.",
+                        sub = "_GroupFinder",
+                        flavor = "retail",
+                        go = "settings:GroupFinder",
+                    },
+                    {
+                        en = "Two new warning sounds: \"boepboep\" and \"metalgearPing\" - pick one under \"Notifications\".",
+                        de = "Zwei neue Warntöne: \"boepboep\" und \"metalgearPing\" - auswählbar unter \"Benachrichtigungen\".",
+                        go = "settings:Notifications",
+                    },
+                },
+            },
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "Settings: the window and its navigation are a bit wider, so long names and options are no longer cut off. A name that still doesn't fit shows in full when you hover it.",
+                        de = "Einstellungen: Das Fenster und die Navigation sind etwas breiter, damit lange Namen und Optionen nicht mehr abgeschnitten werden. Ein Name, der trotzdem nicht passt, steht ganz da, wenn du mit der Maus darüber gehst.",
+                    },
+                },
+            },
+            {
+                kind  = "note",
+                items = {
+                    {
+                        en = "WoW: Forever still forgets the ignore list when you log out - a bug in the game itself. NBK now asks right when you ignore someone whether they should go on your blacklist too; say Yes and you keep them.",
+                        de = "WoW: Forever vergisst die Ignorieren-Liste weiterhin beim Ausloggen - ein Fehler im Spiel selbst. NBK fragt jetzt direkt beim Ignorieren, ob der Spieler auch auf deine Blacklist soll; mit Ja bleibt er dir erhalten.",
+                        flavor = "forever",
+                        go = "settings:Notifications",
+                    },
+                    {
+                        en = "This is a beta. If something looks or behaves wrong - especially the question when you ignore someone or the automatic import - please report it on our website nbk.nerzors.com (report a bug, feedback) or on Discord, GitHub or CurseForge.",
+                        de = "Das ist eine Beta. Wenn etwas falsch aussieht oder sich falsch verhält - vor allem die Frage beim Ignorieren oder das automatische Übernehmen -, melde es bitte auf unserer Webseite nbk.nerzors.com (Fehler melden, Feedback) oder im Discord, auf GitHub oder CurseForge.",
+                    },
+                },
+            },
+        },
+    },
+    {
         version   = "2.4.0",
         date      = "2026-11-22",
         highlight = true,

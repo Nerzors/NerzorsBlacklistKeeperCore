@@ -21,7 +21,9 @@
 -- (extraLabel / onExtra).
 -- Minor 9 (NBK 2.4.0 D1): NUL:Confirm is the library's own window (theme,
 -- scale) instead of a StaticPopup; NUL:SetConfirmDefaults.
-local MAJOR, MINOR = "NerzorsUILib-1.0", 9
+-- Minor 10 (NBK 2.5.0 Z4): NUL:Confirm takes an optional checkbox
+-- (checkLabel / checked); the answer callbacks get its state.
+local MAJOR, MINOR = "NerzorsUILib-1.0", 10
 local NUL, oldMinor = LibStub:NewLibrary(MAJOR, MINOR)
 if not NUL then return end -- already loaded at this or higher minor
 

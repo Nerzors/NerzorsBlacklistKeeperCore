@@ -18,6 +18,9 @@ local DEFAULTS = {
 
         autoIgnore    = false,
 
+        askOnIgnore      = true,
+        autoImportIgnore = false,
+
         presetReasons = nil,
 
         minimapIcon = { hide = false, angle = 225 },

@@ -116,6 +116,17 @@ local function buildNotificationsTab(parent)
         capNote:SetPoint("TOPLEFT", 0, y)
         y = y - 18
 
+        local askCb, ny11 = Config:AddCheckboxRow(panel, y - 6,
+            "Ask whether players you ignore should go on the blacklist too",
+            {"askOnIgnore"}, true); y = ny11
+        NUL:AttachTooltip(askCb, L["When you ignore someone (/ignore, right-click, friends list), NBK asks whether to put them on your blacklist too. Not while \"Put ignored players on the blacklist automatically\" is on - then it happens without asking."])
+
+        local autoCb, ny12 = Config:AddCheckboxRow(panel, y,
+            "Put ignored players on the blacklist automatically",
+            {"autoImportIgnore"}, false,
+            function(v) if v then NBK:GetModule("IgnoreToBlacklist"):AutoImport() end end); y = ny12
+        NUL:AttachTooltip(autoCb, L["Everyone on this character's ignore list goes on your blacklist as well - at login and whenever the list changes. WoW: Forever currently forgets the ignore list at logout; there, the question when you ignore someone is what keeps them."])
+
     end
 
     panel.lastY = y

@@ -38,6 +38,16 @@ function Config:_makeSectionHeader(parent, text)
     return frame
 end
 
+function Config.NavLabelCut(fs)
+    if not fs then return false end
+    if fs.IsTruncated then
+        local ok, cut = pcall(fs.IsTruncated, fs)
+        if ok then return cut and true or false end
+    end
+    local tw, w = tonumber(fs:GetStringWidth()) or 0, tonumber(fs:GetWidth()) or 0
+    return w > 0 and tw > w + 0.5
+end
+
 function Config:_makeNavButton(parent, text, iconPath)
     local theme = NUL:GetTheme()
     local b = CreateFrame("Button", nil, parent)
@@ -99,8 +109,19 @@ function Config:_makeNavButton(parent, text, iconPath)
             NUL.SetTextureColor(self.bg, NUL:GetTheme().colors.bg.panel)
             if icon then icon:SetVertexColor(1, 1, 1, 1) end
         end
+
+        if Config.NavLabelCut(self.label) and GameTooltip then
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(self.label:GetText() or "", 1, 1, 1)
+            GameTooltip:Show()
+            self._tip = true
+        end
     end)
-    b:SetScript("OnLeave", function() refresh() end)
+    b:SetScript("OnLeave", function(self)
+        if self._tip and GameTooltip then GameTooltip:Hide() end
+        self._tip = nil
+        refresh()
+    end)
 
     return b
 end

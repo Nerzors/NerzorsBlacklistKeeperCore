@@ -1,5 +1,6 @@
 -- NerzorsUILib-1.0 :: Widgets/Confirm.lua
--- Yes/No question in the library's own window (minor 9, NBK 2.4.0 D1).
+-- Yes/No question in the library's own window (minor 9, NBK 2.4.0 D1;
+-- optional checkbox since minor 10, NBK 2.5.0 Z4).
 -- Until minor 8 this was a Blizzard StaticPopup; as a NUL:Window it takes
 -- the theme and follows NUL:SetScale like every other window. The options
 -- did not change, so callers keep working as they are.
@@ -17,6 +18,11 @@
 --   extraLabel / onExtra       Optional third button (minor 8), e.g.
 --                       "Show entries" next to Yes / No. Only shown when
 --                       both are given. Closes the question, no onCancel.
+--   checkLabel  string  Optional checkbox above the buttons (minor 10), e.g.
+--                       "Don't ask again". onAccept / onCancel / onExtra
+--                       get its state as their first argument (always
+--                       false without a checkbox).
+--   checked     boolean Its starting state. Default false.
 --
 -- NUL:SetConfirmDefaults({ title = fn, accept = fn, cancel = fn }) - the
 -- addon's own words for title and buttons, read on every question (so a
@@ -25,6 +31,7 @@
 local NUL = LibStub("NerzorsUILib-1.0")
 
 local WIDTH, BTN_H, GAP, SHIFT = 380, 24, 14, 24
+local CHECK_H = 26   -- checkbox row (22) + a little air above the buttons
 
 NUL._confirms = NUL._confirms or {}   -- id -> window
 
@@ -69,7 +76,7 @@ local function build(id)
         f:Hide()
         local fn = o and ((kind == "accept" and o.onAccept) or (kind == "cancel" and o.onCancel)
                           or (kind == "extra" and o.onExtra))
-        if fn then fn() end
+        if fn then fn(f:_Checked()) end
     end
     f._answer = answer
 
@@ -83,11 +90,17 @@ local function build(id)
     f.accept:SetPoint("BOTTOMRIGHT", f.cancel, "BOTTOMLEFT", -6, 0)
     f.extra:SetPoint("BOTTOMLEFT", 0, 0)
 
+    -- The checkbox's state, false while it is hidden or not built yet.
+    function f:_Checked()
+        local cb = self.checkbox
+        return (cb and cb:IsShown() and cb:GetChecked()) and true or false
+    end
+
     f:HookScript("OnHide", function(self)
         if self._answered then return end
         self._answered = true
         local o = self._opts
-        if o and o.onCancel then o.onCancel() end
+        if o and o.onCancel then o.onCancel(self:_Checked()) end
     end)
 
     -- Enter = Yes. Only taken when the window opens out of combat: then
@@ -138,6 +151,20 @@ function NUL:Confirm(opts)
         f.extra:Hide()
     end
 
+    -- Checkbox above the buttons, built on first use (minor 10).
+    local withCheck = type(opts.checkLabel) == "string" and opts.checkLabel ~= ""
+    if withCheck then
+        if not f.checkbox then
+            f.checkbox = self:Checkbox(f.content, { label = "" })
+            f.checkbox:SetPoint("BOTTOMLEFT", 0, BTN_H + 4)
+        end
+        f.checkbox:SetLabel(opts.checkLabel)
+        f.checkbox:SetChecked(opts.checked)
+        f.checkbox:Show()
+    elseif f.checkbox then
+        f.checkbox:Hide()
+    end
+
     -- Height from the wrapped text; wider when the buttons need it.
     local pad = theme.metrics.windowPadding
     local btnW = f.accept:GetWidth() + 6 + f.cancel:GetWidth() + (extra and (f.extra:GetWidth() + 12) or 0)
@@ -146,7 +173,8 @@ function NUL:Confirm(opts)
     f.text:SetWidth(width - pad * 2 - 2)
     f.text:SetText(opts.text or "")
     local textH = math.ceil(tonumber(f.text:GetStringHeight()) or 14)
-    f:SetHeight(theme.metrics.titleBarHeight + pad * 2 + textH + GAP + BTN_H + 2)
+    f:SetHeight(theme.metrics.titleBarHeight + pad * 2 + textH + GAP + BTN_H + 2
+                + (withCheck and CHECK_H or 0))
 
     -- Centred; shifted down-right per other open question.
     local n = openOthers(f)

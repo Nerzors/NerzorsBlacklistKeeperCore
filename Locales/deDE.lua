@@ -257,6 +257,15 @@ L["Your ignore list is full - those players stay on the blacklist, but the game 
 L["Could not ignore %s - the game didn't accept the name."] = "%s konnte nicht ignoriert werden - das Spiel hat den Namen nicht angenommen."
 L["Imported from ignore list"] = "Aus Ignorieren-Liste importiert"
 L["Imported %d player(s) from the ignore list."] = "%d Spieler aus der Ignorieren-Liste importiert."
+
+L["Ask whether players you ignore should go on the blacklist too"] = "Fragen, ob ignorierte Spieler auch auf die Blacklist sollen"
+L["When you ignore someone (/ignore, right-click, friends list), NBK asks whether to put them on your blacklist too. Not while \"Put ignored players on the blacklist automatically\" is on - then it happens without asking."] = "Wenn du jemanden ignorierst (/ignore, Rechtsklick, Freundesliste), fragt NBK, ob er auch auf deine Blacklist soll. Nicht, solange \"Ignorierte Spieler automatisch auf die Blacklist setzen\" an ist - dann passiert das ohne Frage."
+L["Put ignored players on the blacklist automatically"] = "Ignorierte Spieler automatisch auf die Blacklist setzen"
+L["Everyone on this character's ignore list goes on your blacklist as well - at login and whenever the list changes. WoW: Forever currently forgets the ignore list at logout; there, the question when you ignore someone is what keeps them."] = "Alle auf der Ignorieren-Liste dieses Charakters kommen auch auf deine Blacklist - beim Login und bei jeder Änderung der Liste. WoW: Forever vergisst die Ignorieren-Liste zurzeit beim Ausloggen; dort bewahrt sie die Frage, die beim Ignorieren kommt."
+L["You ignored %s. Put them on your blacklist too?"] = "Du hast %s ignoriert. Auch auf deine Blacklist setzen?"
+L["Don't ask again"] = "Nicht mehr fragen"
+L["NBK won't ask any more. You can turn the question back on under Settings > Notifications > Ignore list."] = "NBK fragt nicht mehr. Wieder einschalten kannst du die Frage unter Einstellungen > Benachrichtigungen > Ignorieren-Liste."
+L["Put on the blacklist automatically from your ignore list: %d"] = "Automatisch von deiner Ignorieren-Liste auf die Blacklist gesetzt: %d"
 L["The ignore list isn't available on this client."] = "Die Ignorieren-Liste ist auf diesem Client nicht verfügbar."
 L["Nothing to import - every ignored player is already on your blacklist."] = "Nichts zu importieren - alle ignorierten Spieler stehen bereits auf deiner Blacklist."
 

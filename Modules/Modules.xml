@@ -24,6 +24,9 @@
        IgnoreSync above and the ListWindow it registers its tab with. -->
   <Script file="IgnoreManager\IgnoreManager.lua"/>
   <Script file="IgnoreManager\IgnoreTab.lua"/>
+  <!-- Ignored players onto the blacklist: the question and the automatic
+       import (2.5.0 Z1/Z2). Hooks the IgnoreManager and IgnoreSync above. -->
+  <Script file="IgnoreManager\ToBlacklist.lua"/>
   <!-- Config is split across multiple files (Tabs/, Dialogs/, helpers).
        See Config/Config.xml for the load order. -->
   <Include file="Config\Config.xml"/>

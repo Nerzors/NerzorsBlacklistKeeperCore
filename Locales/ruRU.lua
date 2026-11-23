@@ -249,6 +249,15 @@ L["Your ignore list is full - those players stay on the blacklist, but the game 
 L["Could not ignore %s - the game didn't accept the name."] = "Не удалось игнорировать %s - игра не приняла это имя."
 L["Imported from ignore list"] = "Импортировано из чёрного списка игры"
 L["Imported %d player(s) from the ignore list."] = "Импортировано игроков из чёрного списка игры: %d."
+
+L["Ask whether players you ignore should go on the blacklist too"] = "Спрашивать, добавлять ли игнорируемых игроков и в блэклист"
+L["When you ignore someone (/ignore, right-click, friends list), NBK asks whether to put them on your blacklist too. Not while \"Put ignored players on the blacklist automatically\" is on - then it happens without asking."] = "Когда вы кого-то игнорируете (/ignore, правый клик, список друзей), NBK спрашивает, добавить ли его и в ваш блэклист. Не спрашивает, пока включено \"Автоматически добавлять игнорируемых игроков в блэклист\" - тогда это происходит без вопроса."
+L["Put ignored players on the blacklist automatically"] = "Автоматически добавлять игнорируемых игроков в блэклист"
+L["Everyone on this character's ignore list goes on your blacklist as well - at login and whenever the list changes. WoW: Forever currently forgets the ignore list at logout; there, the question when you ignore someone is what keeps them."] = "Все из чёрного списка этого персонажа попадают и в ваш блэклист - при входе и при каждом изменении списка. WoW: Forever сейчас забывает чёрный список при выходе; там их сохраняет вопрос, который появляется в момент игнорирования."
+L["You ignored %s. Put them on your blacklist too?"] = "Вы добавили %s в чёрный список. Добавить и в ваш блэклист?"
+L["Don't ask again"] = "Больше не спрашивать"
+L["NBK won't ask any more. You can turn the question back on under Settings > Notifications > Ignore list."] = "NBK больше не будет спрашивать. Включить вопрос снова можно в Параметры > Уведомления > Чёрный список."
+L["Put on the blacklist automatically from your ignore list: %d"] = "Автоматически добавлено в блэклист из чёрного списка: %d"
 L["The ignore list isn't available on this client."] = "Чёрный список игры недоступен в этом клиенте."
 L["Nothing to import - every ignored player is already on your blacklist."] = "Нечего импортировать: все игроки из чёрного списка игры уже в вашем блэклисте."
 
