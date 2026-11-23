@@ -166,14 +166,37 @@ function BlacklistTab.ShowCopyName(name, realm)
     })
 end
 
-local function confirmRemove(entry)
+function BlacklistTab:ConfirmRemove(whos, text, onDone)
+    local IS = NBK:GetModule("IgnoreSync")
+    local ignored, allOurs = 0, true
+    if IS and IS:IsAvailable() then
+        local set = IS:IgnoredKeySet()
+        for _, who in ipairs(whos) do
+            local key = NBK:NormalizeKey(who.name, who.realm)
+            if key and set[key] then
+                ignored = ignored + 1
+                local e = NBK:GetPlayer(who.name, who.realm)
+                if not (e and e.ignoredByNBK) then allOurs = false end
+            end
+        end
+    end
     NUL:Confirm({
-        text = L["Remove %s from blacklist?"]:format(NBK:DisplayName(entry.name, entry.realm)),
-        onAccept = function()
-            NBK:RemovePlayer(entry.name, entry.realm)
+        text       = text,
+        checkLabel = ignored > 0 and NBK:AlsoFromIgnoreListLabel(ignored) or nil,
+        checked    = ignored > 0 and allOurs,
+        onAccept   = function(lift)
+
+            local opts = ignored > 0 and { liftIgnore = lift } or nil
+            for _, who in ipairs(whos) do NBK:RemovePlayer(who.name, who.realm, opts) end
+            if onDone then onDone() end
             BlacklistTab:_Refresh()
         end,
     })
+end
+
+local function confirmRemove(entry)
+    BlacklistTab:ConfirmRemove({ entry },
+        L["Remove %s from blacklist?"]:format(NBK:DisplayName(entry.name, entry.realm)))
 end
 
 BlacklistTab._menuProviders = BlacklistTab._menuProviders or {}

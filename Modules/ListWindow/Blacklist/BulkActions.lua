@@ -180,17 +180,13 @@ function BlacklistTab:_DeleteSelected()
         local _, who = next(self.selected)
         if who then text = L["Remove %s from blacklist?"]:format(NBK:DisplayName(who.name, who.realm)) end
     end
-    NUL:Confirm({
-        text = text,
-        onAccept = function()
-            for _, who in pairs(self.selected) do
-                NBK:RemovePlayer(who.name, who.realm)
-            end
-            wipe(self.selected)
-            self:_Refresh()
-            self:_UpdateActionBar()
-        end,
-    })
+
+    local whos = {}
+    for _, who in pairs(self.selected) do whos[#whos + 1] = who end
+    self:ConfirmRemove(whos, text, function()
+        wipe(self.selected)
+        self:_UpdateActionBar()
+    end)
 end
 
 function BlacklistTab:_MarkSelected(field, value)

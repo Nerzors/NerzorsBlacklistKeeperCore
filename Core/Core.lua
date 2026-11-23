@@ -162,6 +162,11 @@ function NBK:AlsoFromBlacklistLabel(n)
     return self.L["Also remove them from the blacklist (%d)"]:format(n or 0)
 end
 
+function NBK:AlsoFromIgnoreListLabel(n)
+    if n == 1 then return self.L["Also remove from the ignore list"] end
+    return self.L["Also remove them from the ignore list (%d)"]:format(n or 0)
+end
+
 function NBK:EmptyListText(filter, emptyText)
     filter = filter and strtrim(filter) or ""
     if filter ~= "" then return self.L["No matches for \"%s\"."]:format(filter) end
@@ -227,6 +232,42 @@ function NBK:IsAddOnEnabled(name)
     end
     if ok and type(state) == "number" and state > 0 then return true end
     return self:IsAddOnLoaded(name)
+end
+
+function NBK:SecureReloadOver(btn, preClick)
+    if type(btn) ~= "table" or not CreateFrame then return false end
+    local o = btn._nbkReload
+    if not o then
+        if InCombatLockdown and InCombatLockdown() then return false end
+        local ok, b = pcall(CreateFrame, "Button", nil, btn, "SecureActionButtonTemplate")
+        if not ok or not b then return false end
+        b:SetAllPoints(btn)
+        if b.SetFrameLevel and btn.GetFrameLevel then b:SetFrameLevel(btn:GetFrameLevel() + 5) end
+
+        b:RegisterForClicks("AnyUp", "AnyDown")
+        b:SetAttribute("type", "macro")
+        b:SetAttribute("macrotext", "/reload")
+
+        b:HookScript("OnEnter", function() local f = btn:GetScript("OnEnter"); if f then f(btn) end end)
+        b:HookScript("OnLeave", function() local f = btn:GetScript("OnLeave"); if f then f(btn) end end)
+
+        b:HookScript("PreClick", function()
+            local fn = b._nbkPreClick
+            if fn and not b._nbkPreDone then
+                b._nbkPreDone = true
+                pcall(fn)
+            end
+        end)
+        btn._nbkReload = b
+        o = b
+    end
+    o._nbkPreClick, o._nbkPreDone = preClick, false
+    o:Show()
+    return true
+end
+
+function NBK:RequestReload()
+    self:Print(self.L["Type /reload to finish."])
 end
 
 local function parseGoTo(target)

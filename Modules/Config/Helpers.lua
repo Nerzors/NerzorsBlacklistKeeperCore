@@ -59,6 +59,12 @@ function Config:AddCheckboxRow(parent, y, labelKey, path, defaultVal, onChanged)
         end,
     })
     cb:SetPoint("TOPLEFT", 0, y)
+
+    if cb.HookScript then
+        cb:HookScript("OnShow", function(self)
+            self:SetChecked(Config:GetPath(path, defaultVal) and true or false)
+        end)
+    end
     return cb, y - 26
 end
 

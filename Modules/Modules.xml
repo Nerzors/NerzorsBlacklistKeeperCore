@@ -27,6 +27,10 @@
   <!-- Ignored players onto the blacklist: the question and the automatic
        import (2.5.0 Z1/Z2). Hooks the IgnoreManager and IgnoreSync above. -->
   <Script file="IgnoreManager\ToBlacklist.lua"/>
+  <!-- Removal history: the last removals and clean-up run, to undo them
+       (2.5.0-beta.2). Data + the "History" window of the blacklist. -->
+  <Script file="History\History.lua"/>
+  <Script file="History\HistoryWindow.lua"/>
   <!-- Config is split across multiple files (Tabs/, Dialogs/, helpers).
        See Config/Config.xml for the load order. -->
   <Include file="Config\Config.xml"/>

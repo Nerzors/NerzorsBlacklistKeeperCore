@@ -52,6 +52,10 @@ function AutoCleanup:Prune(months)
         if isStale(e, t) then victims[#victims + 1] = key end
     end
 
+    local history = NBK:GetModule("RemovalHistory")
+    if history and history.RecordRun and #victims > 0 then
+        pcall(history.RecordRun, history, "autoCleanup", victims, entries)
+    end
     for _, key in ipairs(victims) do entries[key] = nil end
 
     local lw = NBK:GetModule("ListWindow")

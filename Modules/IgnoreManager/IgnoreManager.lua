@@ -138,11 +138,15 @@ function IgnoreManager:_ReportDeleted(vanished)
         text = L["Characters that no longer exist are still on your blacklist: %d. Remove them from the blacklist?"]
                 :format(#stillListed),
         onAccept = function()
-            for _, entry in ipairs(stillListed) do
 
-                entry.ignoredByNBK = false
-                NBK:RemovePlayer(entry.name, entry.realm)
+            local function removeAll()
+                for _, entry in ipairs(stillListed) do
+
+                    entry.ignoredByNBK = false
+                    NBK:RemovePlayer(entry.name, entry.realm)
+                end
             end
+            if NBK.RunAsCleanup then NBK:RunAsCleanup("deleted", removeAll) else removeAll() end
             local lw = NBK:GetModule("ListWindow")
             if lw and lw.Refresh then lw:Refresh() end
         end,

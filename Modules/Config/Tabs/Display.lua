@@ -58,16 +58,15 @@ local function buildDisplayTab(parent)
             Config:SetPath({"display", "language"}, v)
             local want = (v == "auto") and NBK:ClientLocale() or v
             if want == NBK.currentLocale then return end
-            NUL:Confirm({
+
+            local f = NUL:Confirm({
                 id   = "NBK_LANGUAGE_RELOAD",
                 text = L["NBK's language changes when the interface is reloaded. Reload now?"],
                 acceptLabel = L["Reload now"],
                 cancelLabel = L["Later"],
-                onAccept = function()
-                    local reload = (C_UI and C_UI.Reload) or ReloadUI
-                    if reload then reload() end
-                end,
+                onAccept = function() NBK:RequestReload() end,
             })
+            if f and f.accept then NBK:SecureReloadOver(f.accept) end
         end,
     })
     langDD:SetPoint("TOPLEFT", 0, y)

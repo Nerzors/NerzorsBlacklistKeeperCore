@@ -303,6 +303,8 @@ L["Remove %d selected players from the game's ignore list?"] = true
 L["Also remove them from the blacklist (%d)"] = true
 L["Remove %s from the game's ignore list?"] = true
 L["Also remove from the blacklist"] = true
+L["Also remove from the ignore list"] = true
+L["Also remove them from the ignore list (%d)"] = true
 L["Pinned among them: %d"] = true
 L["This character"] = true
 L["Removed from the ignore list: %d"] = true
@@ -355,3 +357,23 @@ L["Your ignore list is empty. Players you ignore in the game show up here."] = t
 
 L["Window size"] = true
 L["Size of all NBK windows. Applied when you let go of the slider."] = true
+
+L["Type /reload to finish."] = true
+
+L["History"] = true
+L["Removal history"] = true
+L["Removals kept for undo"] = true
+L["How many of your own removals the blacklist's \"History\" keeps, to put them back. The last clean-up run is kept as a whole on its own tab."] = true
+L["Your removals (%d)"] = true
+L["Clean-up (%d)"] = true
+L["Your last %d removals. How many are kept: Settings > Advanced."] = true
+L["Last clean-up: %s, %s"] = true
+L["No clean-up run yet."] = true
+L["Nothing removed yet."] = true
+L["Ignore Manager: Clean up"] = true
+L["Characters that no longer exist"] = true
+L["Restore"] = true
+L["Restore all"] = true
+L["Restored: %s"] = true
+L["Restored: %d"] = true
+L["%s is already on your blacklist."] = true

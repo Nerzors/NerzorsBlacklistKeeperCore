@@ -137,6 +137,26 @@ local function buildAdvancedTab(parent)
     updatePreview()
     panel:HookScript("OnShow", updatePreview)
 
+    local history = NBK:GetModule("RemovalHistory")
+    if history then
+        local _, nyHist = Config:AddDivider(panel, y); y = nyHist
+        local _, nyHistSec = Config:AddSectionLabel(panel, y, "Removal history"); y = nyHistSec
+        local _, nyHistSl = Config:AddSliderRow(panel, y, "Removals kept for undo", {
+            min       = history.MIN,
+            max       = history.MAX,
+            step      = 1,
+            value     = history:Size(),
+            format    = "%d",
+            tooltip   = L["How many of your own removals the blacklist's \"History\" keeps, to put them back. The last clean-up run is kept as a whole on its own tab."],
+            onRelease = function(v)
+                Config:SetPath({"historySize"}, math.floor((tonumber(v) or history.DEFAULT) + 0.5))
+                history:Trim()
+                history:_Changed()
+            end,
+        })
+        y = nyHistSl
+    end
+
     local _, ny2 = Config:AddDivider(panel, y); y = ny2
 
     local _, ny3 = Config:AddSectionLabel(panel, y, "Backup & data"); y = ny3

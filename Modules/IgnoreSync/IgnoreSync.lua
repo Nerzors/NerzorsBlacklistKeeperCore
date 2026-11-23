@@ -160,10 +160,14 @@ function IgnoreSync:OnEntryAdded(entry)
     end
 end
 
-function IgnoreSync:OnEntryRemoved(entry)
-    if not entry or not self:IsAvailable() then return end
-    if not entry.ignoredByNBK then return end
-    self:Remove(entry.name, entry.realm)
+function IgnoreSync:OnEntryRemoved(entry, lift)
+    if not entry or not self:IsAvailable() then return false end
+    if lift == nil then lift = entry.ignoredByNBK and true or false end
+    if not lift or not self:IsIgnored(entry.name, entry.realm) then return false end
+
+    local im, key = NBK:GetModule("IgnoreManager"), NBK:NormalizeKey(entry.name, entry.realm)
+    if im and type(im._removing) == "table" and key then im._removing[key] = true end
+    return self:Remove(entry.name, entry.realm) and true or false
 end
 
 function IgnoreSync:_BuildImport()

@@ -37,10 +37,13 @@ local function disableAddOn(folder)
     if disable then pcall(disable, folder) end
 end
 
-function LegacyCheck:DisableAndReload(found)
+function LegacyCheck:Disable(found)
     for _, f in ipairs(found) do disableAddOn(f.folder) end
-    local reload = (C_UI and C_UI.Reload) or ReloadUI
-    if reload then reload() end
+end
+
+function LegacyCheck:DisableAndReload(found)
+    self:Disable(found)
+    NBK:RequestReload()
 end
 
 function LegacyCheck:DisableRetailOnly()
@@ -141,6 +144,11 @@ function LegacyCheck:Show(found)
             why and (": " .. L[why]) or "")
     end
     ui.list:SetText(table.concat(lines, "\n"))
+
+    NBK:SecureReloadOver(ui.disable, function()
+        f:Hide()
+        LegacyCheck:Disable(ui.found or {})
+    end)
 
     fitHeight()
     f:Show()
@@ -290,11 +298,13 @@ function LegacyCheck:ShowOffer(offer)
     offerUi.what:SetText(("|cff%s%s|r\n%s"):format(accent,
         L["%s is now available here too"]:format(label), L[offer.textKey]))
 
+    NBK:SecureReloadOver(offerUi.enable, function() LegacyCheck:AnswerOffer(true, true) end)
+
     fitOfferHeight()
     f:Show()
 end
 
-function LegacyCheck:AnswerOffer(yes)
+function LegacyCheck:AnswerOffer(yes, viaSecure)
     local o = offerUi.offer
     if not o then return end
     local state = reofferState()
@@ -302,8 +312,7 @@ function LegacyCheck:AnswerOffer(yes)
         if state then state[o.tag] = "enabled" end
         offerUi.answered = true
         enableAddOn(o.folder)
-        local reload = (C_UI and C_UI.Reload) or ReloadUI
-        if reload then reload() end
+        if not viaSecure then NBK:RequestReload() end
     else
         if state then state[o.tag] = "declined" end
         if offerUi.f then offerUi.f:Hide() end

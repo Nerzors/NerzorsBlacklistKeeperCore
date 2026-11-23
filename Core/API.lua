@@ -148,14 +148,19 @@ function NBK:AddPlayer(name, realm, reason, unit)
     return entry
 end
 
-function NBK:RemovePlayer(name, realm)
+function NBK:RemovePlayer(name, realm, opts)
     local key = self:NormalizeKey(name, realm)
     if not key or not self.db.entries[key] then return false, "not found" end
     local entry = self.db.entries[key]
     self.db.entries[key] = nil
 
+    local lift
+    if type(opts) == "table" and opts.liftIgnore ~= nil then lift = opts.liftIgnore and true or false end
     local ignoreSync = self:GetModule("IgnoreSync")
-    if ignoreSync then ignoreSync:OnEntryRemoved(entry) end
+    local lifted = ignoreSync and ignoreSync:OnEntryRemoved(entry, lift) or false
+
+    local history = self:GetModule("RemovalHistory")
+    if history and history.Record then pcall(history.Record, history, key, entry, lifted) end
 
     self:Print(self.L["removed %s"]:format(self:DisplayName(entry.name, entry.realm)))
     if self._FireApiEvent then

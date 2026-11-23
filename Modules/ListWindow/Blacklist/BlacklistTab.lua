@@ -41,6 +41,16 @@ function BlacklistTab:_Build(parent)
     selectBtn:SetPoint("LEFT", addBtn, "RIGHT", 8, 0)
     self.selectBtn = selectBtn
 
+    local history = NBK:GetModule("RemovalHistory")
+    if history and history.ShowWindow then
+        local historyBtn = NUL:Button(root, {
+            label = L["History"], height = 26,
+            onClick = function() history:ShowWindow() end,
+        })
+        historyBtn:SetPoint("LEFT", selectBtn, "RIGHT", 8, 0)
+        self.historyBtn = historyBtn
+    end
+
     local countLabel = NUL:CreateLabel(root, { text = "", color = theme.colors.text.muted })
 
     countLabel:SetPoint("RIGHT", root, "TOPRIGHT", 0, -13)

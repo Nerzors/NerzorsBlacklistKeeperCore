@@ -84,7 +84,7 @@ end
 
 NBK.WHATS_NEW = {
     {
-        version   = "2.5.0-beta.1",
+        version   = "2.5.0",
         date      = "2026-11-23",
         highlight = true,
         sections  = {
@@ -102,10 +102,26 @@ NBK.WHATS_NEW = {
                         go = "settings:Notifications",
                     },
                     {
+                        en = "Removing someone from the blacklist who is ignored on this character: the question now offers \"Also remove from the ignore list\" - ticked if NBK set that ignore. Until now NBK lifted its own ignores without saying so.",
+                        de = "Nimmst du jemanden von der Blacklist, der auf diesem Charakter ignoriert ist, bietet die Frage jetzt \"Auch von der Ignorieren-Liste entfernen\" an - angehakt, wenn NBK das Ignorieren gesetzt hat. Bisher hob NBK seine eigenen Ignores ohne Hinweis mit auf.",
+                        go = "list:blacklist",
+                    },
+                    {
+                        en = "Blacklist: the new \"History\" button shows your last removals (5 to 25, set under \"Advanced\") and the last clean-up run on its own tab. \"Restore\" puts a player back exactly as they were - reason, note, date, pin and the ignore too.",
+                        de = "Blacklist: Der neue Knopf \"Verlauf\" zeigt deine letzten Löschungen (5 bis 25, einstellbar unter \"Erweitert\") und in einem eigenen Reiter das letzte Aufräumen. \"Wiederherstellen\" holt einen Spieler genau so zurück, wie er war - mit Grund, Notiz, Datum, Pin und auch dem Ignorieren.",
+                        go = "list:blacklist",
+                    },
+                    {
                         en = "Blacklist: right-click a player and pick \"Ignore everywhere\" to ignore them on all your characters - also players who aren't on any ignore list yet.",
                         de = "Blacklist: Rechtsklick auf einen Spieler > \"Überall ignorieren\" ignoriert ihn auf all deinen Charakteren - auch Spieler, die noch auf keiner Ignorieren-Liste stehen.",
                         sub = "_IgnoreManager",
                         go = "list:blacklist",
+                    },
+                    {
+                        en = "Ignore Manager: when the changes planned for this character come up at login, \"Also put on the blacklist\" puts the planned ignores on your blacklist too - already ticked if NBK asks you when you ignore someone.",
+                        de = "Ignore-Manager: Im Fenster mit den geplanten Änderungen beim Login setzt \"Auch auf die Blacklist setzen\" die geplanten Ignores gleich mit auf deine Blacklist - schon angehakt, wenn NBK beim Ignorieren fragt.",
+                        sub = "_IgnoreManager",
+                        go = "list:ignore",
                     },
                     {
                         en = "Group Finder: as group leader you spot blacklisted applicants at a glance - a red stripe and a red name in Blizzard's list and in EllesmereUI's, the reason in the member's tooltip. The chat warning stays.",
@@ -131,6 +147,21 @@ NBK.WHATS_NEW = {
                 },
             },
             {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "WoW: Forever: \"Reload now\" after choosing a language (and \"Enable / Disable and reload\" at login) ended in an error and didn't reload. NBK now reloads through the game's own /reload.",
+                        de = "WoW: Forever: \"Jetzt neu laden\" nach der Sprachwahl (und \"Einschalten / Deaktivieren und neu laden\" beim Login) endete mit einem Fehler und lud nicht neu. NBK lädt jetzt über das /reload des Spiels neu.",
+                        flavor = "forever",
+                    },
+                    {
+                        en = "Settings: an option switched somewhere else - \"Don't ask again\" after /ignore, or \"Run planned changes automatically from now on\" - still showed its old state until you reloaded. The settings now show the current state every time.",
+                        de = "Einstellungen: Eine Option, die woanders umgeschaltet wurde - \"Nicht mehr fragen\" nach /ignore oder \"Geplante Änderungen künftig automatisch ausführen\" -, zeigte bis zum Neuladen noch den alten Stand. Jetzt zeigen die Einstellungen immer den aktuellen Stand.",
+                        go = "settings:Notifications",
+                    },
+                },
+            },
+            {
                 kind  = "note",
                 items = {
                     {
@@ -140,8 +171,8 @@ NBK.WHATS_NEW = {
                         go = "settings:Notifications",
                     },
                     {
-                        en = "This is a beta. If something looks or behaves wrong - especially the question when you ignore someone or the automatic import - please report it on our website nbk.nerzors.com (report a bug, feedback) or on Discord, GitHub or CurseForge.",
-                        de = "Das ist eine Beta. Wenn etwas falsch aussieht oder sich falsch verhält - vor allem die Frage beim Ignorieren oder das automatische Übernehmen -, melde es bitte auf unserer Webseite nbk.nerzors.com (Fehler melden, Feedback) oder im Discord, auf GitHub oder CurseForge.",
+                        en = "Thanks to everyone who tested the beta and sent in bugs and wishes - on our website nbk.nerzors.com, on Discord, GitHub and CurseForge!",
+                        de = "Danke an alle, die die Beta getestet und Fehler und Wünsche gemeldet haben - auf unserer Webseite nbk.nerzors.com, im Discord, auf GitHub und CurseForge!",
                     },
                 },
             },
