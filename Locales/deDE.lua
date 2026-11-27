@@ -177,7 +177,10 @@ L["Replace - wipe current, import all"] = "Ersetzen - aktuelle Liste löschen, a
 L["%d entries exported."] = "%d Einträge exportiert."
 L["%d selected entries exported."] = "%d ausgewählte Einträge exportiert."
 L["%d of %d selected entries exported (private ones skipped)."] = "%d von %d ausgewählten Einträgen exportiert (private übersprungen)."
-L["Invalid input - missing !NBK1! header."] = "Ungültige Eingabe - fehlender !NBK1!-Header."
+L["No NBK export found in this text."] = "Kein NBK-Export in diesem Text gefunden."
+L["This export is damaged - copy all of it again."] = "Dieser Export ist beschädigt - bitte ganz neu kopieren."
+L["This export comes from a newer version of NBK - please update NBK."] = "Dieser Export stammt aus einer neueren NBK-Version - bitte NBK aktualisieren."
+L["This export holds a list this version of NBK does not know."] = "Dieser Export enthält eine Liste, die diese NBK-Version nicht kennt."
 L["This is an ignore list - it needs the Ignore Manager (full download)."] = "Das ist eine Ignorieren-Liste - dafür braucht es den Ignore-Manager (Komplett-Download)."
 L["Found %d entries: %d new, %d duplicate. Skipped: %d."] =
     "%d Einträge gefunden: %d neu, %d Duplikate. Übersprungen: %d."

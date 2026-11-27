@@ -135,7 +135,7 @@ function Config:_doPreviewImport()
     local parsed = NBK:ParseImport(text)
 
     if not parsed.magic then
-        return fail(L["Invalid input - missing !NBK1! header."])
+        return fail(NBK:ImportErrorText(parsed))
     end
 
     local own = NBK:GetListType(parsed.list)
@@ -149,8 +149,7 @@ function Config:_doPreviewImport()
     end
     if not parsed.ok then
 
-        return fail(parsed.errors and parsed.errors[1]
-            or (L["Invalid input - missing !NBK1! header."]))
+        return fail(NBK:ImportErrorText(parsed))
     end
 
     local classify  = NBK:ClassifyImport(parsed)

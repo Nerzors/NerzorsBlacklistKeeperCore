@@ -33,6 +33,7 @@ end
 
 NBK._listTypes = NBK._listTypes or {}
 NBK._listTypeOrder = NBK._listTypeOrder or {}
+NBK._listCodeAlias = NBK._listCodeAlias or {}
 
 function NBK:RegisterListType(id, spec)
     assert(type(id) == "string" and id ~= "", "RegisterListType: id required")
@@ -42,6 +43,9 @@ function NBK:RegisterListType(id, spec)
         table.insert(self._listTypeOrder, id)
     end
     self._listTypes[id] = spec
+    if type(spec.codeList) == "string" and spec.codeList ~= id then
+        self._listCodeAlias[spec.codeList] = id
+    end
     return spec
 end
 
@@ -67,22 +71,25 @@ function NBK:GetListTypes()
     return out
 end
 
-function NBK:ExportString(opts)
-    opts = opts or {}
-    local listId = opts.list or "blacklist"
-    local spec = self:GetListType(listId)
-    if not spec then return MAGIC .. "|" .. listId .. "\n", 0 end
-
-    local entries = spec.getEntries(opts) or {}
-
+local function collect(spec, opts)
     local sorted = {}
-    for _, e in pairs(entries) do
+    for _, e in pairs(spec.getEntries(opts) or {}) do
         local key = spec.entryKey(e)
         if key and (not opts.keys or opts.keys[key]) then
             sorted[#sorted + 1] = { key = key, entry = e }
         end
     end
     table.sort(sorted, function(a, b) return a.key < b.key end)
+    return sorted
+end
+
+function NBK:ExportString(opts)
+    opts = opts or {}
+    local listId = opts.list or "blacklist"
+    local spec = self:GetListType(listId)
+    if not spec then return MAGIC .. "|" .. listId .. "\n", 0 end
+
+    local sorted = collect(spec, opts)
 
     local lines = { MAGIC .. "|" .. listId }
     for _, pair in ipairs(sorted) do
@@ -95,6 +102,88 @@ function NBK:ExportString(opts)
     return table.concat(lines, "\n"), #sorted
 end
 
+local CODE_FORMAT = 1
+
+function NBK:RecordName(r)
+    local name, realm = r.name, r.realm
+    if type(name) ~= "string" or name == "" or name:find("[|%c]") then return nil end
+    if self:IsForever() then return name, "" end
+    if name:find("%s") then return nil end
+    if type(realm) ~= "string" or realm == "" or realm:find("[|%c]") then return nil end
+    return name, realm
+end
+
+function NBK:RecordText(v)
+    if type(v) == "string" and v ~= "" then return v end
+end
+
+function NBK:RecordTime(v)
+    if type(v) == "number" and v > 0 and v <= time() then return math.floor(v) end
+end
+
+function NBK:RecordClass(v)
+    if type(v) == "string" and v:find("^%u+$") then return v end
+end
+
+function NBK:ExportCode(opts)
+    opts = opts or {}
+    local listId = opts.list or "blacklist"
+    local spec = self:GetListType(listId)
+    if not (spec and spec.toRecord and self.Codec) then return nil, 0 end
+
+    local doc = {
+        format  = CODE_FORMAT,
+        list    = spec.codeList or listId,
+        game    = self:GetFlavor(),
+        version = self.version,
+        entries = {},
+    }
+    for k, v in pairs(spec.codeMeta and spec.codeMeta(opts) or {}) do
+        if doc[k] == nil then doc[k] = v end
+    end
+    local sorted = collect(spec, opts)
+    for i, pair in ipairs(sorted) do
+        local rec = spec.toRecord(pair.entry) or {}
+        for k, v in pairs(rec) do
+            if v == "" then rec[k] = nil end
+        end
+        doc.entries[i] = rec
+    end
+    return "!NBK:" .. (spec.codeName or listId) .. ":" .. self.Codec.Pack(doc), #sorted
+end
+
+local function parseCode(self, code, result)
+    result.magic, result.version = true, "NBK:" .. CODE_FORMAT
+    local doc = self.Codec and self.Codec.Unpack(code)
+    if type(doc) ~= "table" or type(doc.entries) ~= "table" then
+        result.error, result.errors[1] = "damaged", "damaged text"
+        return result
+    end
+    if type(doc.format) ~= "number" or doc.format > CODE_FORMAT then
+        result.error, result.errors[1] = "newer", "made by a newer version"
+        return result
+    end
+    local list = type(doc.list) == "string" and doc.list or "blacklist"
+    local listId = self._listCodeAlias[list] or list
+    result.list = listId
+    result.from = type(doc.from) == "string" and doc.from or nil
+    local spec = self:GetListType(listId)
+    if not (spec and spec.fromRecord) then
+        result.error, result.errors[1] = "unknown", "unknown list type: " .. tostring(listId)
+        return result
+    end
+    for _, rec in ipairs(doc.entries) do
+        local entry = type(rec) == "table" and spec.fromRecord(rec) or nil
+        if entry then
+            result.entries[#result.entries + 1] = entry
+        else
+            result.skipped = result.skipped + 1
+        end
+    end
+    result.ok = true
+    return result
+end
+
 function NBK:ParseImport(text)
     local result = { ok = false, magic = false, list = nil, entries = {}, skipped = 0, errors = {} }
     if type(text) ~= "string" or text == "" then
@@ -104,6 +193,9 @@ function NBK:ParseImport(text)
 
     text = text:gsub("\r\n", "\n"):gsub("\r", "\n")
     text = text:match("^%s*(.-)%s*$") or text
+
+    local code = text:match("!NBK:%a+:([%w+/=%s]*)")
+    if code then return parseCode(self, code, result) end
 
     local firstNL = text:find("\n", 1, true)
     local header  = firstNL and text:sub(1, firstNL - 1) or text
@@ -150,6 +242,14 @@ function NBK:ParseImport(text)
 
     result.ok = true
     return result
+end
+
+function NBK:ImportErrorText(parsed)
+    local L = self.L
+    if not parsed or not parsed.magic then return L["No NBK export found in this text."] end
+    if parsed.error == "damaged" then return L["This export is damaged - copy all of it again."] end
+    if parsed.error == "newer" then return L["This export comes from a newer version of NBK - please update NBK."] end
+    return L["This export holds a list this version of NBK does not know."]
 end
 
 function NBK:ClassifyImport(parsed)
@@ -226,6 +326,41 @@ end
 
 NBK:RegisterListType("blacklist", {
     label = "Blacklist",
+    codeName = "Blacklist",
+
+    toRecord = function(e)
+        return {
+            name      = e.name,
+            realm     = e.realm,
+            class     = e.class,
+            addedAt   = (tonumber(e.addedAt) or 0) > 0 and e.addedAt or nil,
+            reason    = e.reason,
+            notes     = e.notes,
+            zone      = e.zone,
+            addedBy   = e.addedBy,
+            mute      = e.mute ~= false,
+            shareable = e.shareable ~= false,
+        }
+    end,
+
+    fromRecord = function(r)
+        local name, realm = NBK:RecordName(r)
+        if not name then return nil end
+        local entry = {
+            name      = name,
+            realm     = realm,
+            class     = NBK:RecordClass(r.class),
+            addedAt   = NBK:RecordTime(r.addedAt) or time(),
+            reason    = NBK:ReasonKey(NBK:RecordText(r.reason) or ""),
+            notes     = NBK:RecordText(r.notes) or "",
+            mute      = r.mute ~= false,
+            zone      = NBK:RecordText(r.zone) or "",
+            addedBy   = NBK:RecordText(r.addedBy) or "",
+            shareable = r.shareable ~= false,
+        }
+        entry.classColor = entry.class and NBK:GetClassHex(entry.class) or nil
+        return entry
+    end,
 
     getEntries = function(opts)
         local entries = NBK.db and NBK.db.entries or {}

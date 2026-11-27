@@ -84,6 +84,37 @@ end
 
 NBK.WHATS_NEW = {
     {
+        version   = "2.5.1",
+        date      = "2026-11-27",
+        highlight = true,
+        sections  = {
+            {
+                kind  = "changed",
+                items = {
+                    {
+                        en = "New export format: an export is now one single encoded text (starting with !NBK:) instead of many lines. Line breaks or a stray | picked up while copying - through Discord or a forum, say - can no longer break it, and a checksum notices if something is missing anyway. The text is also much shorter. Applies to the blacklist, Remember Me and the ignore list.",
+                        de = "Neues Export-Format: Ein Export ist jetzt ein einziger kodierter Text (beginnt mit !NBK:) statt vieler Zeilen. Zeilenumbrüche oder ein falsch gesetztes | beim Kopieren, etwa über Discord oder ein Forum, machen ihn nicht mehr kaputt, und eine Prüfsumme merkt, wenn doch etwas fehlt. Der Text ist außerdem deutlich kürzer. Gilt für Blacklist, Merken und Ignorieren-Liste.",
+                        go = "settings:Advanced",
+                    },
+                    {
+                        en = "Old exports still work: the import reads texts from older versions (!NBK1!) as before. To read a new export you need 2.5.1 or later.",
+                        de = "Alte Exporte gehen weiter: Texte aus älteren Versionen (!NBK1!) liest der Import wie bisher. Wer einen neuen Export einlesen will, braucht mindestens 2.5.1.",
+                    },
+                },
+            },
+            {
+                kind  = "fixed",
+                items = {
+                    {
+                        en = "When the auto-cleanup at login removes old entries, it now also lifts the ignores NBK set itself - just like removing by hand. Ignores you set yourself stay, and \"Restore\" in the history sets the ignore again.",
+                        de = "Entfernt das automatische Aufräumen beim Login alte Einträge, hebt es jetzt auch die Ignores auf, die NBK selbst gesetzt hat - wie beim Entfernen von Hand. Ignores, die du selbst gesetzt hast, bleiben, und \"Wiederherstellen\" im Verlauf setzt das Ignore wieder.",
+                        go = "settings:Advanced",
+                    },
+                },
+            },
+        },
+    },
+    {
         version   = "2.5.0",
         date      = "2026-11-23",
         highlight = true,

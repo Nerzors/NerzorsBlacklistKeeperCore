@@ -8,6 +8,9 @@
   <Script file="Constants.lua"/>
   <Script file="Database.lua"/>
   <Script file="API.lua"/>
+  <!-- Codec.lua (2.5.1 Z1): JSON + zlib + Base64 for the export format of
+       NBK V3 ("!NBK:..."); Serializer.lua uses it. -->
+  <Script file="Codec.lua"/>
   <Script file="Serializer.lua"/>
   <!-- ForeverNames.lua: kept for good (2.3.0) - switches names saved the
        old WoW: Forever way (docs/game-flavors.md §8). -->

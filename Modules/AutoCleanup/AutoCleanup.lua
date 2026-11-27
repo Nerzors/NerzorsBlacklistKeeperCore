@@ -51,12 +51,25 @@ function AutoCleanup:Prune(months)
     for key, e in pairs(entries) do
         if isStale(e, t) then victims[#victims + 1] = key end
     end
+    if #victims == 0 then return 0 end
+
+    local removed, lifted = {}, {}
+    local ignoreSync = NBK:GetModule("IgnoreSync")
+    for _, key in ipairs(victims) do
+        local e = entries[key]
+        removed[key] = e
+        entries[key] = nil
+        if ignoreSync and ignoreSync.OnEntryRemoved then
+            local ok, didLift = pcall(ignoreSync.OnEntryRemoved, ignoreSync, e)
+            if ok and didLift then lifted[key] = true end
+        end
+    end
 
     local history = NBK:GetModule("RemovalHistory")
-    if history and history.RecordRun and #victims > 0 then
-        pcall(history.RecordRun, history, "autoCleanup", victims, entries)
+    if history and history.RecordRun then
+        pcall(history.RecordRun, history, "autoCleanup", victims, removed, lifted)
     end
-    for _, key in ipairs(victims) do entries[key] = nil end
+    if NBK._FireApiEvent then NBK:_FireApiEvent("BLACKLIST_CHANGED") end
 
     local lw = NBK:GetModule("ListWindow")
     if lw and lw.Refresh then lw:Refresh() end

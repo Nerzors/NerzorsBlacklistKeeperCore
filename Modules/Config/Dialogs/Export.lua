@@ -120,7 +120,9 @@ function Config:_refreshExportDialog()
         and (NBK:GetSyncSetting("exportSharedOnly", false) and true or false)
         or false
 
-    local text, count = NBK:ExportString({ list = listId, sharedOnly = sharedOnly, keys = keys })
+    local exportOpts = { list = listId, sharedOnly = sharedOnly, keys = keys }
+    local text, count = NBK:ExportCode(exportOpts)
+    if not text then text, count = NBK:ExportString(exportOpts) end
 
     f._eb:SetText(NBK:EscapeForDisplay(text or ""))
 

@@ -55,11 +55,11 @@ function History:StoreRun(source, items)
     self:_Changed()
 end
 
-function History:RecordRun(source, keys, entries)
+function History:RecordRun(source, keys, entries, lifted)
     local items = {}
     for _, key in ipairs(keys or {}) do
         local e = entries and entries[key]
-        if e then items[#items + 1] = record(key, e, false) end
+        if e then items[#items + 1] = record(key, e, lifted and lifted[key]) end
     end
     self:StoreRun(source, items)
 end
